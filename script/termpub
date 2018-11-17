@@ -1,0 +1,155 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Mojo::Util qw(decode encode html_unescape dumper);
+use Curses;
+use POSIX qw(ceil);
+
+use lib 'lib';
+use App::termpub::Epub;
+use App::termpub::BookViewer;
+
+my @filenames = @ARGV;
+
+my @epubs;
+
+for my $filename (@filenames) {
+
+    my $epub = eval { App::termpub::Epub->new( filename => $filename ) };
+
+    if ( !$epub ) {
+        warn "$@\n";
+        next;
+    }
+
+    push @epubs, $epub;
+}
+
+initscr;
+noecho;
+cbreak;
+keypad(1);
+curs_set(0);
+
+my $position = 0;
+while (1) {
+    my @lines =
+      map { encode 'UTF-8', $_->creator . " - " . $_->title } @epubs;
+    $position = select_line( $position, @lines );
+    if ( not defined $position ) {
+        last;
+    }
+    App::termpub::BookViewer->new( epub => $epubs[$position] )->run;
+}
+
+END {
+    endwin;
+}
+
+sub select_line {
+    my ( $position, @lines ) = @_;
+    my ( $rows, $columns );
+    getmaxyx( stdscr, $rows, $columns );
+    my $len      = @lines;
+    my $page     = 0;
+    my $max_page = ceil( @lines / $rows ) - 1;
+
+    my @current_lines;
+    my $old_page     = -1;
+    my $old_position = $position;
+
+    while (1) {
+        if ( $old_page != $page ) {
+            @current_lines = @lines[
+              ( $page * $rows ) .. (
+                    $page == $max_page
+                  ? $#lines
+                  : ( $page * $rows + $rows - 1 )
+              )
+            ];
+            clear;
+            addstring( 0, 0, join( "\n", @current_lines ) );
+            $old_page = $page;
+        }
+
+        if ( $old_position != $position ) {
+            move( $old_position, 0 );
+            clrtoeol;
+            addstring( $current_lines[$old_position] . "\n" );
+            $old_position = $position;
+        }
+
+        move( $position, 0 );
+        clrtoeol;
+        attron(A_REVERSE);
+        addstring( $current_lines[$position] . "\n" );
+        attroff(A_REVERSE);
+
+        refresh;
+
+        my $c = getchar;
+        if ( $c eq KEY_NPAGE ) {
+            if ( $page < $max_page ) {
+                $position = 0;
+                $page++;
+            }
+        }
+        elsif ( $c eq KEY_PPAGE ) {
+            if ( $page > 0 ) {
+                $position = 0;
+                $page--;
+            }
+        }
+        elsif ( $c eq KEY_DOWN ) {
+            if ( $position < @current_lines - 1 ) {
+                $position++;
+            }
+            else {
+                if ( $page != $max_page ) {
+                    $position = 0;
+                    $page++;
+                }
+            }
+        }
+        elsif ( $c eq KEY_UP ) {
+            if ( $position != 0 ) {
+                $position--;
+            }
+            else {
+                if ( $page != 0 ) {
+                    $position = $rows - 1;
+                    $page--;
+                }
+            }
+        }
+        elsif ( $c eq "\n" ) {
+            return $position;
+        }
+        elsif ( $c eq 'q' ) {
+            return;
+        }
+    }
+
+    return;
+}
+
+sub infobox {
+    my $text = shift;
+    my $win = newwin( 20, 20, 5, 5 );
+    border(
+        $win,      ACS_VLINE,    ACS_VLINE,    ACS_HLINE,
+        ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER,
+        ACS_LRCORNER
+    );
+    move( $win, 1, 1 );
+    addstring( $win, $text );
+    refresh($win);
+    getch;
+    delwin($win);
+    touchwin(stdscr);
+    refresh;
+    return;
+}
+
+exit 0;
