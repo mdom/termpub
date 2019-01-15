@@ -4,7 +4,6 @@ use Mojo::Util qw(decode encode html_unescape dumper);
 use Curses;
 use App::termpub::Renderer;
 
-has renderer => sub { App::termpub::Renderer->new };
 has 'epub';
 has chapters => sub { shift->epub->chapters };
 
@@ -63,6 +62,8 @@ sub prev_page {
 
 sub update_screen {
     my $self = shift;
+	$self->win->clear;
+	$self->win->refresh;
 	$self->pad->prefresh( $self->line, 0, 0, 0, $self->rows -1, 80 );
 }
 
@@ -74,9 +75,10 @@ sub run {
     $self->win->getmaxyx( $rows, $columns );
     $self->rows($rows);
 
-    $self->win->scrollok(1);
-
     $self->set_chapter(0);
+	if ( !$self->pad ) {
+		$self->next_chapter;
+	}
     $self->update_screen;
 
     my %keys = (
@@ -148,11 +150,11 @@ sub prev_chapter {
 
 sub render_pad {
     my $self = shift;
-    my ($pad,$max_lines) = $self->renderer->render(
+    my ($pad,$max_lines) = App::termpub::Renderer->new->render(
         decode( 'UTF-8', $self->chapters->[ $self->chapter ]->content ) );
 	$self->pad( $pad );
 	$self->max_lines( $max_lines );
-	return;
+	return $self->max_lines;
 }
 
 1;

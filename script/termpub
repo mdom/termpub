@@ -10,11 +10,13 @@ use lib 'lib';
 use App::termpub::Epub;
 use App::termpub::BookViewer;
 
-my @filenames = @ARGV;
+initscr;
+noecho;
+cbreak;
+keypad(1);
+curs_set(0);
 
-my @epubs;
-
-for my $filename (@filenames) {
+for my $filename (@ARGV) {
 
     my $epub = eval { App::termpub::Epub->new( filename => $filename ) };
 
@@ -23,24 +25,7 @@ for my $filename (@filenames) {
         next;
     }
 
-    push @epubs, $epub;
-}
-
-initscr;
-noecho;
-cbreak;
-keypad(1);
-curs_set(0);
-
-my $position = 0;
-while (1) {
-    my @lines =
-      map { encode 'UTF-8', $_->creator . " - " . $_->title } @epubs;
-    $position = select_line( $position, @lines );
-    if ( not defined $position ) {
-        last;
-    }
-    App::termpub::BookViewer->new( epub => $epubs[$position] )->run;
+    App::termpub::BookViewer->new( epub => $epub )->run;
 }
 
 END {
@@ -131,24 +116,6 @@ sub select_line {
         }
     }
 
-    return;
-}
-
-sub infobox {
-    my $text = shift;
-    my $win = newwin( 20, 20, 5, 5 );
-    border(
-        $win,      ACS_VLINE,    ACS_VLINE,    ACS_HLINE,
-        ACS_HLINE, ACS_ULCORNER, ACS_URCORNER, ACS_LLCORNER,
-        ACS_LRCORNER
-    );
-    move( $win, 1, 1 );
-    addstring( $win, $text );
-    refresh($win);
-    getch;
-    delwin($win);
-    touchwin(stdscr);
-    refresh;
     return;
 }
 
