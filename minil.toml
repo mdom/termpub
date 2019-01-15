@@ -1,0 +1,10 @@
+name="App-termpub"
+readme_from="script/termpub"
+abstract_from="script/termpub"
+authors_from="script/termpub"
+license="gpl_3"
+badges = ['travis', 'coveralls' ]
+tag_format="v%v"
+
+[ReleaseTest]
+MinimumVersion = false
