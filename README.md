@@ -3,9 +3,35 @@
 
 App::termpub - read epubs in the terminal
 
+# SYNOPSIS
+
+termpub _file_...
+
 # DESCRIPTION
 
-Please read the usage and document of [termpub](https://metacpan.org/pod/termpub).
+termpub is a _terminal_ viewer for epubs.
+
+# KEY BINDINGS
+
+- n
+
+    Go to the next chapter.
+
+- p
+
+    Go to the previos chapter.
+
+- KEY\_DOWN, SPACE
+
+    Scroll down.
+
+- KEY\_UP
+
+    Scroll up.
+
+- q
+
+    Quit.
 
 # COPYRIGHT AND LICENSE 
 

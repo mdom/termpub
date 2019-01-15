@@ -129,9 +129,39 @@ __END__
 
 App::termpub - read epubs in the terminal
 
+=head1 SYNOPSIS
+
+termpub I<file>...
+
 =head1 DESCRIPTION
 
-Please read the usage and document of L<termpub>.
+termpub is a I<terminal> viewer for epubs.
+
+=head1 KEY BINDINGS
+
+=over 4
+
+=item n
+
+Go to the next chapter.
+
+=item p
+
+Go to the previos chapter.
+
+=item KEY_DOWN, SPACE
+
+Scroll down.
+
+=item KEY_UP
+
+Scroll up.
+
+=item q
+
+Quit.
+
+=back
 
 =head1 COPYRIGHT AND LICENSE 
 
