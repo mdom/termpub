@@ -10,6 +10,7 @@ has rows    => 1000;
 has row     => 1;
 has pad     => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
 has left_margin => 0;
+has empty => 1;
 
 my %noshow = map { $_ => 1 } qw[base basefont bgsound meta param script style];
 
@@ -32,6 +33,15 @@ my %block = map { $_ => 1 }
 
 my %attrs = ( h1 => A_STANDOUT );
 
+my %before = (
+    img => sub {
+        my ( $self, $node ) = @_;
+        if ( $node->attr('alt') ) {
+            $self->textnode( Mojo::DOM->new( '[' . $node->attr('alt') . ']' ) );
+        }
+    }
+);
+
 sub process_node {
     my ( $self, $node, %args ) = @_;
 
@@ -40,8 +50,11 @@ sub process_node {
             $self->textnode($node);
         }
         elsif ( $node->type eq 'tag' ) {
-            my $tag = $node->tag;
+            my $tag = lc $node->tag;
+
             attron( $self->pad, $attrs{$tag} ) if $attrs{$tag};
+            $before{$tag}->( $self, $node ) if $before{$tag};
+
             $self->process_node($node);
             attroff( $self->pad, $attrs{$tag} ) if $attrs{$tag};
 
@@ -70,9 +83,17 @@ sub vspace {
         $self->rows( $self->rows + 1000 );
         resize( $self->pad, $self->rows, $self->columns );
     }
-    $self->pad->addstr( "\n" x $amount );
+    $self->append( "\n" x $amount );
     $self->row( $self->row + $amount );
     $self->column(0);
+}
+
+sub append {
+	my ($self, $str ) = @_;
+	if ( $str =~ /\S/smx ) {
+		$self->empty(0);
+	}
+	$self->pad->addstr($str);
 }
 
 sub textnode {
@@ -88,7 +109,7 @@ sub textnode {
             $self->vspace;
         }
         next if $self->column == 0 && $word =~ /^\s+$/;
-        $self->pad->addstr($word);
+        $self->append($word);
         $self->column( $self->column + $length );
     }
     return;
