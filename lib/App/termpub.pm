@@ -37,6 +37,7 @@ sub run {
         ::KEY_PPAGE     => 'prev_page',
         ::KEY_BACKSPACE => 'prev_page',
         ::KEY_HOME      => 'first_page',
+        ::KEY_END       => 'last_page',
         n               => 'next_chapter',
         p               => 'prev_chapter',
         q               => 'quit',
@@ -72,6 +73,13 @@ sub prev_line {
 sub first_page {
     my $self = shift;
     $self->line(0);
+    $self->update_screen;
+}
+
+sub last_page {
+    my $self = shift;
+    my $line = $self->max_lines - $self->rows + 1;
+    $self->line( $line >= 0 ? $line : 0 );
     $self->update_screen;
 }
 
