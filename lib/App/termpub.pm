@@ -56,7 +56,9 @@ sub run {
 
 sub next_line {
     my $self = shift;
-    if ( $self->line + 1 <= $self->max_lines ) {
+    if (    $self->line + 1 <= $self->max_lines
+        and $self->line + $self->rows <= $self->max_lines )
+    {
         $self->line( $self->line + 1 );
         $self->update_screen;
     }
