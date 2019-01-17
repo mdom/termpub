@@ -36,6 +36,7 @@ sub run {
         ::KEY_NPAGE     => 'next_page',
         ::KEY_PPAGE     => 'prev_page',
         ::KEY_BACKSPACE => 'prev_page',
+        ::KEY_HOME      => 'first_page',
         n               => 'next_chapter',
         p               => 'prev_chapter',
         q               => 'quit',
@@ -66,6 +67,12 @@ sub prev_line {
         $self->line( $self->line - 1 );
         $self->update_screen;
     }
+}
+
+sub first_page {
+    my $self = shift;
+    $self->line(0);
+    $self->update_screen;
 }
 
 sub next_page {
