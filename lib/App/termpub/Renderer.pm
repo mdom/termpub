@@ -9,8 +9,6 @@ has columns => 80;
 has rows    => 1000;
 has row     => 1;
 has pad     => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
-has left_margin => 0;
-has empty => 1;
 
 my %noshow = map { $_ => 1 } qw[base basefont bgsound meta param script style];
 
@@ -42,6 +40,15 @@ my %before = (
     }
 );
 
+sub render {
+    my ( $self, $content ) = @_;
+    my $node = Mojo::DOM->new($content)->at('body');
+    return '' if !$node;
+    $self->process_node($node);
+    my $rows = $self->compress_pad;
+    return ( $self->pad, $rows );
+}
+
 sub process_node {
     my ( $self, $node, %args ) = @_;
 
@@ -58,61 +65,85 @@ sub process_node {
             $self->process_node($node);
             attroff( $self->pad, $attrs{$tag} ) if $attrs{$tag};
 
-            $self->vspace(2) if $block{$tag};
+            $self->newline(2) if $block{$tag};
         }
     }
     return;
-}
-
-sub render {
-    my ( $self, $content ) = @_;
-    my $node = Mojo::DOM->new($content)->at('body');
-    return '' if !$node;
-
-    $self->process_node($node);
-
-    resize( $self->pad, $self->row, $self->columns );
-
-    return ( $self->pad, $self->row );
-}
-
-sub vspace {
-    my ( $self, $amount ) = @_;
-    $amount ||= 1;
-    if ( $self->row + $amount >= $self->rows ) {
-        $self->rows( $self->rows + 1000 );
-        resize( $self->pad, $self->rows, $self->columns );
-    }
-    $self->append( "\n" x $amount );
-    $self->row( $self->row + $amount );
-    $self->column(0);
-}
-
-sub append {
-	my ($self, $str ) = @_;
-	if ( $str =~ /\S/smx ) {
-		$self->empty(0);
-	}
-	$self->pad->addstr($str);
 }
 
 sub textnode {
     my ( $self, $node ) = @_;
     my $content = $node->content;
     $content =~ s/\.\s\.\s\./.../;
-    my @words = grep { $_ ne '' } split( /(\s+)/, $content );
+    my @words =
+      map { s/\s+/ /; $_ } grep { $_ ne '' } split( /(\s+)/, $content );
 
     for my $word (@words) {
+
         my $length = length($word);
         my $max    = $self->columns - $self->column - 2;
         if ( $length > $max ) {
-            $self->vspace;
+            $self->newline;
         }
         next if $self->column == 0 && $word =~ /^\s+$/;
-        $self->append($word);
+        $self->pad->addstring($word);
         $self->column( $self->column + $length );
     }
     return;
+}
+
+sub newline {
+    my ( $self, $amount ) = @_;
+    $amount ||= 1;
+
+    return if $self->row == 0 && $self->column == 0;
+
+    ## Increase pad size when we reach $self->rows
+    if ( $self->row + $amount >= $self->rows ) {
+        $self->rows( $self->rows + 1000 );
+        resize( $self->pad, $self->rows, $self->columns );
+    }
+    $self->pad->addstring( "\n" x $amount );
+    $self->row( $self->row + $amount );
+
+    $self->column(0);
+}
+
+sub compress_pad {
+    my $self = shift;
+    my $pad  = $self->pad;
+    my ( $rows, $columns );
+    getmaxyx( $pad, $rows, $columns );
+
+    my $y               = 0;
+    my $last_line_empty = 1;
+
+    $pad->move( $y, 0 );
+    while ( $y <= $rows ) {
+        my $s = $pad->instring;
+        if ( $s =~ /^\s*$/ ) {
+            if ($last_line_empty) {
+                $pad->deleteln;
+                $rows--;
+            }
+            else {
+                $last_line_empty = 1;
+                $pad->move( ++$y, 0 );
+            }
+        }
+        else {
+            $last_line_empty = 0;
+            $pad->move( ++$y, 0 );
+        }
+    }
+
+    $pad->move( $rows - 1, 0 );
+    my $s = $pad->instring;
+    if ( $s =~ /^\s*$/ ) {
+        $pad->deleteln;
+        $rows--;
+    }
+    return $rows;
 }
 
 1;
