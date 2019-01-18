@@ -134,7 +134,8 @@ termpub I<file>...
 
 =head1 DESCRIPTION
 
-termpub is a I<terminal> viewer for epubs.
+termpub is a I<terminal> viewer for epubs. At startup termpub displays
+the first chapter with real content if possible.
 
 =head1 KEY BINDINGS
 

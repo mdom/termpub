@@ -10,6 +10,22 @@ Archive::Zip::setErrorHandler( sub { } );
 
 has 'filename';
 
+has start_chapter => sub {
+    my $self          = shift;
+    my $start_chapter = $self->root_dom->find('guide reference[type="text"]')
+      ->map( attr => 'href' )->first;
+    return if !$start_chapter;
+    my @chapters = @{ $self->chapters };
+    my $i = 0;
+    while ( $i < @chapters ) {
+        if ( $chapters[$i]->href eq $start_chapter ) {
+            return $i;
+        }
+        $i++;
+    }
+    return;
+};
+
 has archive => sub {
     my $self     = shift;
     my $filename = $self->filename;
@@ -38,10 +54,12 @@ has chapters => sub {
         next if !$item || $item->attr('media-type') ne 'application/xhtml+xml';
         my $href = $item->attr('href');
         next if !$href;
+
         push @chapters,
           App::termpub::Epub::Chapter->new(
             archive  => $self->archive,
-            filename => $self->root_file->sibling($href)->to_rel->to_string
+            filename => $self->root_file->sibling($href)->to_rel->to_string,
+            href     => $href,
           );
     }
     return \@chapters;

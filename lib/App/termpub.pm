@@ -29,7 +29,7 @@ sub run {
     $self->win->getmaxyx( $rows, $columns );
     $self->rows( $rows - 1 );
 
-    $self->set_chapter(0);
+    $self->set_chapter( $self->epub->start_chapter || 0 );
     $self->update_screen;
 
     my %keys = (

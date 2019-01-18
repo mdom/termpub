@@ -9,7 +9,8 @@ termpub _file_...
 
 # DESCRIPTION
 
-termpub is a _terminal_ viewer for epubs.
+termpub is a _terminal_ viewer for epubs. At startup termpub displays
+the first chapter with real content if possible.
 
 # KEY BINDINGS
 
@@ -72,6 +73,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/>.
 
 Hey! **The above document had some coding errors, which are explained below:**
 
-- Around line 200:
+- Around line 201:
 
     '=end' without a target?
