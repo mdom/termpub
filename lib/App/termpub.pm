@@ -33,21 +33,21 @@ sub run {
     $self->update_screen;
 
     my %keys = (
-        'KEY_DOWN'      => 'next_line',
-        'KEY_UP'        => 'prev_line',
-        ' '             => 'next_page',
-        'KEY_NPAGE'     => 'next_page',
-        'KEY_PPAGE'     => 'prev_page',
-        'KEY_BACKSPACE' => 'prev_page',
-        'KEY_HOME'      => 'first_page',
-        'KEY_END'       => 'last_page',
-        'n'             => 'next_chapter',
-        'p'             => 'prev_chapter',
-        'q'             => 'quit',
+        Curses::KEY_DOWN      => 'next_line',
+        Curses::KEY_UP        => 'prev_line',
+        ' '                   => 'next_page',
+        Curses::KEY_NPAGE     => 'next_page',
+        Curses::KEY_PPAGE     => 'prev_page',
+        Curses::KEY_BACKSPACE => 'prev_page',
+        Curses::KEY_HOME      => 'first_page',
+        Curses::KEY_END       => 'last_page',
+        'n'                   => 'next_chapter',
+        'p'                   => 'prev_chapter',
+        'q'                   => 'quit',
     );
 
     while (1) {
-        my $c      = $self->win->getchar;
+        my $c = $self->win->getchar;
         my $method = $keys{$c};
         next           if !$method;
         last           if $method eq 'quit';
