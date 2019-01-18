@@ -33,17 +33,17 @@ sub run {
     $self->update_screen;
 
     my %keys = (
-        ::KEY_DOWN      => 'next_line',
-        ::KEY_UP        => 'prev_line',
-        " "             => 'next_page',
-        ::KEY_NPAGE     => 'next_page',
-        ::KEY_PPAGE     => 'prev_page',
-        ::KEY_BACKSPACE => 'prev_page',
-        ::KEY_HOME      => 'first_page',
-        ::KEY_END       => 'last_page',
-        n               => 'next_chapter',
-        p               => 'prev_chapter',
-        q               => 'quit',
+        'KEY_DOWN'      => 'next_line',
+        'KEY_UP'        => 'prev_line',
+        ' '             => 'next_page',
+        'KEY_NPAGE'     => 'next_page',
+        'KEY_PPAGE'     => 'prev_page',
+        'KEY_BACKSPACE' => 'prev_page',
+        'KEY_HOME'      => 'first_page',
+        'KEY_END'       => 'last_page',
+        'n'             => 'next_chapter',
+        'p'             => 'prev_chapter',
+        'q'             => 'quit',
     );
 
     while (1) {
