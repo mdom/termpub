@@ -16,7 +16,9 @@ has 'pad';
 has 'max_lines';
 
 has win => sub {
-    newwin( 0, 0, 0, 0 );
+    my $win = newwin( 0, 0, 0, 0 );
+    $win->keypad(1);
+    return $win;
 };
 
 sub run {
@@ -44,7 +46,7 @@ sub run {
     );
 
     while (1) {
-        my $c      = getchar;
+        my $c      = $self->win->getchar;
         my $method = $keys{$c};
         next           if !$method;
         return         if $method eq 'quit';

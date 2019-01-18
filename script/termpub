@@ -13,7 +13,6 @@ use App::termpub::Epub;
 initscr;
 noecho;
 cbreak;
-keypad(1);
 curs_set(0);
 
 for my $filename (@ARGV) {
