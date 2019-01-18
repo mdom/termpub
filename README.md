@@ -20,15 +20,31 @@ the first chapter with real content if possible.
 
 - p
 
-    Go to the previos chapter.
+    Go to the previous chapter.
 
-- KEY\_DOWN, SPACE
+- KEY\_DOWN
 
     Scroll down.
 
 - KEY\_UP
 
     Scroll up.
+
+- KEY\_NPAGE, SPACE
+
+    Scroll forward one window.
+
+- KEY\_PPAGE, KEY\_BACKSPACE
+
+    Scroll backward one window.
+
+- KEY\_HOME
+
+    Go to the beginning of the current chapter.
+
+- KEY\_END
+
+    Go to the ned of the current chapter.
 
 - q
 
@@ -68,11 +84,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License 
 along with this program.  If not, see &lt;http://www.gnu.org/licenses/>. 
-
-# POD ERRORS
-
-Hey! **The above document had some coding errors, which are explained below:**
-
-- Around line 201:
-
-    '=end' without a target?

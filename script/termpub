@@ -147,15 +147,31 @@ Go to the next chapter.
 
 =item p
 
-Go to the previos chapter.
+Go to the previous chapter.
 
-=item KEY_DOWN, SPACE
+=item KEY_DOWN
 
 Scroll down.
 
 =item KEY_UP
 
 Scroll up.
+
+=item KEY_NPAGE, SPACE
+
+Scroll forward one window.
+
+=item KEY_PPAGE, KEY_BACKSPACE
+
+Scroll backward one window.
+
+=item KEY_HOME
+
+Go to the beginning of the current chapter.
+
+=item KEY_END
+
+Go to the ned of the current chapter.
 
 =item q
 
@@ -198,4 +214,4 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License 
 along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 
-=end
+=cut
