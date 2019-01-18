@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use File::Find;
+
+my $target = 'termpub';
+
+open( my $standalone, '>', $target ) or die "Can't open target: $!\n";
+
+print {$standalone} "#!/usr/bin/perl\n";
+
+sub wanted {
+    return unless -f;
+    open( my $fh, '<', $_ )
+      or die "Can't open $_: $!\n";
+    while (<$fh>) {
+        next if /^use App::termpub/;
+        next if /^eval "require/;
+        s/^use parent 'App/use parent -norequire, 'App/g;
+        next if /^=pod/ ... /^=cut/;
+        print {$standalone} $_;
+    }
+}
+
+finddepth( \&wanted, 'lib' );
+
+my $script = 'script/termpub';
+
+open( my $fh, '<', $script ) or die "Can't open $script: $!\n";
+
+print {$standalone} "package main;\n";
+
+while (<$fh>) {
+    next if /^#!/;
+    next if /^use App::termpub/;
+    print {$standalone} $_;
+}
+
+chmod 0755, $target;
+
+exit 0;

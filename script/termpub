@@ -162,6 +162,24 @@ Quit.
 
 =back
 
+=head1 INSTALLATION
+
+If you have cpanminus installed, you can simply install this program
+by calling
+
+  $ cpanm .
+
+Otherwise you can bundle all dependencies with
+
+  $ ./build-standalone
+
+and copy the generated script I<termpub> somewhere in your path. In this
+case you need to installed the dependencies yourself. Termpub depends
+on the perl modules Mojolicious, Curses and Archive::Zip. On a debian
+system the following command will install these packages.
+
+  $ apt-get install libmojolicious-perl libcurses-perl libarchive-zip-perl
+
 =head1 COPYRIGHT AND LICENSE 
 
 Copyright 2019 Mario Domgoergen C<< <mario@domgoergen.com> >> 
@@ -179,4 +197,4 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License 
 along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 
-
+=end
