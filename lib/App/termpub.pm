@@ -50,11 +50,10 @@ sub run {
         my $c      = $self->win->getchar;
         my $method = $keys{$c};
         next           if !$method;
-        return         if $method eq 'quit';
+        last           if $method eq 'quit';
         $self->$method if $method;
     }
-    $self->win->getch;
-    $self->win->refresh;
+    return;
 }
 
 sub next_line {
