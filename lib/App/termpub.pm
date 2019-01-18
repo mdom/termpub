@@ -9,7 +9,7 @@ our $VERSION = '1.00';
 has 'epub';
 has chapters => sub { shift->epub->chapters };
 
-has chapter => -1;
+has chapter => 0;
 has line    => 1;
 has 'rows';
 has 'pad';
@@ -29,7 +29,8 @@ sub run {
     $self->win->getmaxyx( $rows, $columns );
     $self->rows( $rows - 1 );
 
-    $self->next_chapter;
+    $self->set_chapter(0);
+    $self->update_screen;
 
     my %keys = (
         ::KEY_DOWN      => 'next_line',
