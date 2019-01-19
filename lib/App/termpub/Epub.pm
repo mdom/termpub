@@ -10,20 +10,38 @@ Archive::Zip::setErrorHandler( sub { } );
 
 has 'filename';
 
+has nav_doc => sub {
+    my $self = shift;
+    my $href = $self->root_dom->find('manifest item[properties="nav"]')
+      ->map( attr => 'href' )->first;
+    return if !$href;
+    my $filename = $self->root_file->sibling($href)->to_rel->to_string;
+    my $root = Mojo::Util::decode 'UTF-8', $self->archive->contents($filename);
+    return Mojo::DOM->new($root);
+};
+
 has start_chapter => sub {
     my $self          = shift;
     my $start_chapter = $self->root_dom->find('guide reference[type="text"]')
       ->map( attr => 'href' )->first;
-    return if !$start_chapter;
+
+    if ( !$start_chapter && $self->nav_doc ) {
+        $start_chapter = $self->nav_doc->find(
+            'nav[epub\:type="landmarks"] a[epub\:type="bodymatter"]')
+          ->map( attr => 'href' )->first;
+    }
+
+    return 0 if !$start_chapter;
+
     my @chapters = @{ $self->chapters };
-    my $i = 0;
+    my $i        = 0;
     while ( $i < @chapters ) {
         if ( $chapters[$i]->href eq $start_chapter ) {
             return $i;
         }
         $i++;
     }
-    return;
+    return 0;
 };
 
 has archive => sub {
