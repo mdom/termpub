@@ -54,14 +54,18 @@ sub process_node {
 
     foreach my $node ( $node->child_nodes->each ) {
         if ( $node->type eq 'text' ) {
+            if ( $self->buffered_newline && $node->content !~ /^\s*$/ )  {
+                $self->newline( $self->buffered_newline );
+                $self->buffered_newline(0);
+            }
             $self->textnode($node);
         }
         elsif ( $node->type eq 'tag' ) {
             my $tag = lc $node->tag;
 
-            if ( $block{$tag} and $self->buffered_newline ) {
-                $self->newline( $self->buffered_newline );
-                $self->buffered_newline(0);
+            if ( $inline{$tag} and $self->buffered_newline ) {
+               $self->newline( $self->buffered_newline );
+               $self->buffered_newline(0);
             }
 
             $self->pad->attron( $attrs{$tag} ) if $attrs{$tag};
