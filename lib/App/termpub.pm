@@ -119,13 +119,14 @@ sub update_screen {
     $self->win->clear;
     $self->win->refresh;
     prefresh( $self->pad, $self->line, 0, 0, 0, $self->rows - 1, 80 );
+    $self->win->move( $self->rows, 0 );
+    $self->win->attron(A_STANDOUT);
+    $self->win->addstring( $self->chapters->[$self->chapter]->title );
     if ( $self->line + $self->rows - 1 >= $self->max_lines ) {
-        $self->win->move( $self->rows, 0 );
-        $self->win->attron(A_STANDOUT);
-        $self->win->addstring('(END) ');
-        $self->win->attroff(A_STANDOUT);
-        $self->win->refresh;
+        $self->win->addstring(' (END) ');
     }
+    $self->win->attroff(A_STANDOUT);
+    $self->win->refresh;
 }
 
 sub set_chapter {
