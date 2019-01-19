@@ -9,6 +9,7 @@ has columns => 80;
 has rows    => 1000;
 has row     => 1;
 has pad     => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
+has buffered_newline => 0;
 
 my %noshow = map { $_ => 1 } qw[base basefont bgsound meta param script style];
 
@@ -45,8 +46,7 @@ sub render {
     my $node = Mojo::DOM->new($content)->at('body');
     return '' if !$node;
     $self->process_node($node);
-    my $rows = $self->compress_pad;
-    return ( $self->pad, $rows );
+    return ( $self->pad, $self->row );
 }
 
 sub process_node {
@@ -59,13 +59,18 @@ sub process_node {
         elsif ( $node->type eq 'tag' ) {
             my $tag = lc $node->tag;
 
-            attron( $self->pad, $attrs{$tag} ) if $attrs{$tag};
+            if ( $block{$tag} and $self->buffered_newline ) {
+                $self->newline( $self->buffered_newline );
+                $self->buffered_newline(0);
+            }
+
+            $self->pad->attron( $attrs{$tag} ) if $attrs{$tag};
             $before{$tag}->( $self, $node ) if $before{$tag};
 
             $self->process_node($node);
-            attroff( $self->pad, $attrs{$tag} ) if $attrs{$tag};
+            $self->pad->attroff( $attrs{$tag} ) if $attrs{$tag};
 
-            $self->newline(2) if $block{$tag};
+            $self->buffered_newline(2) if $block{$tag};
         }
     }
     return;
@@ -79,7 +84,6 @@ sub textnode {
       map { s/\s+/ /; $_ } grep { $_ ne '' } split( /(\s+)/, $content );
 
     for my $word (@words) {
-
         my $length = length($word);
         my $max    = $self->columns - $self->column - 2;
         if ( $length > $max ) {
@@ -98,6 +102,16 @@ sub newline {
 
     return if $self->row == 0 && $self->column == 0;
 
+    my ( $row, $column );
+    getyx( $self->pad, $row, $column );
+    $self->pad->move( $row, 0 );
+    my $s = $self->pad->instring;
+    if ( $s =~ /^\s*$/ ) {
+        $self->column(0);
+        return;
+    }
+    $self->pad->move( $row, $column );
+
     ## Increase pad size when we reach $self->rows
     if ( $self->row + $amount >= $self->rows ) {
         $self->rows( $self->rows + 1000 );
@@ -105,45 +119,7 @@ sub newline {
     }
     $self->pad->addstring( "\n" x $amount );
     $self->row( $self->row + $amount );
-
     $self->column(0);
-}
-
-sub compress_pad {
-    my $self = shift;
-    my $pad  = $self->pad;
-    my ( $rows, $columns );
-    getmaxyx( $pad, $rows, $columns );
-
-    my $y               = 0;
-    my $last_line_empty = 1;
-
-    $pad->move( $y, 0 );
-    while ( $y <= $rows ) {
-        my $s = $pad->instring;
-        if ( $s =~ /^\s*$/ ) {
-            if ($last_line_empty) {
-                $pad->deleteln;
-                $rows--;
-            }
-            else {
-                $last_line_empty = 1;
-                $pad->move( ++$y, 0 );
-            }
-        }
-        else {
-            $last_line_empty = 0;
-            $pad->move( ++$y, 0 );
-        }
-    }
-
-    $pad->move( $rows - 1, 0 );
-    my $s = $pad->instring;
-    if ( $s =~ /^\s*$/ ) {
-        $pad->deleteln;
-        $rows--;
-    }
-    return $rows;
 }
 
 1;
