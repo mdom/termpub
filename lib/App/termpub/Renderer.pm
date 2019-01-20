@@ -10,6 +10,7 @@ has rows    => 1000;
 has row     => 1;
 has pad     => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
 has buffered_newline => 0;
+has left_margin      => 0;
 
 my %noshow = map { $_ => 1 } qw[base basefont bgsound meta param script style];
 
@@ -30,7 +31,8 @@ my %block = map { $_ => 1 }
   object ol optgroup option p pre select section source summary
   table tbody td tfoot th thead title tr track ul video];
 
-my %attrs = ( h1 => A_STANDOUT );
+my %attrs  = ( h1 => A_STANDOUT );
+my %vspace = ( li => 1 );
 
 my %before = (
     img => sub {
@@ -38,7 +40,19 @@ my %before = (
         if ( $node->attr('alt') ) {
             $self->textnode( Mojo::DOM->new( '[' . $node->attr('alt') . ']' ) );
         }
-    }
+    },
+    li => sub {
+        my $self = shift;
+        $self->textnode( Mojo::DOM->new('* ') );
+        $self->left_margin( $self->left_margin + 2 );
+    },
+);
+
+my %after = (
+    li => sub {
+		my $self = shift;
+        $self->left_margin( $self->left_margin - 2 );
+    },
 );
 
 sub render {
@@ -65,7 +79,8 @@ sub process_node {
             $self->process_node($node);
             $self->pad->attroff( $attrs{$tag} ) if $attrs{$tag};
 
-            $self->buffered_newline(2) if $block{$tag};
+            $self->buffered_newline( $vspace{$tag} || 2 ) if $block{$tag};
+            $after{$tag}->( $self, $node ) if $after{$tag};
         }
     }
     return;
@@ -83,15 +98,28 @@ sub textnode {
       map { s/\s+/ /; $_ } grep { $_ ne '' } split( /(\s+)/, $content );
 
     for my $word (@words) {
-        my $length = length($word);
-        my $max    = $self->columns - $self->column - 2;
-        if ( $length > $max ) {
-            $self->newline;
-        }
-        next if $self->column == 0 && $word =~ /^\s+$/;
-        $self->pad->addstring($word);
-        $self->column( $self->column + $length );
+        $self->append($word);
     }
+    return;
+}
+
+sub append {
+    my ( $self, $str ) = @_;
+    my $length = length($str);
+    my $max    = $self->columns - $self->column - 2;
+    if ( $length > $max ) {
+        $self->newline;
+    }
+    return if $self->column == 0 && $str =~ /^\s+$/;
+    if ( $self->left_margin && $self->column == 0 ) {
+        my ( $row, $column );
+        getyx( $self->pad, $row, $column );
+        $self->pad->move( $row, $self->left_margin );
+		$self->column( $self->left_margin );
+    }
+
+    $self->pad->addstring($str);
+    $self->column( $self->column + $length );
     return;
 }
 

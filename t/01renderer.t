@@ -38,6 +38,10 @@ render_ok( 'test02.in', 'test02.out' );
 render_ok( 'test03.in', 'test03.out' );
 render_ok( 'test04.in', 'test04.out' );
 render_ok( 'test05.in', 'test05.out' );
+render_ok( 'test06.in', 'test06.out', 'multiple trailing empty text nodes' );
+render_ok( 'test07.in', 'test07.out', 'simple list' );
+render_ok( 'test08.in', 'test08.out', 'list with long content' );
+render_ok( 'test09.in', 'test09.out', 'nested list' );
 
 done_testing;
 
@@ -84,4 +88,28 @@ foo
 
 @@ test06.out
 foo
+
+@@ test07.in
+<body><ul><li>foo</li><li>bar</li><ul></body>
+
+@@ test07.out
+* foo
+* bar
+
+@@ test08.in
+<body><ul><li>Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.</li><li>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat.</li></ul></body>
+
+@@ test08.out
+* Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor
+  incidunt ut labore et dolore magna aliqua.
+* Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+  aliquid ex ea commodi consequat.
+
+@@ test09.in
+<body><ul><li>foo</li><li><ul><li>bar</li><li>quux</li></ul></li><ul></body>
+
+@@ test09.out
+* foo
+* * bar
+  * quux
 
