@@ -61,14 +61,14 @@ by calling
 
     $ cpanm .
 
-Otherwise you can bundle all dependencies with
+Otherwise you can build a standalone script with
 
     $ ./build-standalone
 
 and copy the generated script _termpub_ somewhere in your path. In this
 case you need to installed the dependencies yourself. Termpub depends
-on the perl modules Mojolicious, Curses and Archive::Zip. On a debian
-system the following command will install these packages.
+on the perl modules Mojolicious, Curses and Archive::Zip. On Debian the
+following command will install these packages.
 
     $ apt-get install libmojolicious-perl libcurses-perl libarchive-zip-perl
 
