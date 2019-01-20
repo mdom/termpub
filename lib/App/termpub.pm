@@ -1,148 +1,92 @@
 package App::termpub;
-use Mojo::Base -base;
-use Mojo::Util qw(decode encode html_unescape dumper);
-use Curses;
+use Mojo::Base 'App::termpub::Pager';
+use Mojo::Util 'decode';
 use App::termpub::Renderer;
+use Curses;
 
 our $VERSION = '1.00';
 
 has 'epub';
 has chapters => sub { shift->epub->chapters };
-
 has chapter => 0;
-has line    => 1;
-has 'rows';
-has 'columns';
-has 'pad';
-has 'max_lines';
-
-has win => sub {
-    my $win = newwin( 0, 0, 0, 0 );
-    $win->keypad(1);
-    return $win;
-};
 
 sub run {
-    my $self      = shift;
-    my $root_file = Mojo::File->new( $self->epub->root_file );
-
-    my ( $rows, $columns );
-    $self->win->getmaxyx( $rows, $columns );
-    $self->rows( $rows - 1 );
-    $self->columns($columns);
+    my $self = shift;
 
     $self->set_chapter( $self->epub->start_chapter );
+
+    $self->key_bindings->{n} = 'next_chapter';
+    $self->key_bindings->{p} = 'prev_chapter';
+    $self->key_bindings->{h} = 'help_screen';
+
+    $self->SUPER::run;
+}
+
+my %keycodes = (
+    Curses::KEY_DOWN      => '<Down>',
+    Curses::KEY_UP        => '<Up>',
+    ' '                   => '<Space>',
+    Curses::KEY_NPAGE     => '<PageDown>',
+    Curses::KEY_PPAGE     => '<PageUp>',
+    Curses::KEY_BACKSPACE => '<Backspace>',
+    Curses::KEY_HOME      => '<Home>',
+    Curses::KEY_END       => '<End>',
+);
+
+sub help_screen {
+    my $self = shift;
+    my $pad  = newpad( scalar keys %{ $self->key_bindings }, $self->columns );
+    my @keys = sort keys %{ $self->key_bindings };
+
+    my $row    = 0;
+    my $length = 0;
+    for my $key (@keys) {
+        my $str = $keycodes{$key} || $key;
+        $length = length($str) if length($str) > $length;
+    }
+
+    for my $key (@keys) {
+        $pad->addstring( ( $keycodes{$key} || $key ) );
+        $pad->addstring(
+            $row,
+            $length,
+            ' = ' . $self->key_bindings->{$key} . "\n"
+        );
+        $row++;
+    }
+
+    App::termpub::Pager->new( pad => $pad )->run;
+
     $self->update_screen;
-
-    my %keys = (
-        Curses::KEY_DOWN      => 'next_line',
-        Curses::KEY_UP        => 'prev_line',
-        ' '                   => 'next_page',
-        Curses::KEY_NPAGE     => 'next_page',
-        Curses::KEY_PPAGE     => 'prev_page',
-        Curses::KEY_BACKSPACE => 'prev_page',
-        Curses::KEY_HOME      => 'first_page',
-        Curses::KEY_END       => 'last_page',
-        'n'                   => 'next_chapter',
-        'p'                   => 'prev_chapter',
-        'q'                   => 'quit',
-    );
-
-    while (1) {
-        my $c      = $self->win->getchar;
-        my $method = $keys{$c};
-        next           if !$method;
-        last           if $method eq 'quit';
-        $self->$method if $method;
-    }
-    return;
-}
-
-sub next_line {
-    my $self = shift;
-    if (    $self->line + 1 <= $self->max_lines
-        and $self->line + $self->rows <= $self->max_lines )
-    {
-        $self->line( $self->line + 1 );
-        $self->update_screen;
-    }
-}
-
-sub prev_line {
-    my $self = shift;
-    if ( $self->line != 0 ) {
-        $self->line( $self->line - 1 );
-        $self->update_screen;
-    }
-}
-
-sub first_page {
-    my $self = shift;
-    $self->line(0);
-    $self->update_screen;
-}
-
-sub last_page {
-    my $self = shift;
-    my $line = $self->max_lines - $self->rows + 1;
-    $self->line( $line >= 0 ? $line : 0 );
-    $self->update_screen;
-}
-
-sub next_page {
-    my $self = shift;
-    if ( $self->line + $self->rows <= $self->max_lines ) {
-        $self->line( $self->line + $self->rows );
-        $self->update_screen;
-    }
-    else {
-        $self->next_chapter;
-    }
-}
-
-sub prev_page {
-    my $self = shift;
-    if ( $self->line == 0 && $self->chapter - 1 >= 0 ) {
-        $self->prev_chapter;
-    }
-    else {
-        if ( $self->line - $self->rows > 0 ) {
-            $self->line( $self->line - $self->rows );
-        }
-        else {
-            $self->line(0);
-        }
-        $self->update_screen;
-    }
 }
 
 sub update_screen {
     my $self = shift;
-    $self->win->clear;
-    $self->win->refresh;
-    prefresh( $self->pad, $self->line, 0, 0, 0, $self->rows - 1, 80 );
-    $self->win->move( $self->rows, 0 );
-    $self->win->addstring( $self->chapters->[ $self->chapter ]->title );
+
+    $self->SUPER::update_screen;
+
+    move( $self->rows, 0 );
+    addstring( $self->chapters->[ $self->chapter ]->title );
 
     my $pos = int( $self->line * 100 / $self->max_lines ) . '%';
     if ( $self->line + $self->rows - 1 >= $self->max_lines ) {
         $pos = "end";
     }
     $pos = "($pos)";
-    $self->win->addstring( '-' x $self->columns );
-    $self->win->move( $self->rows, $self->columns - length($pos) - 2 );
-    $self->win->addstring($pos);
+    addstring( '-' x $self->columns );
+    move( $self->rows, $self->columns - length($pos) - 2 );
+    addstring($pos);
 
-    $self->win->move( $self->rows, 0 );
-    $self->win->chgat( -1, A_STANDOUT, 0, 0 );
-    $self->win->refresh;
+    move( $self->rows, 0 );
+    chgat( -1, A_STANDOUT, 0, 0 );
+    refresh;
 }
 
 sub set_chapter {
     my ( $self, $num ) = @_;
     $self->chapter($num);
     $self->line(0);
-    $self->render_pad;
+    $self->render_pad( $self->chapters->[ $self->chapter ]->content );
     return;
 }
 
@@ -166,6 +110,16 @@ sub next_chapter {
     return;
 }
 
+sub next_page {
+    my $self = shift;
+    $self->next_chapter if !$self->SUPER::next_page;
+}
+
+sub prev_page {
+    my $self = shift;
+    $self->prev_chapter if !$self->SUPER::prev_page;
+}
+
 sub prev_chapter {
     my $self = shift;
     while (1) {
@@ -185,11 +139,11 @@ sub prev_chapter {
 }
 
 sub render_pad {
-    my $self = shift;
-    my ( $pad, $max_lines ) = App::termpub::Renderer->new->render(
-        decode( 'UTF-8', $self->chapters->[ $self->chapter ]->content ) );
+    my ( $self, $content ) = @_;
+    my ($pad) =
+      App::termpub::Renderer->new->render( decode( 'UTF-8', $content ) );
     $self->pad($pad);
-    $self->max_lines($max_lines);
+    $self->max_lines( $self->get_max_lines );
     return;
 }
 

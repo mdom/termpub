@@ -141,6 +141,10 @@ the first chapter with real content if possible.
 
 =over 4
 
+=item h
+
+Display help screen.
+
 =item n
 
 Go to the next chapter.

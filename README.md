@@ -14,6 +14,10 @@ the first chapter with real content if possible.
 
 # KEY BINDINGS
 
+- h
+
+    Display help screen.
+
 - n
 
     Go to the next chapter.

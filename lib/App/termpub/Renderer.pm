@@ -60,6 +60,9 @@ sub render {
     my $node = Mojo::DOM->new($content)->at('body');
     return '' if !$node;
     $self->process_node($node);
+	$self->pad->resize($self->row, $self->columns);
+	my ( $rows, $columns);
+	$self->pad->getmaxyx( $rows, $columns );
     return ( $self->pad, $self->row );
 }
 
