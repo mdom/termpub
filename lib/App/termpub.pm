@@ -12,6 +12,7 @@ has chapters => sub { shift->epub->chapters };
 has chapter => 0;
 has line    => 1;
 has 'rows';
+has 'columns';
 has 'pad';
 has 'max_lines';
 
@@ -28,6 +29,7 @@ sub run {
     my ( $rows, $columns );
     $self->win->getmaxyx( $rows, $columns );
     $self->rows( $rows - 1 );
+    $self->columns($columns);
 
     $self->set_chapter( $self->epub->start_chapter );
     $self->update_screen;
@@ -47,7 +49,7 @@ sub run {
     );
 
     while (1) {
-        my $c = $self->win->getchar;
+        my $c      = $self->win->getchar;
         my $method = $keys{$c};
         next           if !$method;
         last           if $method eq 'quit';
@@ -120,12 +122,19 @@ sub update_screen {
     $self->win->refresh;
     prefresh( $self->pad, $self->line, 0, 0, 0, $self->rows - 1, 80 );
     $self->win->move( $self->rows, 0 );
-    $self->win->attron(A_STANDOUT);
-    $self->win->addstring( $self->chapters->[$self->chapter]->title );
+    $self->win->addstring( $self->chapters->[ $self->chapter ]->title );
+
+    my $pos = int( $self->line * 100 / $self->max_lines ) . '%';
     if ( $self->line + $self->rows - 1 >= $self->max_lines ) {
-        $self->win->addstring(' (END) ');
+        $pos = "end";
     }
-    $self->win->attroff(A_STANDOUT);
+    $pos = "($pos)";
+    $self->win->addstring( '-' x $self->columns );
+    $self->win->move( $self->rows, $self->columns - length($pos) - 2 );
+    $self->win->addstring($pos);
+
+    $self->win->move( $self->rows, 0 );
+    $self->win->chgat( -1, A_STANDOUT, 0, 0 );
     $self->win->refresh;
 }
 
