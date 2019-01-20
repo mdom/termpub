@@ -79,3 +79,9 @@ aliquid ex ea commodi consequat.
 @@ test05.out
 foo
 
+@@ test06.in
+<body><span> </span><p>foo</p><p> </p><p> </p> <span> </span></body>
+
+@@ test06.out
+foo
+
