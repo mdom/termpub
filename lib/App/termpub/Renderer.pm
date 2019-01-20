@@ -59,11 +59,6 @@ sub process_node {
         elsif ( $node->type eq 'tag' ) {
             my $tag = lc $node->tag;
 
-            if ( $inline{$tag} and $self->buffered_newline ) {
-               $self->newline( $self->buffered_newline );
-               $self->buffered_newline(0);
-            }
-
             $self->pad->attron( $attrs{$tag} ) if $attrs{$tag};
             $before{$tag}->( $self, $node ) if $before{$tag};
 
