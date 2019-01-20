@@ -11,8 +11,17 @@ open( my $standalone, '>', $target ) or die "Can't open target: $!\n";
 
 print {$standalone} "#!/usr/bin/perl\n";
 
-sub wanted {
-    return unless -f;
+my @libraries = (
+    qw(
+      lib/App/termpub/Pager.pm
+      lib/App/termpub/Renderer.pm
+      lib/App/termpub/Epub.pm
+      lib/App/termpub/Epub/Chapter.pm
+      lib/App/termpub.pm
+      )
+);
+
+for ( @libraries ) {
     open( my $fh, '<', $_ )
       or die "Can't open $_: $!\n";
     while (<$fh>) {
@@ -23,8 +32,6 @@ sub wanted {
         print {$standalone} $_;
     }
 }
-
-finddepth( \&wanted, 'lib' );
 
 my $script = 'script/termpub';
 
