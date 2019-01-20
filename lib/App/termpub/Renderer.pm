@@ -54,10 +54,6 @@ sub process_node {
 
     foreach my $node ( $node->child_nodes->each ) {
         if ( $node->type eq 'text' ) {
-            if ( $self->buffered_newline && $node->content !~ /^\s*$/ )  {
-                $self->newline( $self->buffered_newline );
-                $self->buffered_newline(0);
-            }
             $self->textnode($node);
         }
         elsif ( $node->type eq 'tag' ) {
@@ -82,6 +78,10 @@ sub process_node {
 
 sub textnode {
     my ( $self, $node ) = @_;
+    if ( $self->buffered_newline && $node->content !~ /^\s*$/ ) {
+        $self->newline( $self->buffered_newline );
+        $self->buffered_newline(0);
+    }
     my $content = $node->content;
     $content =~ s/\.\s\.\s\./.../;
     my @words =
