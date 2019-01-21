@@ -16,7 +16,7 @@ has preserve_whitespace => 0;
 
 my %noshow = map { $_ => 1 } qw[base basefont bgsound meta param script style];
 
-my %empty = map { $_ => 1 } qw[br canvas col command embed frame hr
+my %empty = map { $_ => 1 } qw[br canvas col command embed frame
   img is index keygen link];
 
 my %inline = map { $_ => 1 }
@@ -28,7 +28,7 @@ my %block = map { $_ => 1 }
   qw[address applet article aside audio blockquote body caption
   center colgroup datalist del dir div dd details dl dt
   fieldset figcaption figure footer form frameset h1 h2 h3
-  h4 h5 h6 head header hgroup html iframe ins legend li
+  h4 h5 h6 head header hgroup hr html iframe ins legend li
   listing map marquee menu nav noembed noframes noscript
   object ol optgroup option p pre select section source summary
   table tbody td tfoot th thead title tr track ul video];
@@ -38,6 +38,10 @@ my %vspace      = ( li => 1 );
 my %left_margin = ( li => 2, pre => 2, code => 2 );
 
 my %before = (
+    hr => sub {
+        my ( $self, $node ) = @_;
+        $self->textnode( Mojo::DOM->new("------") );
+    },
     img => sub {
         my ( $self, $node ) = @_;
         if ( $node->attr('alt') ) {
