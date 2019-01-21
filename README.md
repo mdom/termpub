@@ -14,7 +14,7 @@ the first chapter with real content if possible.
 
 # KEY BINDINGS
 
-- h
+- h, ?
 
     Display help screen.
 

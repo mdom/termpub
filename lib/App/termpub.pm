@@ -15,9 +15,10 @@ sub run {
 
     $self->set_chapter( $self->epub->start_chapter );
 
-    $self->key_bindings->{n} = 'next_chapter';
-    $self->key_bindings->{p} = 'prev_chapter';
-    $self->key_bindings->{h} = 'help_screen';
+    $self->key_bindings->{n}   = 'next_chapter';
+    $self->key_bindings->{p}   = 'prev_chapter';
+    $self->key_bindings->{h}   = 'help_screen';
+    $self->key_bindings->{'?'} = 'help_screen';
 
     $self->SUPER::run;
 }
@@ -47,11 +48,8 @@ sub help_screen {
 
     for my $key (@keys) {
         $pad->addstring( ( $keycodes{$key} || $key ) );
-        $pad->addstring(
-            $row,
-            $length,
-            ' = ' . $self->key_bindings->{$key} . "\n"
-        );
+        $pad->addstring( $row, $length,
+            ' = ' . $self->key_bindings->{$key} . "\n" );
         $row++;
     }
 
