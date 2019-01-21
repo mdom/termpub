@@ -42,6 +42,7 @@ render_ok( 'test06.in', 'test06.out', 'multiple trailing empty text nodes' );
 render_ok( 'test07.in', 'test07.out', 'simple list' );
 render_ok( 'test08.in', 'test08.out', 'list with long content' );
 render_ok( 'test09.in', 'test09.out', 'nested list' );
+render_ok( 'test10.in', 'test10.out', 'pre block' );
 
 done_testing;
 
@@ -112,4 +113,16 @@ foo
 * foo
 * * bar
   * quux
+
+@@ test10.in
+<body><pre>if ($foo) {
+  die;
+}
+</pre></body>
+
+@@ test10.out
+  if ($foo) {
+    die;
+  }
+
 
