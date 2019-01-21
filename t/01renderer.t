@@ -10,7 +10,7 @@ use Curses;
 initscr;
 
 END {
-	endwin;
+    endwin;
 }
 
 sub render_ok {
@@ -18,7 +18,7 @@ sub render_ok {
 
     my $input    = data_section(__PACKAGE__)->{$input_file};
     my $expected = data_section(__PACKAGE__)->{$expected_file};
-	chomp($expected);
+    chomp($expected);
 
     my $r = App::termpub::Renderer->new;
     my ( $pad, $rows ) = $r->render($input);
@@ -27,9 +27,9 @@ sub render_ok {
     while ( $i < $rows ) {
         $pad->move( $i, 0 );
         $output .= $pad->instring . "\n";
-		$i++;
+        $i++;
     }
-	$output =~ s/[^\S\n]+$//gm;
+    $output =~ s/[^\S\n]+$//gm;
     is( $output, $expected, $comment );
 }
 
@@ -43,6 +43,7 @@ render_ok( 'test07.in', 'test07.out', 'simple list' );
 render_ok( 'test08.in', 'test08.out', 'list with long content' );
 render_ok( 'test09.in', 'test09.out', 'nested list' );
 render_ok( 'test10.in', 'test10.out', 'pre block' );
+render_ok( 'test11.in', 'test11.out', 'nested lists with content' );
 
 done_testing;
 
@@ -107,11 +108,22 @@ foo
   aliquid ex ea commodi consequat.
 
 @@ test09.in
-<body><ul><li>foo</li><li><ul><li>bar</li><li>quux</li></ul></li><ul></body>
+<body>
+  <ul>
+    <li>foo</li>
+	<li>
+      <ul>
+        <li>bar</li>
+        <li>quux</li>
+      </ul>
+    </li>
+  </ul>
+</body>
 
 @@ test09.out
 * foo
-* * bar
+*
+  * bar
   * quux
 
 @@ test10.in
@@ -125,4 +137,20 @@ foo
     die;
   }
 
+
+@@ test11.in
+<?xml version="1.0"?>
+<body>
+  <ol>
+    <li>A
+		<ol><li>B</li><li>C</li></ol>
+  </li>
+  </ol>
+</body>
+
+@@ test11.out
+
+* A
+  * B
+  * C
 

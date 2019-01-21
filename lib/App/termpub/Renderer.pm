@@ -45,8 +45,20 @@ my %before = (
         }
     },
     li => sub {
-        my $self = shift;
+        my ( $self, $node ) = @_;
         $self->textnode( Mojo::DOM->new('* ') );
+    },
+    ol => sub {
+        my ( $self, $node ) = @_;
+        if ( $node->parent->tag eq 'li' ) {
+            $self->newline(1);
+        }
+    },
+    ul => sub {
+        my ( $self, $node ) = @_;
+        if ( $node->parent->tag eq 'li' ) {
+            $self->newline(1);
+        }
     },
 );
 
