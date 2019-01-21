@@ -65,12 +65,12 @@ sub render {
 
 sub incr {
     my ( $self, $attr, $val ) = @_;
-    return $self->$attr( $self->attr + $val );
+    return $self->$attr( $self->$attr + $val );
 }
 
-sub descr {
+sub decr {
     my ( $self, $attr, $val ) = @_;
-    return $self->$attr( $self->attr - $val );
+    return $self->$attr( $self->$attr - $val );
 }
 
 sub process_node {
@@ -85,7 +85,8 @@ sub process_node {
 
             $self->pad->attron( $attrs{$tag} ) if $attrs{$tag};
             $before{$tag}->( $self, $node ) if $before{$tag};
-            $self->left_margin( $self->left_margin + $left_margin{$tag} )
+
+            $self->incr( left_margin => $left_margin{$tag} )
               if $left_margin{$tag};
 
             $self->incr( preserve_whitespace => 1 ) if $tag =~ /pre|code/;
@@ -99,7 +100,7 @@ sub process_node {
             $self->buffered_newline( $vspace{$tag} || 2 ) if $block{$tag};
             $after{$tag}->( $self, $node ) if $after{$tag};
 
-            $self->left_margin( $self->left_margin - $left_margin{$tag} )
+            $self->decr( left_margin => $left_margin{$tag} )
               if $left_margin{$tag};
         }
     }
