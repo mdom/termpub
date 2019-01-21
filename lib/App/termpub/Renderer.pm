@@ -38,6 +38,10 @@ my %vspace      = ( li => 1 );
 my %left_margin = ( li => 2, pre => 2, code => 2 );
 
 my %before = (
+    br => sub {
+        my ( $self, $node ) = @_;
+        $self->newline(1);
+    },
     hr => sub {
         my ( $self, $node ) = @_;
         $self->textnode( Mojo::DOM->new("------") );
