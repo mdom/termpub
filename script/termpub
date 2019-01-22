@@ -65,11 +65,11 @@ Go to the previous chapter.
 
 =item [num] g
 
-Go to line I<num> in the file, default 1.
+Go to line I<num> in the chapter, defaults to 1.
 
 =item [num] G
 
-Go to line I<num> in the file, default the end of the file.
+Go to line I<num> in the chapter, default to the end of the chapter.
 
 =item C-g
 

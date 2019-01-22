@@ -28,11 +28,11 @@ the first chapter with real content if possible.
 
 - \[num\] g
 
-    Go to line _num_ in the file, default 1.
+    Go to line _num_ in the chapter, defaults to 1.
 
 - \[num\] G
 
-    Go to line _num_ in the file, default the end of the file.
+    Go to line _num_ in the chapter, default to the end of the chapter.
 
 - C-g
 
