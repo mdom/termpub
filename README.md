@@ -26,6 +26,18 @@ the first chapter with real content if possible.
 
     Go to the previous chapter.
 
+- \[num\] g
+
+    Go to line _num_ in the file, default 1.
+
+- \[num\] G
+
+    Go to line _num_ in the file, default the end of the file.
+
+- C-g
+
+    Cancel _num_ argument for _g_ or _G_.
+
 - KEY\_DOWN
 
     Scroll down.

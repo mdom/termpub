@@ -63,6 +63,18 @@ Go to the next chapter.
 
 Go to the previous chapter.
 
+=item [num] g
+
+Go to line I<num> in the file, default 1.
+
+=item [num] G
+
+Go to line I<num> in the file, default the end of the file.
+
+=item C-g
+
+Cancel I<num> argument for I<g> or I<G>.
+
 =item KEY_DOWN
 
 Scroll down.

@@ -28,8 +28,12 @@ has key_bindings => sub {
         Curses::KEY_HOME      => 'first_page',
         Curses::KEY_END       => 'last_page',
         'q'                   => 'quit',
+        'g'                   => 'goto_line',
+        'G'                   => 'goto_line_or_end',
     };
 };
+
+has 'prefix' => '';
 
 sub run {
     my $self = shift;
@@ -43,11 +47,41 @@ sub run {
     $self->update_screen;
 
     while (1) {
-        my $c      = getchar;
+        my ( $c, $key ) = getchar;
+        if ( $c eq '' ) {
+            $self->prefix('');
+            next;
+        }
+        if ( $c =~ /^[0-9]$/ ) {
+            $self->prefix( $self->prefix . $c );
+            next;
+        }
         my $method = $self->key_bindings->{$c};
         next           if !$method;
         last           if $method eq 'quit';
         $self->$method if $method;
+        $self->prefix('');
+    }
+    return;
+}
+
+sub goto_line {
+    my ( $self, $num ) = @_;
+    $num ||= ( $self->prefix || 1 ) - 1;
+    if ( $num <= $self->max_lines ) {
+        $self->line($num);
+        $self->update_screen;
+    }
+    return;
+}
+
+sub goto_line_or_end {
+    my $self = shift;
+    if ( $self->prefix ) {
+        $self->goto_line;
+    }
+    else {
+        $self->last_page;
     }
     return;
 }
