@@ -75,13 +75,13 @@ Go to line I<num> in the file, default the end of the file.
 
 Cancel I<num> argument for I<g> or I<G>.
 
-=item KEY_DOWN
+=item KEY_DOWN, j
 
-Scroll down.
+Scroll one line down.
 
-=item KEY_UP
+=item KEY_UP, k
 
-Scroll up.
+Scroll one line up.
 
 =item KEY_NPAGE, SPACE
 

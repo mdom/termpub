@@ -38,13 +38,13 @@ the first chapter with real content if possible.
 
     Cancel _num_ argument for _g_ or _G_.
 
-- KEY\_DOWN
+- KEY\_DOWN, j
 
-    Scroll down.
+    Scroll one line down.
 
-- KEY\_UP
+- KEY\_UP, k
 
-    Scroll up.
+    Scroll one line up.
 
 - KEY\_NPAGE, SPACE
 

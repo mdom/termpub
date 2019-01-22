@@ -21,6 +21,8 @@ has key_bindings => sub {
     return {
         Curses::KEY_DOWN      => 'next_line',
         Curses::KEY_UP        => 'prev_line',
+        'k'                   => 'prev_line',
+        'j'                   => 'next_line',
         ' '                   => 'next_page',
         Curses::KEY_NPAGE     => 'next_page',
         Curses::KEY_PPAGE     => 'prev_page',
