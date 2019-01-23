@@ -40,12 +40,18 @@ my %keycodes = (
 sub open_link {
     my $self = shift;
     if ( $self->prefix ) {
-		my $current_chapter = $self->chapters->[ $self->chapter ];
-        my $href = Mojo::URL->new($self->hrefs->[ $self->prefix - 1 ]);
+        my $current_chapter = $self->chapters->[ $self->chapter ];
+        my $href = Mojo::URL->new( $self->hrefs->[ $self->prefix - 1 ] );
         return if !$href;
 
-		my $path = $href->path;
-		$path = Mojo::Path->new($current_chapter->filename)->merge( $path );
+        if ( $href->scheme ) {
+            endwin;
+            system( 'xdg-open', $href->to_string );
+            $self->update_screen;
+        }
+
+        my $path = $href->path;
+        $path = Mojo::Path->new( $current_chapter->filename )->merge($path);
 
         for ( my $i = 0 ; $i < @{ $self->chapters } ; $i++ ) {
             my $chapter = $self->chapters->[$i];

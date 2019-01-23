@@ -36,7 +36,8 @@ the first chapter with real content if possible.
 
 - \[num\] o
 
-    Open link _num_.
+    Open link _num_. _termpub_ calls _xdg-open_ with the url as first
+    argument if the link references an external ressource.
 
 - C-g
 

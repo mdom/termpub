@@ -71,9 +71,14 @@ Go to line I<num> in the chapter, defaults to 1.
 
 Go to line I<num> in the chapter, default to the end of the chapter.
 
+=item [num] o
+
+Open link I<num>. I<termpub> calls I<xdg-open> with the url as first
+argument if the link references an external ressource.
+
 =item C-g
 
-Cancel I<num> argument for I<g> or I<G>.
+Cancel numeric prefix I<num> argument.
 
 =item KEY_DOWN, j
 
