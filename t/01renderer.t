@@ -44,6 +44,7 @@ render_ok( 'test08.in', 'test08.out', 'list with long content' );
 render_ok( 'test09.in', 'test09.out', 'nested list' );
 render_ok( 'test10.in', 'test10.out', 'pre block' );
 render_ok( 'test11.in', 'test11.out', 'nested lists with content' );
+render_ok( 'test12.in', 'test12.out', 'nested ordered lists' );
 
 done_testing;
 
@@ -141,11 +142,11 @@ foo
 @@ test11.in
 <?xml version="1.0"?>
 <body>
-  <ol>
+  <ul>
     <li>A
-		<ol><li>B</li><li>C</li></ol>
+		<ul><li>B</li><li>C</li></ol>
   </li>
-  </ol>
+  </ul>
 </body>
 
 @@ test11.out
@@ -153,4 +154,25 @@ foo
 * A
   * B
   * C
+
+@@ test12.in
+<body>
+  <ol>
+    <li>foo</li>
+	<li>
+      <ol>
+        <li>bar</li>
+        <li>quux</li>
+      </ul>
+    </li>
+    <li>foobar</li>
+  </ul>
+</body>
+
+@@ test12.out
+1. foo
+2.
+  1. bar
+  2. quux
+3. foobar
 

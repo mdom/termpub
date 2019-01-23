@@ -11,6 +11,7 @@ has row     => 1;
 has pad     => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
 has buffered_newline => 0;
 has left_margin      => 0;
+has ol_stack         => sub { [] };
 
 has preserve_whitespace => 0;
 
@@ -54,10 +55,19 @@ my %before = (
     },
     li => sub {
         my ( $self, $node ) = @_;
-        $self->textnode( Mojo::DOM->new('* ') );
+        my $parent_tag = $node->parent->tag;
+        if ( $parent_tag eq 'ul' ) {
+            $self->textnode( Mojo::DOM->new('* ') );
+        }
+        elsif ( $parent_tag eq 'ol' ) {
+            $self->textnode(
+                Mojo::DOM->new( $self->ol_stack->[-1]++ . '. ' )
+            );
+        }
     },
     ol => sub {
         my ( $self, $node ) = @_;
+        push @{ $self->ol_stack }, 1;
         if ( $node->parent->tag eq 'li' ) {
             $self->newline(1);
         }
@@ -70,7 +80,12 @@ my %before = (
     },
 );
 
-my %after;
+my %after = (
+    ol => sub {
+        my $self = shift;
+        pop @{ $self->ol_stack };
+    },
+);
 
 sub render {
     my ( $self, $content ) = @_;
