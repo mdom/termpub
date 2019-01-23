@@ -21,11 +21,13 @@ sub render_ok {
     chomp($expected);
 
     my $r = App::termpub::Renderer->new;
-    my ( $pad, $rows ) = $r->render($input);
+    my ( $pad, $hrefs ) = $r->render($input);
     my $output;
     my $i = 0;
-    while ( $i < $rows ) {
-        $pad->move( $i, 0 );
+    while (1) {
+        if ( $pad->move( $i, 0 ) == -1 ) {
+            last;
+        }
         $output .= $pad->instring . "\n";
         $i++;
     }
@@ -45,6 +47,7 @@ render_ok( 'test09.in', 'test09.out', 'nested list' );
 render_ok( 'test10.in', 'test10.out', 'pre block' );
 render_ok( 'test11.in', 'test11.out', 'nested lists with content' );
 render_ok( 'test12.in', 'test12.out', 'nested ordered lists' );
+render_ok( 'test13.in', 'test13.out', 'numbered links' );
 
 done_testing;
 
@@ -175,4 +178,10 @@ foo
   1. bar
   2. quux
 3. foobar
+
+@@ test13.in
+<body><a href="part0002.html#acknowledgments">Acknowledgments</a></body>
+
+@@ test13.out
+[1]Acknowledgments
 

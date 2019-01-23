@@ -1,6 +1,7 @@
 package App::termpub;
 use Mojo::Base 'App::termpub::Pager';
 use Mojo::Util 'decode';
+use Mojo::URL;
 use App::termpub::Renderer;
 use Curses;
 
@@ -9,6 +10,7 @@ our $VERSION = '1.00';
 has 'epub';
 has chapters => sub { shift->epub->chapters };
 has chapter => 0;
+has 'hrefs';
 
 sub run {
     my $self = shift;
@@ -18,6 +20,7 @@ sub run {
     $self->key_bindings->{n}   = 'next_chapter';
     $self->key_bindings->{p}   = 'prev_chapter';
     $self->key_bindings->{h}   = 'help_screen';
+    $self->key_bindings->{o}   = 'open_link';
     $self->key_bindings->{'?'} = 'help_screen';
 
     $self->SUPER::run;
@@ -33,6 +36,28 @@ my %keycodes = (
     Curses::KEY_HOME      => '<Home>',
     Curses::KEY_END       => '<End>',
 );
+
+sub open_link {
+    my $self = shift;
+    if ( $self->prefix ) {
+		my $current_chapter = $self->chapters->[ $self->chapter ];
+        my $href = Mojo::URL->new($self->hrefs->[ $self->prefix - 1 ]);
+        return if !$href;
+
+		my $path = $href->path;
+		$path = Mojo::Path->new($current_chapter->filename)->merge( $path );
+
+        for ( my $i = 0 ; $i < @{ $self->chapters } ; $i++ ) {
+            my $chapter = $self->chapters->[$i];
+            if ( $chapter->filename eq $path ) {
+                $self->set_chapter($i);
+                $self->update_screen;
+                return;
+            }
+        }
+    }
+    return;
+}
 
 sub help_screen {
     my $self = shift;
@@ -138,9 +163,10 @@ sub prev_chapter {
 
 sub render_pad {
     my ( $self, $content ) = @_;
-    my ($pad) =
+    my ( $pad, $hrefs ) =
       App::termpub::Renderer->new->render( decode( 'UTF-8', $content ) );
     $self->pad($pad);
+    $self->hrefs($hrefs);
     $self->max_lines( $self->get_max_lines );
     return;
 }

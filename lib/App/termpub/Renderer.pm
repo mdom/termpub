@@ -12,6 +12,7 @@ has pad     => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
 has buffered_newline => 0;
 has left_margin      => 0;
 has ol_stack         => sub { [] };
+has hrefs            => sub { [] };
 
 has preserve_whitespace => 0;
 
@@ -78,6 +79,15 @@ my %before = (
             $self->newline(1);
         }
     },
+    a => sub {
+        my ( $self, $node ) = @_;
+        my $href = $node->attr('href');
+        if ($href) {
+            push @{ $self->hrefs }, $href;
+            $self->textnode(
+                Mojo::DOM->new( '[' . scalar @{ $self->hrefs } . ']' ) );
+        }
+    },
 );
 
 my %after = (
@@ -90,12 +100,12 @@ my %after = (
 sub render {
     my ( $self, $content ) = @_;
     my $node = Mojo::DOM->new($content)->at('body');
-    return '' if !$node;
+    return if !$node;
     $self->process_node($node);
     $self->pad->resize( $self->row, $self->columns );
     my ( $rows, $columns );
     $self->pad->getmaxyx( $rows, $columns );
-    return ( $self->pad, $self->row );
+    return ($self->pad, $self->hrefs);
 }
 
 sub incr {
