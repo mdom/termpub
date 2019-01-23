@@ -34,9 +34,13 @@ the first chapter with real content if possible.
 
     Go to line _num_ in the chapter, default to the end of the chapter.
 
+- \[num\] o
+
+    Open link _num_.
+
 - C-g
 
-    Cancel _num_ argument for _g_ or _G_.
+    Cancel numeric prefix _num_ argument.
 
 - KEY\_DOWN, j
 
