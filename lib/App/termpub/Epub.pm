@@ -20,6 +20,26 @@ has nav_doc => sub {
     return Mojo::DOM->new($root);
 };
 
+has toc => sub {
+    my $self = shift;
+    my $toc  = $self->root_dom->find('guide reference[type="toc"]')
+      ->map( attr => 'href' )->first;
+
+    if ( !$toc && $self->nav_doc ) {
+        $toc = $self->nav_doc->find(
+            'nav[epub\:type="landmarks"] a[epub\:type="toc"]')
+          ->map( attr => 'href' )->first;
+    }
+    return if !$toc;
+
+    for ( my $i = 0 ; $i < @{ $self->chapters } ; $i++ ) {
+        if ( $self->chapters->[$i]->href eq $toc ) {
+            return $i;
+        }
+    }
+    return;
+};
+
 has start_chapter => sub {
     my $self          = shift;
     my $start_chapter = $self->root_dom->find('guide reference[type="text"]')
@@ -33,13 +53,10 @@ has start_chapter => sub {
 
     return 0 if !$start_chapter;
 
-    my @chapters = @{ $self->chapters };
-    my $i        = 0;
-    while ( $i < @chapters ) {
-        if ( $chapters[$i]->href eq $start_chapter ) {
+    for ( my $i = 0 ; $i < @{ $self->chapters } ; $i++ ) {
+        if ( $self->chapters->[$i]->href eq $start_chapter ) {
             return $i;
         }
-        $i++;
     }
     return 0;
 };

@@ -26,6 +26,10 @@ the first chapter with real content if possible.
 
     Go to the previous chapter.
 
+- t
+
+    Jump to the table of contents.
+
 - \[num\] g
 
     Go to line _num_ in the chapter, defaults to 1.

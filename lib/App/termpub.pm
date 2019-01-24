@@ -21,6 +21,7 @@ sub run {
     $self->key_bindings->{h}   = 'help_screen';
     $self->key_bindings->{o}   = 'open_link';
     $self->key_bindings->{'?'} = 'help_screen';
+    $self->key_bindings->{t}   = 'jump_to_toc';
 
     $self->SUPER::run;
 }
@@ -35,6 +36,15 @@ my %keycodes = (
     Curses::KEY_HOME      => '<Home>',
     Curses::KEY_END       => '<End>',
 );
+
+sub jump_to_toc {
+    my $self = shift;
+    if ( $self->epub->toc ) {
+        $self->set_chapter( $self->epub->toc );
+        $self->update_screen;
+    }
+    return;
+}
 
 sub open_link {
     my $self = shift;

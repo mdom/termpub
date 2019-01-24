@@ -63,6 +63,10 @@ Go to the next chapter.
 
 Go to the previous chapter.
 
+=item t
+
+Jump to the table of contents.
+
 =item [num] g
 
 Go to line I<num> in the chapter, defaults to 1.
