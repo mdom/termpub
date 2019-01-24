@@ -71,6 +71,10 @@ the first chapter with real content if possible.
 
     Go to the ned of the current chapter.
 
+- <,>
+
+    Go back or forward in the chapter history.
+
 - q
 
     Quit.

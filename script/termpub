@@ -108,6 +108,10 @@ Go to the beginning of the current chapter.
 
 Go to the ned of the current chapter.
 
+=item <,>
+
+Go back or forward in the chapter history.
+
 =item q
 
 Quit.

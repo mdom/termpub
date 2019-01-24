@@ -8,13 +8,15 @@ our $VERSION = '1.00';
 
 has 'epub';
 has chapters => sub { shift->epub->chapters };
-has chapter => 0;
+has chapter  => sub { shift->epub->start_chapter };
 has 'hrefs';
+has history => sub { [ shift->chapter ] };
+has history_index => 0;
 
 sub run {
     my $self = shift;
 
-    $self->set_chapter( $self->epub->start_chapter );
+    $self->render_pad;
 
     $self->key_bindings->{n}   = 'next_chapter';
     $self->key_bindings->{p}   = 'prev_chapter';
@@ -22,6 +24,8 @@ sub run {
     $self->key_bindings->{o}   = 'open_link';
     $self->key_bindings->{'?'} = 'help_screen';
     $self->key_bindings->{t}   = 'jump_to_toc';
+    $self->key_bindings->{'<'} = 'history_back';
+    $self->key_bindings->{'>'} = 'history_forward';
 
     $self->SUPER::run;
 }
@@ -122,10 +126,38 @@ sub update_screen {
 }
 
 sub set_chapter {
-    my ( $self, $num ) = @_;
+    my ( $self, $num, $history ) = @_;
+    return if !$self->chapters->[$num];
+    if ( !$history ) {
+        if ( $self->history_index != 0 ) {
+            splice @{ $self->history }, 0, $self->history_index, $num;
+        }
+        else {
+            unshift @{ $self->history }, $num;
+        }
+        $self->history_index(0);
+    }
     $self->chapter($num);
     $self->line(0);
-    $self->render_pad( $self->chapters->[ $self->chapter ]->content );
+    $self->render_pad;
+    return;
+}
+
+sub history_back {
+    my $self = shift;
+    return if !$self->history->[ $self->history_index + 1 ];
+    $self->history_index( $self->history_index + 1 );
+    $self->set_chapter( $self->history->[ $self->history_index ], 1 );
+    $self->update_screen;
+    return;
+}
+
+sub history_forward {
+    my $self = shift;
+    return if $self->history_index - 1 < 0;
+    $self->history_index( $self->history_index - 1 );
+    $self->set_chapter( $self->history->[ $self->history_index ], 1 );
+    $self->update_screen;
     return;
 }
 
@@ -178,7 +210,8 @@ sub prev_chapter {
 }
 
 sub render_pad {
-    my ( $self, $content ) = @_;
+    my $self    = shift;
+    my $content = $self->chapters->[ $self->chapter ]->content;
     my ( $pad, $hrefs ) =
       App::termpub::Renderer->new->render( decode( 'UTF-8', $content ) );
     $self->pad($pad);
