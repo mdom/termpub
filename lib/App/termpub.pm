@@ -1,7 +1,6 @@
 package App::termpub;
 use Mojo::Base 'App::termpub::Pager';
 use Mojo::Util 'decode';
-use Mojo::URL;
 use App::termpub::Renderer;
 use Curses;
 
@@ -40,8 +39,7 @@ my %keycodes = (
 sub open_link {
     my $self = shift;
     if ( $self->prefix ) {
-        my $current_chapter = $self->chapters->[ $self->chapter ];
-        my $href = Mojo::URL->new( $self->hrefs->[ $self->prefix - 1 ] );
+        my $href = $self->hrefs->[ $self->prefix - 1 ];
         return if !$href;
 
         if ( $href->scheme ) {
@@ -51,6 +49,8 @@ sub open_link {
         }
 
         my $path = $href->path;
+
+        my $current_chapter = $self->chapters->[ $self->chapter ];
         $path = Mojo::Path->new( $current_chapter->filename )->merge($path);
 
         for ( my $i = 0 ; $i < @{ $self->chapters } ; $i++ ) {

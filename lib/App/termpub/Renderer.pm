@@ -2,6 +2,7 @@ package App::termpub::Renderer;
 use Mojo::Base -base;
 
 use Mojo::DOM;
+use Mojo::URL;
 use Curses;
 
 has column  => 0;
@@ -83,7 +84,7 @@ my %before = (
         my ( $self, $node ) = @_;
         my $href = $node->attr('href');
         if ($href) {
-            push @{ $self->hrefs }, $href;
+            push @{ $self->hrefs }, Mojo::URL->new($href);
             $self->textnode(
                 Mojo::DOM->new( '[' . scalar @{ $self->hrefs } . ']' ) );
         }
