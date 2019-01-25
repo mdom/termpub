@@ -172,7 +172,7 @@ sub textnode {
     for my $word (@words) {
         my $length = length($word);
 
-        my $max = $self->columns - $self->column - 2;
+        my $max = $self->columns - $self->column - $self->left_margin;
         if ( $length > $max ) {
             $self->newline(1);
         }
