@@ -171,6 +171,7 @@ sub textnode {
     my $left_margin       = $self->left_margin;
     my $columns           = $self->columns;
     my $reduce_whitespace = !$self->preserve_whitespace;
+    my $pad               = ' ' x $left_margin;
 
     for my $word (@words) {
         my $length = length($word);
@@ -187,10 +188,8 @@ sub textnode {
         next if $reduce_whitespace && $self->column == 0 && $word =~ /^\s+$/;
 
         if ( $left_margin && $self->column == 0 ) {
-            my ( $row, $column );
-            getyx( $self->pad, $row, $column );
-            $self->pad->move( $row, $left_margin );
-            $self->column($left_margin);
+            $word = $pad . $word;
+            $length += $left_margin;
         }
 
         $self->pad->addstring($word);
