@@ -4,17 +4,11 @@ use Mojo::Base -base;
 use Mojo::DOM;
 use Curses;
 
-has column  => 0;
 has columns => 80;
 has rows    => 1000;
-has row     => 1;
+has row     => 0;
 has pad     => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
-has buffered_newline => 0;
-has left_margin      => 0;
-has ol_stack         => sub { [] };
-has hrefs            => sub { [] };
-
-has preserve_whitespace => 0;
+has hrefs   => sub { [] };
 
 my %noshow = map { $_ => 1 } qw[base basefont bgsound meta param script style];
 
@@ -39,191 +33,209 @@ my %attrs       = ( h1 => A_STANDOUT );
 my %vspace      = ( li => 1 );
 my %left_margin = ( li => 2, pre => 2, code => 2 );
 
-my %before = (
-    br => sub {
-        my ( $self, $node ) = @_;
-        $self->newline(1);
-    },
-    hr => sub {
-        my ( $self, $node ) = @_;
-        $self->textnode('------');
-    },
-    img => sub {
-        my ( $self, $node ) = @_;
-        if ( $node->attr('alt') ) {
-            $self->textnode( '[' . $node->attr('alt') . ']' );
-        }
-    },
-    li => sub {
-        my ( $self, $node ) = @_;
-        my $parent_tag = $node->parent->tag;
-        if ( $parent_tag eq 'ul' ) {
-            $self->textnode('* ');
-        }
-        elsif ( $parent_tag eq 'ol' ) {
-            $self->textnode( $self->ol_stack->[-1]++ . '. ' );
-        }
-    },
-    ol => sub {
-        my ( $self, $node ) = @_;
-        push @{ $self->ol_stack }, 1;
-        if ( $node->parent->tag eq 'li' ) {
-            $self->newline(1);
-        }
-    },
-    ul => sub {
-        my ( $self, $node ) = @_;
-        if ( $node->parent->tag eq 'li' ) {
-            $self->newline(1);
-        }
-    },
-    a => sub {
-        my ( $self, $node ) = @_;
-        my $href = $node->attr('href');
-        if ($href) {
-            push @{ $self->hrefs }, $href;
-            $self->textnode( '[' . scalar @{ $self->hrefs } . ']' );
-        }
-    },
-);
-
-my %after = (
-    ol => sub {
-        my $self = shift;
-        pop @{ $self->ol_stack };
-    },
-);
-
 sub render {
     my ( $self, $content ) = @_;
     my $node = Mojo::DOM->new($content)->at('body');
     return if !$node;
-    $self->process_node($node);
-    $self->pad->resize( $self->row, $self->columns );
-    my ( $rows, $columns );
-    $self->pad->getmaxyx( $rows, $columns );
+    my $nodes = [];
+    $self->process_node( $node, $nodes );
+
+    $self->render_nodes($nodes);
+    $self->pad->resize( $self->row + 1, $self->columns );
     return ( $self->pad, $self->hrefs );
 }
 
-sub incr {
-    my ( $self, $attr, $val ) = @_;
-    return $self->$attr( $self->$attr + $val );
-}
-
-sub decr {
-    my ( $self, $attr, $val ) = @_;
-    return $self->$attr( $self->$attr - $val );
-}
-
 sub process_node {
-    my ( $self, $node, %args ) = @_;
+    my ( $self, $node, $nodes ) = @_;
 
     foreach my $node ( $node->child_nodes->each ) {
         if ( $node->type eq 'text' ) {
-            $self->textnode( $node->content );
+            push @$nodes, [ text => $node->content ];
+            next;
         }
-        elsif ( $node->type eq 'tag' ) {
-            my $tag = lc $node->tag;
+        my $tag = lc $node->tag;
 
-            $self->pad->attron( $attrs{$tag} ) if $attrs{$tag};
-            $before{$tag}->( $self, $node ) if $before{$tag};
+        if ( $tag eq 'hr' ) {
+            push @$nodes, [ text => '--------' ];
+            next;
+        }
+        elsif ( $tag eq 'br' ) {
+            push @$nodes, [ newline => 1 ];
+            next;
+        }
+        elsif ( $tag eq 'img' ) {
+            if ( $node->attr('alt') ) {
+                push @$nodes, [ text => '[' . $node->attr('alt') . ']' ];
+            }
+            next;
+        }
+        elsif ( $tag eq 'a' ) {
+            my $href = $node->attr('href');
+            if ($href) {
+                push @{ $self->hrefs }, $href;
+                push @$nodes, [ text => '[' . scalar @{ $self->hrefs } . ']' ];
+            }
+        }
+        elsif ( $tag eq 'li' ) {
+            push @$nodes, [ $node->parent->tag . '_li' ];
+        }
+        elsif ( $tag eq 'ol' ) {
+            if ( $node->parent->tag eq 'li' ) {
+                push @$nodes, [ newline => 1 ];
+            }
+            push @$nodes, ['ol_start'];
+        }
+        elsif ( $tag eq 'ul' ) {
+            if ( $node->parent->tag eq 'li' ) {
+                push @$nodes, [ newline => 1 ];
+            }
+        }
 
-            $self->incr( left_margin => $left_margin{$tag} )
-              if $left_margin{$tag};
+        push @$nodes, [ attron => $attrs{$tag} ] if $attrs{$tag};
 
-            $self->incr( preserve_whitespace => 1 ) if $tag =~ /pre|code/;
+        push @$nodes, [ left_margin => $left_margin{$tag} ]
+          if $left_margin{$tag};
 
-            $self->process_node($node);
+        push @$nodes, [ preserve_whitespace => 1 ] if $tag =~ /pre|code/;
 
-            $self->decr( preserve_whitespace => 1 ) if $tag =~ /pre|code/;
+        $self->process_node( $node, $nodes );
 
-            $self->pad->attroff( $attrs{$tag} ) if $attrs{$tag};
+        push @$nodes, [ preserve_whitespace => -1 ] if $tag =~ /pre|code/;
 
-            $self->buffered_newline( $vspace{$tag} || 2 ) if $block{$tag};
-            $after{$tag}->( $self, $node ) if $after{$tag};
+        push @$nodes, [ attroff => $attrs{$tag} ] if $attrs{$tag};
 
-            $self->decr( left_margin => $left_margin{$tag} )
-              if $left_margin{$tag};
+        push @$nodes, [ buffered_newline => $vspace{$tag} || 2 ]
+          if $block{$tag};
+
+        push @$nodes, [ left_margin => -$left_margin{$tag} ]
+          if $left_margin{$tag};
+
+        if ( $tag eq 'ol' ) {
+            push @$nodes, ['ol_end'];
         }
     }
     return;
 }
 
-sub textnode {
-    my ( $self, $content ) = @_;
+sub render_nodes {
+    my ( $self, $nodes ) = @_;
 
-    if ( $self->buffered_newline && $content !~ /^\s*$/ ) {
-        $self->newline( $self->buffered_newline );
-        $self->buffered_newline(0);
-    }
+    my $left_margin         = 0;
+    my $preserve_whitespace = 0;
+    my $columns             = $self->columns;
+    my $pad                 = '';
+    my $column              = 0;
+    my $newline             = 1;
+    my $buffered_newline    = 0;
+    my $ol_stack            = [];
 
-    $content =~ s/\.\s\.\s\./.../;
-    my @words = grep { $_ ne '' } split( /(\s+)/, $content );
+    for my $node (@$nodes) {
+        my ( $key, $value ) = @$node;
+        my $content;
 
-    if ( !$self->preserve_whitespace ) {
-        @words = map { s/\s+/ /; $_ } @words;
-    }
-    else {
-        @words = map { split /(\n)/ } @words;
-    }
-
-    my $buffer;
-    my $left_margin       = $self->left_margin;
-    my $columns           = $self->columns;
-    my $reduce_whitespace = !$self->preserve_whitespace;
-    my $pad               = ' ' x $left_margin;
-
-    for my $word (@words) {
-        my $length = length($word);
-
-        my $max = $columns - $self->column - $left_margin;
-        if ( $length > $max ) {
-            $self->newline(1);
+        if ( $key eq 'buffered_newline' ) {
+            $buffered_newline = $value;
         }
-        if ( $word =~ /^\n$/ ) {
-            $self->newline(1);
-            next;
+        elsif ( $key eq 'attron' ) {
+            $self->pad->attron($value);
+        }
+        elsif ( $key eq 'attroff' ) {
+            $self->pad->attroff($value);
+        }
+        elsif ( $key eq 'newline' ) {
+            $self->newline( $value, $column, $preserve_whitespace );
+            $column = 0;
+        }
+        elsif ( $key eq 'left_margin' ) {
+            $left_margin += $value;
+            $pad = ' ' x $left_margin;
+        }
+        elsif ( $key eq 'preserve_whitespace' ) {
+            $preserve_whitespace += $value;
+        }
+        elsif ( $key eq 'text' ) {
+            $content = $value;
+        }
+        elsif ( $key eq 'ol_start' ) {
+            push @$ol_stack, 1;
+        }
+        elsif ( $key eq 'ol_end' ) {
+            pop @$ol_stack;
+        }
+        elsif ( $key eq 'ol_li' ) {
+            $content = $ol_stack->[-1]++ . '. ';
+        }
+        elsif ( $key eq 'ul_li' ) {
+            $content = '* ';
+        }
+        else {
+            die "Unknown render instruction $key\n";
         }
 
-        next if $reduce_whitespace && $self->column == 0 && $word =~ /^\s+$/;
+        next if not defined $content;
 
-        if ( $left_margin && $self->column == 0 ) {
-            $word = $pad . $word;
-            $length += $left_margin;
+        if ( $buffered_newline && $content !~ /^\s*$/ ) {
+            $self->newline( $buffered_newline, $column, $preserve_whitespace );
+            $buffered_newline = 0;
+            $column           = 0;
         }
 
-        $self->pad->addstring($word);
-        $self->column( $self->column + $length );
+        $content =~ s/\.\s\.\s\./.../;
+
+        my @words = grep { $_ ne '' } split( /(\s+)/, $content );
+
+        if ( !$preserve_whitespace ) {
+            @words = map { s/\s+/ /; $_ } @words;
+        }
+        else {
+            @words = map { split /(\n)/ } @words;
+        }
+
+        for my $word (@words) {
+            my $length = length($word);
+
+            my $max = $columns - $column - $left_margin - 2;
+
+            if ( $length > $max ) {
+                $self->newline( 1, $column, $preserve_whitespace );
+                $column = 0;
+            }
+            if ( $word eq "\n" && $preserve_whitespace ) {
+                $self->newline( 1, $column, $preserve_whitespace );
+                $column = 0;
+                next;
+            }
+
+            next
+              if !$preserve_whitespace
+              && $column == 0
+              && $word =~ /^\s+$/;
+
+            if ( $left_margin && $column == 0 ) {
+                $word = $pad . $word;
+                $length += $left_margin;
+            }
+
+            $self->pad->addstring($word);
+            $column += $length;
+        }
     }
     return;
 }
 
 sub newline {
-    my ( $self, $amount ) = @_;
-    $amount ||= 1;
+    my ( $self, $amount, $column, $preserve_whitespace ) = @_;
 
-    if ( !$self->preserve_whitespace ) {
-        return if $self->row == 0 && $self->column == 0;
-
-        my ( $row, $column );
-        getyx( $self->pad, $row, $column );
-        $self->pad->move( $row, 0 );
-        my $s = $self->pad->instring;
-        if ( $s =~ /^\s*$/ ) {
-            $self->column(0);
-            return;
-        }
-        $self->pad->move( $row, $column );
-    }
+    return if !$preserve_whitespace && $column == 0 && $self->row == 0 ;
 
     ## Increase pad size when we reach $self->rows
-    if ( $self->row + $amount >= $self->rows ) {
+    if ( $self->row + 1 + $amount >= $self->rows ) {
         $self->rows( $self->rows + 1000 );
         resize( $self->pad, $self->rows, $self->columns );
     }
     $self->pad->addstring( "\n" x $amount );
     $self->row( $self->row + $amount );
-    $self->column(0);
+    return;
 }
 
 1;
