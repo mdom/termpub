@@ -168,8 +168,9 @@ sub textnode {
     }
 
     my $buffer;
-    my $left_margin = $self->left_margin;
-    my $columns     = $self->columns;
+    my $left_margin       = $self->left_margin;
+    my $columns           = $self->columns;
+    my $reduce_whitespace = !$self->preserve_whitespace;
 
     for my $word (@words) {
         my $length = length($word);
@@ -183,10 +184,7 @@ sub textnode {
             next;
         }
 
-        next
-          if $self->column == 0
-          && $word =~ /^\s+$/
-          && !$self->preserve_whitespace;
+        next if $reduce_whitespace && $self->column == 0 && $word =~ /^\s+$/;
 
         if ( $left_margin && $self->column == 0 ) {
             my ( $row, $column );
