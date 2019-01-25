@@ -1,6 +1,7 @@
 package App::termpub;
 use Mojo::Base 'App::termpub::Pager';
 use Mojo::Util 'decode';
+use Mojo::URL;
 use App::termpub::Renderer;
 use Curses;
 
@@ -56,13 +57,15 @@ sub open_link {
         my $href = $self->hrefs->[ $self->prefix - 1 ];
         return if !$href;
 
-        if ( $href->scheme ) {
+        my $url = Mojo::URL->new($href);
+
+        if ( $url->scheme ) {
             endwin;
-            system( 'xdg-open', $href->to_string );
+            system( 'xdg-open', $url->to_string );
             $self->update_screen;
         }
 
-        my $path = $href->path;
+        my $path = $url->path;
 
         my $current_chapter = $self->chapters->[ $self->chapter ];
         $path = Mojo::Path->new( $current_chapter->filename )->merge($path);
