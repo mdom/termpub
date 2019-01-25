@@ -46,22 +46,22 @@ my %before = (
     },
     hr => sub {
         my ( $self, $node ) = @_;
-        $self->textnode( Mojo::DOM->new("------") );
+        $self->textnode('------');
     },
     img => sub {
         my ( $self, $node ) = @_;
         if ( $node->attr('alt') ) {
-            $self->textnode( Mojo::DOM->new( '[' . $node->attr('alt') . ']' ) );
+            $self->textnode( '[' . $node->attr('alt') . ']' );
         }
     },
     li => sub {
         my ( $self, $node ) = @_;
         my $parent_tag = $node->parent->tag;
         if ( $parent_tag eq 'ul' ) {
-            $self->textnode( Mojo::DOM->new('* ') );
+            $self->textnode('* ');
         }
         elsif ( $parent_tag eq 'ol' ) {
-            $self->textnode( Mojo::DOM->new( $self->ol_stack->[-1]++ . '. ' ) );
+            $self->textnode( $self->ol_stack->[-1]++ . '. ' );
         }
     },
     ol => sub {
@@ -82,8 +82,7 @@ my %before = (
         my $href = $node->attr('href');
         if ($href) {
             push @{ $self->hrefs }, $href;
-            $self->textnode(
-                Mojo::DOM->new( '[' . scalar @{ $self->hrefs } . ']' ) );
+            $self->textnode( '[' . scalar @{ $self->hrefs } . ']' );
         }
     },
 );
@@ -121,7 +120,7 @@ sub process_node {
 
     foreach my $node ( $node->child_nodes->each ) {
         if ( $node->type eq 'text' ) {
-            $self->textnode($node);
+            $self->textnode( $node->content );
         }
         elsif ( $node->type eq 'tag' ) {
             my $tag = lc $node->tag;
@@ -151,13 +150,13 @@ sub process_node {
 }
 
 sub textnode {
-    my ( $self, $node ) = @_;
+    my ( $self, $content ) = @_;
 
-    if ( $self->buffered_newline && $node->content !~ /^\s*$/ ) {
+    if ( $self->buffered_newline && $content !~ /^\s*$/ ) {
         $self->newline( $self->buffered_newline );
         $self->buffered_newline(0);
     }
-    my $content = $node->content;
+
     $content =~ s/\.\s\.\s\./.../;
     my @words = grep { $_ ne '' } split( /(\s+)/, $content );
 
