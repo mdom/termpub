@@ -167,37 +167,35 @@ sub textnode {
         @words = map { split /(\n)/ } @words;
     }
 
+    my $buffer;
+
     for my $word (@words) {
-        $self->append($word);
+        my $length = length($word);
+
+        my $max = $self->columns - $self->column - 2;
+        if ( $length > $max ) {
+            $self->newline(1);
+        }
+        if ( $word =~ /^\n$/ ) {
+            $self->newline(1);
+            next;
+        }
+
+        next
+          if $self->column == 0
+          && $word =~ /^\s+$/
+          && !$self->preserve_whitespace;
+
+        if ( $self->left_margin && $self->column == 0 ) {
+            my ( $row, $column );
+            getyx( $self->pad, $row, $column );
+            $self->pad->move( $row, $self->left_margin );
+            $self->column( $self->left_margin );
+        }
+
+        $self->pad->addstring($word);
+        $self->column( $self->column + $length );
     }
-    return;
-}
-
-sub append {
-    my ( $self, $str ) = @_;
-    my $length = length($str);
-
-    my $max = $self->columns - $self->column - 2;
-    if ( $length > $max ) {
-        $self->newline(1);
-    }
-    if ( $str =~ /^\n$/ ) {
-        $self->newline(1);
-        return;
-    }
-
-    return
-      if $self->column == 0 && $str =~ /^\s+$/ && !$self->preserve_whitespace;
-
-    if ( $self->left_margin && $self->column == 0 ) {
-        my ( $row, $column );
-        getyx( $self->pad, $row, $column );
-        $self->pad->move( $row, $self->left_margin );
-        $self->column( $self->left_margin );
-    }
-
-    $self->pad->addstring($str);
-    $self->column( $self->column + $length );
     return;
 }
 
