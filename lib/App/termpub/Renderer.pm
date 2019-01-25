@@ -168,11 +168,13 @@ sub textnode {
     }
 
     my $buffer;
+    my $left_margin = $self->left_margin;
+    my $columns     = $self->columns;
 
     for my $word (@words) {
         my $length = length($word);
 
-        my $max = $self->columns - $self->column - $self->left_margin;
+        my $max = $columns - $self->column - $left_margin;
         if ( $length > $max ) {
             $self->newline(1);
         }
@@ -186,11 +188,11 @@ sub textnode {
           && $word =~ /^\s+$/
           && !$self->preserve_whitespace;
 
-        if ( $self->left_margin && $self->column == 0 ) {
+        if ( $left_margin && $self->column == 0 ) {
             my ( $row, $column );
             getyx( $self->pad, $row, $column );
-            $self->pad->move( $row, $self->left_margin );
-            $self->column( $self->left_margin );
+            $self->pad->move( $row, $left_margin );
+            $self->column($left_margin);
         }
 
         $self->pad->addstring($word);
