@@ -49,7 +49,7 @@ sub run {
     $self->update_screen;
 
     while (1) {
-        my ( $c, $key ) = getchar;
+        my $c = getch;
         if ( $c eq '' ) {
             $self->prefix('');
             next;
