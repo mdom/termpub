@@ -4,11 +4,18 @@ use Mojo::Base -base;
 use Mojo::DOM;
 use Curses;
 
-has columns => 80;
-has rows    => 1000;
-has row     => 0;
-has pad     => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
-has hrefs   => sub { [] };
+has columns => sub {
+    my $default = 80;
+    my ( $rows, $columns );
+    getmaxyx( $rows, $columns );
+    return $columns < 80 ? $columns : 80;
+    return 80;
+};
+
+has rows  => 1000;
+has row   => 0;
+has pad   => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
+has hrefs => sub { [] };
 
 my %noshow = map { $_ => 1 } qw[base basefont bgsound meta param script style];
 

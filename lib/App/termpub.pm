@@ -19,14 +19,15 @@ sub run {
 
     $self->render_pad;
 
-    $self->key_bindings->{n}   = 'next_chapter';
-    $self->key_bindings->{p}   = 'prev_chapter';
-    $self->key_bindings->{h}   = 'help_screen';
-    $self->key_bindings->{o}   = 'open_link';
-    $self->key_bindings->{'?'} = 'help_screen';
-    $self->key_bindings->{t}   = 'jump_to_toc';
-    $self->key_bindings->{'<'} = 'history_back';
-    $self->key_bindings->{'>'} = 'history_forward';
+    $self->key_bindings->{n}                  = 'next_chapter';
+    $self->key_bindings->{p}                  = 'prev_chapter';
+    $self->key_bindings->{h}                  = 'help_screen';
+    $self->key_bindings->{o}                  = 'open_link';
+    $self->key_bindings->{'?'}                = 'help_screen';
+    $self->key_bindings->{t}                  = 'jump_to_toc';
+    $self->key_bindings->{'<'}                = 'history_back';
+    $self->key_bindings->{'>'}                = 'history_forward';
+    $self->key_bindings->{Curses::KEY_RESIZE} = 'handle_resize';
 
     $self->SUPER::run;
 }
@@ -41,6 +42,13 @@ my %keycodes = (
     Curses::KEY_HOME      => '<Home>',
     Curses::KEY_END       => '<End>',
 );
+
+sub handle_resize {
+    my $self = shift;
+    $self->SUPER::handle_resize;
+    $self->render_pad;
+    $self->update_screen;
+}
 
 sub jump_to_toc {
     my $self = shift;

@@ -29,6 +29,7 @@ has key_bindings => sub {
         Curses::KEY_BACKSPACE => 'prev_page',
         Curses::KEY_HOME      => 'first_page',
         Curses::KEY_END       => 'last_page',
+        Curses::KEY_RESIZE    => 'handle_resize',
         'q'                   => 'quit',
         'g'                   => 'goto_line',
         'G'                   => 'goto_line_or_end',
@@ -36,6 +37,14 @@ has key_bindings => sub {
 };
 
 has 'prefix' => '';
+
+sub handle_resize {
+    my $self = shift;
+    my ( $rows, $columns );
+    getmaxyx( $rows, $columns );
+    $self->rows( $rows - 1 );
+    $self->columns($columns);
+}
 
 sub run {
     my $self = shift;
