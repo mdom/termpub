@@ -128,22 +128,26 @@ sub render_nodes {
     my $newline             = 1;
     my $buffered_newline    = 0;
     my $ol_stack            = [];
+    my $buffer;
 
     for my $node (@$nodes) {
         my ( $key, $value ) = @$node;
         my $content;
 
         if ( $key eq 'buffered_newline' ) {
+            next if $self->row == 0 && $column == 0;
             $buffered_newline = $value;
         }
         elsif ( $key eq 'attron' ) {
+            $self->add_to_pad( \$buffer );
             $self->pad->attron($value);
         }
         elsif ( $key eq 'attroff' ) {
+            $self->add_to_pad( \$buffer );
             $self->pad->attroff($value);
         }
         elsif ( $key eq 'newline' ) {
-            $self->newline( $value, $column, $preserve_whitespace );
+            $buffer .= "\n";
             $column = 0;
         }
         elsif ( $key eq 'left_margin' ) {
@@ -175,7 +179,7 @@ sub render_nodes {
         next if not defined $content;
 
         if ( $buffered_newline && $content !~ /^\s*$/ ) {
-            $self->newline( $buffered_newline, $column, $preserve_whitespace );
+            $buffer .= "\n" x $buffered_newline;
             $buffered_newline = 0;
             $column           = 0;
         }
@@ -192,49 +196,53 @@ sub render_nodes {
         }
 
         for my $word (@words) {
+
             my $length = length($word);
 
             my $max = $columns - $column - $left_margin - 2;
 
             if ( $length > $max ) {
-                $self->newline( 1, $column, $preserve_whitespace );
+                $buffer .= "\n";
                 $column = 0;
             }
-            if ( $word eq "\n" && $preserve_whitespace ) {
-                $self->newline( 1, $column, $preserve_whitespace );
+
+            if ( $word eq "\n" ) {
+                $buffer .= "\n";
                 $column = 0;
                 next;
             }
 
-            next
-              if !$preserve_whitespace
-              && $column == 0
-              && $word =~ /^\s+$/;
+            next if !$preserve_whitespace && $column == 0 && $word =~ /^\s+$/;
 
             if ( $left_margin && $column == 0 ) {
                 $word = $pad . $word;
                 $length += $left_margin;
             }
 
-            $self->pad->addstring($word);
+            $buffer .= $word;
             $column += $length;
         }
+        $self->add_to_pad( \$buffer );
     }
     return;
 }
 
-sub newline {
-    my ( $self, $amount, $column, $preserve_whitespace ) = @_;
+sub add_to_pad {
+    my ( $self, $buffer ) = @_;
+    return if !$$buffer;
+    my $buffer_rows = $$buffer =~ tr/\n/\n/;
 
-    return if !$preserve_whitespace && $column == 0 && $self->row == 0 ;
+    my $row = $self->row;
 
     ## Increase pad size when we reach $self->rows
-    if ( $self->row + 1 + $amount >= $self->rows ) {
-        $self->rows( $self->rows + 1000 );
+    if ( $row + 1 + $buffer_rows >= $self->rows ) {
+        $self->rows( $self->rows + $buffer_rows + 1000 );
         resize( $self->pad, $self->rows, $self->columns );
     }
-    $self->pad->addstring( "\n" x $amount );
-    $self->row( $self->row + $amount );
+
+    $self->pad->addstring($$buffer);
+    $$buffer = '';
+    $self->row( $row + $buffer_rows );
     return;
 }
 

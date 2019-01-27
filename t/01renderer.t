@@ -37,7 +37,8 @@ sub render_ok {
 
 render_ok( 'test01.in', 'test01.out' );
 render_ok( 'test02.in', 'test02.out' );
-render_ok( 'test03.in', 'test03.out' );
+render_ok( 'test03.in', 'test03.out',
+    'leading and trailing empty block nodes' );
 render_ok( 'test04.in', 'test04.out' );
 render_ok( 'test05.in', 'test05.out' );
 render_ok( 'test06.in', 'test06.out', 'multiple trailing empty text nodes' );
