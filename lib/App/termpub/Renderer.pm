@@ -202,6 +202,7 @@ sub render_nodes {
             my $max = $columns - $column - $left_margin - 2;
 
             if ( $length > $max ) {
+                next if !$preserve_whitespace && $word =~ /^\s+$/;
                 $buffer .= "\n";
                 $column = 0;
             }

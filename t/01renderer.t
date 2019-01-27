@@ -49,6 +49,7 @@ render_ok( 'test10.in', 'test10.out', 'pre block' );
 render_ok( 'test11.in', 'test11.out', 'nested lists with content' );
 render_ok( 'test12.in', 'test12.out', 'nested ordered lists' );
 render_ok( 'test13.in', 'test13.out', 'numbered links' );
+render_ok( 'test14.in', 'test14.out', 'space at end of line' );
 
 done_testing;
 
@@ -185,4 +186,15 @@ foo
 
 @@ test13.out
 [1]Acknowledgments
+
+@@ test14.in
+<body>
+  <p>xxxxx xxxx xxxxxx xxxxx xx xxx xxxxxxxx xxxx xx xxxxx, xxxxxxxxx xx xxxxxxxxx.</p>
+  <p>Still</p>
+</body>
+
+@@ test14.out
+xxxxx xxxx xxxxxx xxxxx xx xxx xxxxxxxx xxxx xx xxxxx, xxxxxxxxx xx xxxxxxxxx.
+
+Still
 
