@@ -35,85 +35,90 @@ sub render_ok {
     is( $output, $expected, $comment );
 }
 
-render_ok( 'test01.in', 'test01.out' );
-render_ok( 'test02.in', 'test02.out' );
-render_ok( 'test03.in', 'test03.out',
-    'leading and trailing empty block nodes' );
-render_ok( 'test04.in', 'test04.out' );
-render_ok( 'test05.in', 'test05.out' );
-render_ok( 'test06.in', 'test06.out', 'multiple trailing empty text nodes' );
-render_ok( 'test07.in', 'test07.out', 'simple list' );
-render_ok( 'test08.in', 'test08.out', 'list with long content' );
-render_ok( 'test09.in', 'test09.out', 'nested list' );
-render_ok( 'test10.in', 'test10.out', 'pre block' );
-render_ok( 'test11.in', 'test11.out', 'nested lists with content' );
-render_ok( 'test12.in', 'test12.out', 'nested ordered lists' );
-render_ok( 'test13.in', 'test13.out', 'numbered links' );
-render_ok( 'test14.in', 'test14.out', 'space at end of line' );
+my @tests = (
+    'simple text with inline node',
+    'deeply nested simple text node',
+    'leading and trailing empty block nodes',
+    'long text with over 80 characters',
+    'trailing whitespace text node',
+    'multiple trailing empty text nodes',
+    'simple list',
+    'list with long content',
+    'nested list',
+    'pre block',
+    'nested lists with content',
+    'nested ordered lists',
+    'numbered links',
+    'space at end of line',
+);
+
+for ( my $i = 1 ; $i <= @tests ; $i++ ) {
+    render_ok( "test$i.in", "test$i.out", $tests[$i] );
+}
 
 done_testing;
 
 __DATA__
 
-@@ test01.in
+@@ test1.in
 <body><i>foo</i></body>
 
-@@ test01.out
+@@ test1.out
 foo
 
-@@ test02.in
+@@ test2.in
 <body><div><p><i>foo</p></div></body>
 
-@@ test02.out
+@@ test2.out
 foo
 
-@@ test03.in
+@@ test3.in
 <body><div></div><p><i>foo</p><p>bar</p><div /><p></p></body>
 
-@@ test03.out
+@@ test3.out
 foo
 
 bar
 
-@@ test04.in
+@@ test4.in
 <body><p>Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.</p><p><span></span></p><p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat.</p></body>
 
-@@ test04.out
+@@ test4.out
 Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor
 incidunt ut labore et dolore magna aliqua.
 
 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
 aliquid ex ea commodi consequat.
 
-@@ test05.in
+@@ test5.in
 <body><p>foo</p><p> </p></body>
 
-@@ test05.out
+@@ test5.out
 foo
 
-@@ test06.in
+@@ test6.in
 <body><span> </span><p>foo</p><p> </p><p> </p> <span> </span></body>
 
-@@ test06.out
+@@ test6.out
 foo
 
-@@ test07.in
+@@ test7.in
 <body><ul><li>foo</li><li>bar</li><ul></body>
 
-@@ test07.out
+@@ test7.out
 * foo
 * bar
 
-@@ test08.in
+@@ test8.in
 <body><ul><li>Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua.</li><li>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat.</li></ul></body>
 
-@@ test08.out
+@@ test8.out
 * Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor
   incidunt ut labore et dolore magna aliqua.
 * Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
   aliquid ex ea commodi consequat.
 
-@@ test09.in
+@@ test9.in
 <body>
   <ul>
     <li>foo</li>
@@ -126,7 +131,7 @@ foo
   </ul>
 </body>
 
-@@ test09.out
+@@ test9.out
 * foo
 *
   * bar
