@@ -21,14 +21,14 @@ sub render_ok {
     chomp($expected);
 
     my $r = App::termpub::Renderer->new;
-    my ( $pad, $hrefs ) = $r->render($input);
+    $r->render($input);
     my $output;
     my $i = 0;
     while (1) {
-        if ( $pad->move( $i, 0 ) == -1 ) {
+        if ( $r->pad->move( $i, 0 ) == -1 ) {
             last;
         }
-        $output .= $pad->instring . "\n";
+        $output .= $r->pad->instring . "\n";
         $i++;
     }
     $output =~ s/[^\S\n]+$//gm;

@@ -15,6 +15,7 @@ has chapter  => sub { shift->epub->start_chapter };
 has 'hrefs';
 has history => sub { [ shift->chapter ] };
 has history_index => 0;
+has 'renderer';
 
 sub run {
     my $self = shift;
@@ -95,6 +96,12 @@ sub open_link {
             my $chapter = $self->chapters->[$i];
             if ( $chapter->filename eq $path ) {
                 $self->set_chapter($i);
+
+                if ( my $fragment = $url->fragment ) {
+                    if ( my $line = $self->renderer->id_line->{$fragment} ) {
+                        $self->line($line);
+                    }
+                }
                 $self->update_screen;
                 return;
             }
@@ -213,12 +220,13 @@ sub prev_chapter {
 }
 
 sub render_pad {
-    my $self    = shift;
-    my $content = $self->chapters->[ $self->chapter ]->content;
-    my ( $pad, $hrefs ) =
-      App::termpub::Renderer->new->render( decode( 'UTF-8', $content ) );
-    $self->pad($pad);
-    $self->hrefs($hrefs);
+    my $self     = shift;
+    my $content  = $self->chapters->[ $self->chapter ]->content;
+    my $renderer = App::termpub::Renderer->new;
+    $renderer->render( decode( 'UTF-8', $content ) );
+    $self->renderer($renderer);
+    $self->pad( $renderer->pad );
+    $self->hrefs( $renderer->hrefs );
     $self->max_lines( $self->get_max_lines );
     return;
 }

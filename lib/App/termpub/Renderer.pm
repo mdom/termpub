@@ -12,10 +12,13 @@ has columns => sub {
     return 80;
 };
 
-has rows  => 1000;
-has row   => 0;
-has pad   => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
-has hrefs => sub { [] };
+has rows    => 1000;
+has row     => 0;
+has pad     => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
+has hrefs   => sub { [] };
+has id_line => sub {
+    {}
+};
 
 my %noshow = map { $_ => 1 } qw[base basefont bgsound meta param script style];
 
@@ -49,7 +52,7 @@ sub render {
 
     $self->render_nodes($nodes);
     $self->pad->resize( $self->row + 1, $self->columns );
-    return ( $self->pad, $self->hrefs );
+    return;
 }
 
 sub process_node {
@@ -96,6 +99,10 @@ sub process_node {
             if ( $node->parent->tag eq 'li' ) {
                 push @$nodes, [ newline => 1 ];
             }
+        }
+
+        if ( my $id = $node->attr('id') ) {
+            push @$nodes, [ id => $id ];
         }
 
         push @$nodes, [ attron => $attrs{$tag} ] if $attrs{$tag};
@@ -179,6 +186,10 @@ sub render_nodes {
         elsif ( $key eq 'ul_li' ) {
             $content = '* ';
         }
+		elsif ( $key eq 'id' ) {
+			my $buffered_lines = ($buffer||'') =~ tr/\n/\n/;
+			$self->id_line->{$value} = $self->row + $buffered_lines;
+		}
         else {
             die "Unknown render instruction $key\n";
         }
