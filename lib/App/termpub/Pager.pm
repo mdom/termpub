@@ -164,7 +164,6 @@ sub prev_page {
 
 sub get_percent {
     my $self = shift;
-    warn $self->line;
     int( ( $self->line + 1 ) * 100 / $self->max_lines );
 }
 
