@@ -204,7 +204,7 @@ sub render_nodes {
 
         for my $word (@words) {
 
-            my $length = length($word);
+            my $length = () = $word =~ /\X/g;
 
             my $max = $columns - $column - $left_margin - 2;
 
