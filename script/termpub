@@ -67,6 +67,10 @@ Go to the previous chapter.
 
 Jump to the table of contents.
 
+=item [num] %
+
+Go to a line N percent into the chapter.
+
 =item [num] g
 
 Go to line I<num> in the chapter, defaults to 1.

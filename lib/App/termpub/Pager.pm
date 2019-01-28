@@ -34,6 +34,7 @@ has key_bindings => sub {
         'q'                   => 'quit',
         'g'                   => 'goto_line',
         'G'                   => 'goto_line_or_end',
+        '%'                   => 'goto_percent',
     };
 };
 
@@ -82,9 +83,15 @@ sub goto_line {
     $num ||= ( $self->prefix || 1 ) - 1;
     if ( $num <= $self->max_lines ) {
         $self->line($num);
-        $self->update_screen;
+        $self->update_screen if $self->rows;
     }
     return;
+}
+
+sub goto_percent {
+    my ( $self, $num ) = @_;
+    $num ||= ( $self->prefix || 0 );
+    $self->goto_line( int( $num * $self->max_lines / 100 ) );
 }
 
 sub goto_line_or_end {
@@ -155,6 +162,12 @@ sub prev_page {
     return 1;
 }
 
+sub get_percent {
+    my $self = shift;
+    warn $self->line;
+    int( ( $self->line + 1 ) * 100 / $self->max_lines );
+}
+
 sub update_screen {
     my $self = shift;
     clear;
@@ -164,7 +177,7 @@ sub update_screen {
     move( $self->rows, 0 );
     addstring( $self->title );
 
-    my $pos = int( $self->line * 100 / $self->max_lines ) . '%';
+    my $pos = $self->get_percent . '%';
     if ( $self->line + $self->rows - 1 >= $self->max_lines ) {
         $pos = "end";
     }
