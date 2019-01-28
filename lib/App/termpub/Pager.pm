@@ -6,6 +6,7 @@ has line => 0;
 has 'rows';
 has 'columns';
 has 'pad';
+has 'title';
 has max_lines => sub {
     shift->get_max_lines;
 };
@@ -159,6 +160,21 @@ sub update_screen {
     clear;
     refresh;
     prefresh( $self->pad, $self->line, 0, 0, 0, $self->rows - 1, 80 );
+
+    move( $self->rows, 0 );
+    addstring( $self->title );
+
+    my $pos = int( $self->line * 100 / $self->max_lines ) . '%';
+    if ( $self->line + $self->rows - 1 >= $self->max_lines ) {
+        $pos = "end";
+    }
+    $pos = "($pos)";
+    addstring( '-' x $self->columns );
+    move( $self->rows, $self->columns - length($pos) - 2 );
+    addstring($pos);
+
+    move( $self->rows, 0 );
+    chgat( -1, A_STANDOUT, 0, 0 );
 }
 
 1;

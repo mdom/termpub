@@ -17,6 +17,7 @@ has history_index => 0;
 sub run {
     my $self = shift;
 
+    $self->title( $self->chapters->[ $self->chapter ]->title );
     $self->render_pad;
 
     $self->key_bindings->{n}                  = 'next_chapter';
@@ -114,28 +115,6 @@ sub help_screen {
     $self->update_screen;
 }
 
-sub update_screen {
-    my $self = shift;
-
-    $self->SUPER::update_screen;
-
-    move( $self->rows, 0 );
-    addstring( $self->chapters->[ $self->chapter ]->title );
-
-    my $pos = int( $self->line * 100 / $self->max_lines ) . '%';
-    if ( $self->line + $self->rows - 1 >= $self->max_lines ) {
-        $pos = "end";
-    }
-    $pos = "($pos)";
-    addstring( '-' x $self->columns );
-    move( $self->rows, $self->columns - length($pos) - 2 );
-    addstring($pos);
-
-    move( $self->rows, 0 );
-    chgat( -1, A_STANDOUT, 0, 0 );
-    refresh;
-}
-
 sub set_chapter {
     my ( $self, $num, $history ) = @_;
     return if !$self->chapters->[$num];
@@ -148,6 +127,7 @@ sub set_chapter {
         }
         $self->history_index(0);
     }
+    $self->title( $self->chapters->[$num]->title );
     $self->chapter($num);
     $self->line(0);
     $self->render_pad;
