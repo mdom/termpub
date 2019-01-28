@@ -2,6 +2,8 @@ package App::termpub;
 use Mojo::Base 'App::termpub::Pager';
 use Mojo::Util 'decode';
 use Mojo::URL;
+use Mojo::File 'tempfile';
+use Mojo::JSON 'encode_json', 'decode_json';
 use App::termpub::Renderer;
 use Curses;
 
@@ -20,6 +22,13 @@ sub run {
     $self->title( $self->chapters->[ $self->chapter ]->title );
     $self->render_pad;
 
+    my $data = $self->epub->read_metadata;
+
+    if ( $data && $data->{position} ) {
+        $self->set_chapter( $data->{position}->[0] );
+        $self->goto_percent( $data->{position}->[1] );
+    }
+
     $self->key_bindings->{n}                  = 'next_chapter';
     $self->key_bindings->{p}                  = 'prev_chapter';
     $self->key_bindings->{h}                  = 'help_screen';
@@ -31,6 +40,9 @@ sub run {
     $self->key_bindings->{Curses::KEY_RESIZE} = 'handle_resize';
 
     $self->SUPER::run;
+
+    $self->epub->save_metadata(
+        { version => 1, position => [ $self->chapter, $self->get_percent ] } );
 }
 
 my %keycodes = (

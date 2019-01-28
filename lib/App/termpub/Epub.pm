@@ -1,9 +1,10 @@
 package App::termpub::Epub;
 use Mojo::Base -base;
 use Mojo::DOM;
+use Mojo::JSON qw(decode_json encode_json);
 use Mojo::Util qw(decode encode html_unescape);
 use Archive::Zip qw(:ERROR_CODES);
-use Mojo::File;
+use Mojo::File 'tempfile';
 use App::termpub::Epub::Chapter;
 
 Archive::Zip::setErrorHandler( sub { } );
@@ -144,5 +145,26 @@ has title => sub {
         eval { $self->root_dom->at('metadata')->at('dc\:title')->content }
           || 'Unknown' );
 };
+
+sub read_metadata {
+    my $self = shift;
+    my $content =
+      $self->archive->contents('META-INF/com.domgoergen.termpub.json') || '{}';
+    return decode_json($content);
+}
+
+sub save_metadata {
+    my ( $self, $data ) = @_;
+    my ($tempfile) = tempfile;
+
+    $self->archive->removeMember('META-INF/com.domgoergen.termpub.json');
+    $self->archive->addString( encode_json($data),,
+        'META-INF/com.domgoergen.termpub.json' );
+
+    if ( $self->archive->writeToFileNamed( $tempfile->to_string ) != AZ_OK ) {
+        die 'write error';
+    }
+    $tempfile->move_to( $self->filename );
+}
 
 1;
