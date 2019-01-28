@@ -67,15 +67,15 @@ has archive => sub {
     my $filename = $self->filename;
     my $archive  = Archive::Zip->new;
     if ( eval { $archive->read($filename) } != AZ_OK ) {
-        die "Can't read $filename\n";
+        die "$filename can't be unzipped (is it an epub file?)\n";
     }
     my $mimetype = $archive->contents('mimetype');
     $mimetype =~ s/[\r\n]+//;
     if ( !$mimetype ) {
-        die "Missing mimetype for $filename\n";
+        die "Missing mimetype for $filename (is it an epub file?)\n";
     }
     if ( $mimetype ne 'application/epub+zip' ) {
-        die "Unknown mimetype $mimetype for $filename\n";
+        die "Unknown mimetype $mimetype for $filename (is it an epub file?)\n";
     }
     return $archive;
 };

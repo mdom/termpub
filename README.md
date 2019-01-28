@@ -5,12 +5,14 @@ App::termpub - read epubs in the terminal
 
 # SYNOPSIS
 
-termpub _file_...
+termpub _file_
 
 # DESCRIPTION
 
-termpub is a _terminal_ viewer for epubs. At startup termpub displays
-the first chapter with real content if possible.
+termpub is a _terminal_ viewer for epubs.
+
+At startup termpub displays the first chapter with real content if
+possible. It will save your reading position and restore it.
 
 # KEY BINDINGS
 
@@ -29,6 +31,10 @@ the first chapter with real content if possible.
 - t
 
     Jump to the table of contents.
+
+- \[num\] %
+
+    Go to a line N percent into the chapter.
 
 - \[num\] g
 

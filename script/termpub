@@ -6,22 +6,35 @@ use Curses;
 use lib 'lib';
 use App::termpub;
 use App::termpub::Epub;
+use Pod::Usage;
 
 initscr;
 noecho;
 cbreak;
 curs_set(0);
 
-for my $filename (@ARGV) {
+my $filename = shift;
 
-    my $epub = eval { App::termpub::Epub->new( filename => $filename ) };
+if ( !$filename ) {
+    endwin;
+    pod2usage(
+        -message    => 'Missing file',
+        -exitstatus => 1,
+        -verbose    => 0,
+    );
+}
 
-    if ( !$epub ) {
-        warn "$@\n";
-        next;
-    }
+my $epub = App::termpub::Epub->new( filename => $filename );
 
-    App::termpub->new( epub => $epub )->run;
+eval { App::termpub->new( epub => $epub )->run };
+
+if ($@) {
+    endwin;
+    pod2usage(
+        -message    => $@,
+        -exitstatus => 1,
+        -verbose    => 0,
+    );
 }
 
 END {
@@ -40,12 +53,14 @@ App::termpub - read epubs in the terminal
 
 =head1 SYNOPSIS
 
-termpub I<file>...
+termpub I<file>
 
 =head1 DESCRIPTION
 
-termpub is a I<terminal> viewer for epubs. At startup termpub displays
-the first chapter with real content if possible.
+termpub is a I<terminal> viewer for epubs.
+
+At startup termpub displays the first chapter with real content if
+possible. It will save your reading position and restore it.
 
 =head1 KEY BINDINGS
 
