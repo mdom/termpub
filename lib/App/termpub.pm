@@ -73,18 +73,37 @@ sub jump_to_toc {
     return;
 }
 
+sub open_image {
+    my ( $self, $path ) = @_;
+    my $tmp = tempfile;
+    my $filename =
+      Mojo::Path->new( $self->chapters->[ $self->chapter ]->filename );
+    $path = $filename->merge($path)->canonicalize;
+    $self->epub->archive->extractMember( $path->to_string, $tmp->to_string );
+    system( 'xdg-open', $tmp );
+    return;
+}
+
 sub open_link {
     my $self = shift;
     if ( $self->prefix ) {
-        my $href = $self->hrefs->[ $self->prefix - 1 ];
+        my ( $type, $href ) = @{ $self->hrefs->[ $self->prefix - 1 ] };
         return if !$href;
+
+        if ( $type eq 'img' ) {
+            endwin;
+            $self->open_image( Mojo::Path->new($href) );
+            $self->update_screen;
+            return;
+        }
 
         my $url = Mojo::URL->new($href);
 
-        if ( $url->scheme ) {
+        if ( my $scheme = $url->scheme ) {
             endwin;
             system( 'xdg-open', $url->to_string );
             $self->update_screen;
+            return;
         }
 
         my $path = $url->path;

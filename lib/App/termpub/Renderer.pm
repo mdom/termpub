@@ -74,15 +74,20 @@ sub process_node {
             next;
         }
         elsif ( $tag eq 'img' ) {
-            if ( $node->attr('alt') ) {
-                push @$nodes, [ text => '[' . $node->attr('alt') . ']' ];
+            if ( my $alt = $node->attr('alt') ) {
+                my $src = $node->attr('src');
+                my $num = push @{ $self->hrefs }, [ img => $src ];
+                if ( $alt =~ /^\s*$/ ) {
+                    $alt = $src;
+                }
+                push @$nodes, [ text => "[$num][$alt]" ];
             }
             next;
         }
         elsif ( $tag eq 'a' ) {
             my $href = $node->attr('href');
             if ($href) {
-                push @{ $self->hrefs }, $href;
+                push @{ $self->hrefs }, [ href => $href ];
                 push @$nodes, [ text => '[' . scalar @{ $self->hrefs } . ']' ];
             }
         }
