@@ -32,6 +32,16 @@ possible. It will save your reading position and restore it.
 
     Jump to the table of contents.
 
+- m
+
+    Followed by any lowercase letter, marks the current position with that
+    letter.
+
+- '
+
+    Followed by any lowercase letter, returns to the position which was
+    previously marked with that letter.
+
 - \[num\] %
 
     Go to a line N percent into the chapter.

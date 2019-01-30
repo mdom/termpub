@@ -3,8 +3,23 @@ use Mojo::Base -base;
 use Curses;
 
 has line => 0;
-has 'rows';
-has 'columns';
+
+has rows => sub {
+    my $self = shift;
+    my ( $rows, $columns );
+    getmaxyx( $rows, $columns );
+    $self->column($columns);
+    $rows - 1;
+};
+
+has columns => sub {
+    my $self = shift;
+    my ( $rows, $columns );
+    getmaxyx( $rows, $columns );
+    $self->rows( $rows - 1 );
+    $columns;
+};
+
 has 'pad';
 has 'title';
 has max_lines => sub {
@@ -51,11 +66,6 @@ sub handle_resize {
 sub run {
     my $self = shift;
     keypad(1);
-
-    my ( $rows, $columns );
-    getmaxyx( $rows, $columns );
-    $self->rows( $rows - 1 );
-    $self->columns($columns);
 
     $self->update_screen;
 

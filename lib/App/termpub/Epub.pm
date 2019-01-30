@@ -150,7 +150,14 @@ sub read_metadata {
     my $self = shift;
     my $content =
       $self->archive->contents('META-INF/com.domgoergen.termpub.json') || '{}';
-    return decode_json($content);
+    my $data = decode_json($content);
+    if ( $data->{version} == 1 ) {
+        $data->{position} = {
+            chapter => $data->{position}->[0],
+            percent => $data->{position}->[1]
+        };
+    }
+    return $data;
 }
 
 sub save_metadata {

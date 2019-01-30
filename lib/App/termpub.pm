@@ -16,6 +16,7 @@ has 'hrefs';
 has history => sub { [ shift->chapter ] };
 has history_index => 0;
 has 'renderer';
+has 'positions' => sub { {} };
 
 sub run {
     my $self = shift;
@@ -26,8 +27,7 @@ sub run {
     my $data = $self->epub->read_metadata;
 
     if ( $data && $data->{position} ) {
-        $self->set_chapter( $data->{position}->[0] );
-        $self->goto_percent( $data->{position}->[1] );
+        $self->goto_position( $data->{position} );
     }
 
     $self->key_bindings->{n}                  = 'next_chapter';
@@ -38,12 +38,14 @@ sub run {
     $self->key_bindings->{t}                  = 'jump_to_toc';
     $self->key_bindings->{'<'}                = 'history_back';
     $self->key_bindings->{'>'}                = 'history_forward';
+    $self->key_bindings->{'m'}                = 'mark_position';
+    $self->key_bindings->{"'"}                = 'restore_position';
     $self->key_bindings->{Curses::KEY_RESIZE} = 'handle_resize';
 
     $self->SUPER::run;
 
     $self->epub->save_metadata(
-        { version => 1, position => [ $self->chapter, $self->get_percent ] } );
+        { version => 2, position => $self->get_position } );
 }
 
 my %keycodes = (
@@ -56,6 +58,48 @@ my %keycodes = (
     Curses::KEY_HOME      => '<Home>',
     Curses::KEY_END       => '<End>',
 );
+
+sub goto_position {
+    my ( $self, $position ) = @_;
+    $self->set_chapter( $position->{chapter} );
+    if (   $position->{line}
+        && $position->{columns}
+        && $position->{columns} == $self->columns )
+    {
+        $self->goto_line( $position->{line} );
+    }
+    else {
+        $self->goto_percent( $position->{percent} );
+    }
+}
+
+sub get_position {
+    my $self = shift;
+    return {
+        chapter => $self->chapter,
+        percent => $self->get_percent,
+        line    => $self->line,
+        columns => $self->columns
+    };
+}
+
+sub mark_position {
+    my $self = shift;
+    my $c    = getch();
+    if ( $c =~ /[a-z]/ ) {
+        $self->positions->{$c} = $self->get_position;
+    }
+    return;
+}
+
+sub restore_position {
+    my $self = shift;
+    my $c    = getch();
+    if ( $c =~ /[a-z]/ ) {
+        $self->goto_position( $self->positions->{$c} );
+    }
+    return;
+}
 
 sub handle_resize {
     my $self = shift;
