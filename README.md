@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/mdom/termpub.svg?branch=master)](https://travis-ci.org/mdom/termpub) [![Coverage Status](https://img.shields.io/coveralls/mdom/termpub/master.svg?style=flat)](https://coveralls.io/r/mdom/termpub?branch=master)
 # NAME
 
-App::termpub - read epubs in the terminal
+App::termpub - Epubreader for the terminal
 
 # SYNOPSIS
 
