@@ -191,10 +191,10 @@ sub render_nodes {
         elsif ( $key eq 'ul_li' ) {
             $content = '* ';
         }
-		elsif ( $key eq 'id' ) {
-			my $buffered_lines = ($buffer||'') =~ tr/\n/\n/;
-			$self->id_line->{$value} = $self->row + $buffered_lines;
-		}
+        elsif ( $key eq 'id' ) {
+            my $buffered_lines = ( $buffer || '' ) =~ tr/\n/\n/;
+            $self->id_line->{$value} = $self->row + $buffered_lines;
+        }
         else {
             die "Unknown render instruction $key\n";
         }
