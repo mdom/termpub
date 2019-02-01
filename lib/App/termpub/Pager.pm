@@ -8,7 +8,7 @@ has rows => sub {
     my $self = shift;
     my ( $rows, $columns );
     getmaxyx( $rows, $columns );
-    $self->column($columns);
+    $self->columns($columns);
     $rows - 1;
 };
 

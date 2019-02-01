@@ -64,7 +64,7 @@ sub goto_position {
     $self->set_chapter( $position->{chapter} );
     if (   $position->{line}
         && $position->{columns}
-        && $position->{columns} == $self->columns )
+        && $position->{columns} == $self->renderer->columns )
     {
         $self->goto_line( $position->{line} );
     }
@@ -79,7 +79,7 @@ sub get_position {
         chapter => $self->chapter,
         percent => $self->get_percent,
         line    => $self->line,
-        columns => $self->columns
+        columns => $self->renderer->columns,
     };
 }
 
