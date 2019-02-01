@@ -1,2 +1,7 @@
 examples/
 App-termpub-*
+TODO
+lib/App/termpub/Choose.pm
+lib/App/termpub/InfoBox.pm
+perltidy.LOG
+script/rendertest
