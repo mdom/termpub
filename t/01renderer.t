@@ -7,6 +7,8 @@ use App::termpub::Renderer;
 use Mojo::Loader 'data_section';
 use Curses;
 
+plan( skip_all => 'skip tests without terminal' ) if !-t STDIN;
+
 initscr;
 
 END {
