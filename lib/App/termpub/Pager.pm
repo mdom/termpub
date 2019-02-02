@@ -81,6 +81,11 @@ sub get_position {
     };
 }
 
+sub set_mark {
+    my ( $self, $position ) = @_;
+    $self->positions->{"'"} = $position || $self->get_position;
+}
+
 sub mark_position {
     my $self = shift;
     my $c    = getch();
@@ -93,9 +98,12 @@ sub mark_position {
 sub restore_position {
     my $self = shift;
     my $c    = getch();
-    if ( $c =~ /[a-z]/ ) {
-        return if !$self->positions->{$c};
+    if ( $c =~ /[a-z']/ ) {
+        return if not exists $self->positions->{$c};
+        my $old = $self->get_position;
         $self->goto_position( $self->positions->{$c} );
+        $self->set_mark($old);
+
     }
     return;
 }
@@ -146,11 +154,13 @@ sub goto_line {
 sub goto_percent {
     my ( $self, $num ) = @_;
     $num ||= ( $self->prefix || 0 );
+    $self->set_mark;
     $self->goto_line( int( $num * $self->pad_lines / 100 ) );
 }
 
 sub goto_line_or_end {
     my $self = shift;
+    $self->set_mark;
     if ( $self->prefix ) {
         $self->goto_line;
     }
@@ -180,12 +190,14 @@ sub prev_line {
 
 sub first_page {
     my $self = shift;
+    $self->set_mark;
     $self->line(0);
     $self->update_screen;
 }
 
 sub last_page {
     my $self = shift;
+    $self->set_mark;
     my $line = $self->pad_lines - $self->rows + 1;
     $self->line( $line >= 0 ? $line : 0 );
     $self->update_screen;
@@ -193,6 +205,7 @@ sub last_page {
 
 sub next_page {
     my $self = shift;
+    $self->set_mark;
     if ( $self->line + $self->rows <= $self->pad_lines ) {
         $self->line( $self->line + $self->rows );
         $self->update_screen;
@@ -203,6 +216,7 @@ sub next_page {
 
 sub prev_page {
     my $self = shift;
+    $self->set_mark;
     if ( $self->line == 0 && $self->chapter - 1 >= 0 ) {
         return 0;
     }

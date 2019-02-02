@@ -40,7 +40,9 @@ possible. It will save your reading position and restore it.
 - '
 
     Followed by any lowercase letter, returns to the position which was
-    previously marked with that letter.
+    previously marked with that letter. Followed by another single quote,
+    returns to the position at which the last "large" movement command was
+    executed.
 
 - \[num\] %
 
