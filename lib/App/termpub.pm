@@ -160,7 +160,9 @@ sub help_screen {
         $row++;
     }
 
-    App::termpub::Pager->new( pad => $pad )->run;
+    my $pager = App::termpub::Pager->new;
+    $pager->pad($pad);
+    $pager->run;
 
     $self->update_screen;
 }
