@@ -64,7 +64,7 @@ sub goto_position {
     $self->set_chapter( $position->{chapter} );
     if (   $position->{line}
         && $position->{columns}
-        && $position->{columns} == $self->renderer->columns )
+        && $position->{columns} == $self->pad_columns )
     {
         $self->goto_line( $position->{line} );
     }
@@ -79,7 +79,7 @@ sub get_position {
         chapter => $self->chapter,
         percent => $self->get_percent,
         line    => $self->line,
-        columns => $self->renderer->columns,
+        columns => $self->pad_columns,
     };
 }
 
@@ -290,7 +290,6 @@ sub render_pad {
     $self->renderer($renderer);
     $self->pad( $renderer->pad );
     $self->hrefs( $renderer->hrefs );
-    $self->max_lines( $self->get_max_lines );
     return;
 }
 

@@ -20,17 +20,18 @@ has columns => sub {
     $columns;
 };
 
-has 'pad';
-has 'title';
-has max_lines => sub {
-    shift->get_max_lines;
-};
+has [qw(title pad_lines pad_columns )];
 
-sub get_max_lines {
-    my $self = shift;
-    my ( $rows, $columns );
-    $self->pad->getmaxyx( $rows, $columns );
-    return $rows;
+sub pad {
+    my ( $self, $pad ) = @_;
+    if ($pad) {
+        my ( $rows, $columns );
+        $pad->getmaxyx( $rows, $columns );
+        $self->pad_lines( $rows - 1 );
+        $self->pad_columns($columns);
+        $self->{pad} = $pad;
+    }
+    return $self->{pad};
 }
 
 has key_bindings => sub {
@@ -91,7 +92,7 @@ sub run {
 sub goto_line {
     my ( $self, $num ) = @_;
     $num ||= ( $self->prefix || 1 ) - 1;
-    if ( $num <= $self->max_lines ) {
+    if ( $num <= $self->pad_lines ) {
         $self->line($num);
         $self->update_screen if $self->rows;
     }
@@ -101,7 +102,7 @@ sub goto_line {
 sub goto_percent {
     my ( $self, $num ) = @_;
     $num ||= ( $self->prefix || 0 );
-    $self->goto_line( int( $num * $self->max_lines / 100 ) );
+    $self->goto_line( int( $num * $self->pad_lines / 100 ) );
 }
 
 sub goto_line_or_end {
@@ -117,8 +118,8 @@ sub goto_line_or_end {
 
 sub next_line {
     my $self = shift;
-    if (    $self->line + 1 <= $self->max_lines
-        and $self->line + $self->rows <= $self->max_lines )
+    if (    $self->line + 1 <= $self->pad_lines
+        and $self->line + $self->rows <= $self->pad_lines )
     {
         $self->line( $self->line + 1 );
         $self->update_screen;
@@ -141,14 +142,14 @@ sub first_page {
 
 sub last_page {
     my $self = shift;
-    my $line = $self->max_lines - $self->rows + 1;
+    my $line = $self->pad_lines - $self->rows + 1;
     $self->line( $line >= 0 ? $line : 0 );
     $self->update_screen;
 }
 
 sub next_page {
     my $self = shift;
-    if ( $self->line + $self->rows <= $self->max_lines ) {
+    if ( $self->line + $self->rows <= $self->pad_lines ) {
         $self->line( $self->line + $self->rows );
         $self->update_screen;
         return 1;
@@ -174,7 +175,7 @@ sub prev_page {
 
 sub get_percent {
     my $self = shift;
-    int( ( $self->line + 1 ) * 100 / $self->max_lines );
+    int( ( $self->line + 1 ) * 100 / $self->pad_lines );
 }
 
 sub update_screen {
@@ -187,7 +188,7 @@ sub update_screen {
     addstring( $self->title );
 
     my $pos = $self->get_percent . '%';
-    if ( $self->line + $self->rows - 1 >= $self->max_lines ) {
+    if ( $self->line + $self->rows - 1 >= $self->pad_lines ) {
         $pos = "end";
     }
     $pos = "($pos)";
