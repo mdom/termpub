@@ -2,6 +2,10 @@ Revision history for termpub
 
 {{$NEXT}}
 
+1.02 2019-02-02T22:11:42Z
+
+  - Mark any bigger movement in the special position <'>.
+
 1.01 2019-02-02T21:20:09Z
 
   - Skip tests without terminal
