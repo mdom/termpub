@@ -3,6 +3,7 @@ use Mojo::Base -base;
 use Curses;
 
 has line => 0;
+has positions => sub { {} };
 
 has rows => sub {
     my $self = shift;
@@ -51,10 +52,53 @@ has key_bindings => sub {
         'g'                   => 'goto_line',
         'G'                   => 'goto_line_or_end',
         '%'                   => 'goto_percent',
+        'm'                   => 'mark_position',
+        "'"                   => 'restore_position',
     };
 };
 
 has 'prefix' => '';
+
+sub goto_position {
+    my ( $self, $position ) = @_;
+    if (   $position->{line}
+        && $position->{columns}
+        && $position->{columns} == $self->pad_columns )
+    {
+        $self->goto_line( $position->{line} );
+    }
+    else {
+        $self->goto_percent( $position->{percent} );
+    }
+}
+
+sub get_position {
+    my $self = shift;
+    return {
+        percent => $self->get_percent,
+        line    => $self->line,
+        columns => $self->pad_columns,
+    };
+}
+
+sub mark_position {
+    my $self = shift;
+    my $c    = getch();
+    if ( $c =~ /[a-z]/ ) {
+        $self->positions->{$c} = $self->get_position;
+    }
+    return;
+}
+
+sub restore_position {
+    my $self = shift;
+    my $c    = getch();
+    if ( $c =~ /[a-z]/ ) {
+        return if !$self->positions->{$c};
+        $self->goto_position( $self->positions->{$c} );
+    }
+    return;
+}
 
 sub handle_resize {
     my $self = shift;

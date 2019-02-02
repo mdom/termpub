@@ -16,7 +16,6 @@ has 'hrefs';
 has history => sub { [ shift->chapter ] };
 has history_index => 0;
 has 'renderer';
-has 'positions' => sub { {} };
 
 sub run {
     my $self = shift;
@@ -38,8 +37,6 @@ sub run {
     $self->key_bindings->{t}                  = 'jump_to_toc';
     $self->key_bindings->{'<'}                = 'history_back';
     $self->key_bindings->{'>'}                = 'history_forward';
-    $self->key_bindings->{'m'}                = 'mark_position';
-    $self->key_bindings->{"'"}                = 'restore_position';
     $self->key_bindings->{Curses::KEY_RESIZE} = 'handle_resize';
 
     $self->SUPER::run;
@@ -62,43 +59,14 @@ my %keycodes = (
 sub goto_position {
     my ( $self, $position ) = @_;
     $self->set_chapter( $position->{chapter} );
-    if (   $position->{line}
-        && $position->{columns}
-        && $position->{columns} == $self->pad_columns )
-    {
-        $self->goto_line( $position->{line} );
-    }
-    else {
-        $self->goto_percent( $position->{percent} );
-    }
+    $self->SUPER::goto_position($position);
 }
 
 sub get_position {
-    my $self = shift;
-    return {
-        chapter => $self->chapter,
-        percent => $self->get_percent,
-        line    => $self->line,
-        columns => $self->pad_columns,
-    };
-}
-
-sub mark_position {
-    my $self = shift;
-    my $c    = getch();
-    if ( $c =~ /[a-z]/ ) {
-        $self->positions->{$c} = $self->get_position;
-    }
-    return;
-}
-
-sub restore_position {
-    my $self = shift;
-    my $c    = getch();
-    if ( $c =~ /[a-z]/ ) {
-        $self->goto_position( $self->positions->{$c} );
-    }
-    return;
+    my $self     = shift;
+    my $position = $self->SUPER::get_position;
+    $position->{chapter} = $self->chapter;
+    return $position;
 }
 
 sub handle_resize {
