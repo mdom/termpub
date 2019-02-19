@@ -59,6 +59,8 @@
    },
    "version" : "1.03",
    "x_contributors" : [
+      "Adrian Petrescu <apetresc@gmail.com>",
+      "Mario Domgoergen <mario@domgoergen.com>",
       "Mario Domgoergen <mdom@taz.de>"
    ],
    "x_serialization_backend" : "JSON::PP version 2.27300_01",

@@ -9,10 +9,12 @@ termpub _file_
 
 # DESCRIPTION
 
-termpub is a _terminal_ viewer for epubs.
+termpub aims to be a full features epub reader for the terminal.
+It supports internal and external links, skips the front matter and
+will display images with an external viewer. Your reading position
+will be saved and restored.
 
-At startup termpub displays the first chapter with real content if
-possible. It will save your reading position and restore it.
+Many text movement commands are compatible with _less(1)_.
 
 # KEY BINDINGS
 
@@ -114,9 +116,6 @@ on the perl modules Mojolicious, Curses and Archive::Zip. On Debian the
 following command will install these packages.
 
     $ apt-get install libmojolicious-perl libcurses-perl libarchive-zip-perl
-
-On Arch Linux, there is a [termpub package](https://aur.archlinux.org/packages/termpub/)
-in the AUR.
 
 # COPYRIGHT AND LICENSE 
 
