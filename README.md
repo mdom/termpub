@@ -115,6 +115,9 @@ following command will install these packages.
 
     $ apt-get install libmojolicious-perl libcurses-perl libarchive-zip-perl
 
+On Arch Linux, there is a [termpub package](https://aur.archlinux.org/packages/termpub/)
+in the AUR.
+
 # COPYRIGHT AND LICENSE 
 
 Copyright 2019 Mario Domgoergen `<mario@domgoergen.com>` 
