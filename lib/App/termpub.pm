@@ -179,10 +179,10 @@ sub set_chapter {
         }
         $self->history_index(0);
     }
+    $self->chapter($num);
     $self->render_pad;
     $self->title( $self->chapters->[$num]->title );
     $self->set_mark;
-    $self->chapter($num);
     $self->line(0);
     return;
 }
