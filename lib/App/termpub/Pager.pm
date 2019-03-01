@@ -233,6 +233,7 @@ sub prev_page {
 
 sub get_percent {
     my $self = shift;
+    return 0 if !$self->pad_lines;
     int( ( $self->line + 1 ) * 100 / $self->pad_lines );
 }
 
