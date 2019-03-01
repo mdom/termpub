@@ -7,7 +7,7 @@ use Mojo::JSON 'encode_json', 'decode_json';
 use App::termpub::Renderer;
 use Curses;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 has 'epub';
 has chapters => sub { shift->epub->chapters };
