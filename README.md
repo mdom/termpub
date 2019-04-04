@@ -16,6 +16,10 @@ will be saved and restored.
 
 Many text movement commands are compatible with _less(1)_.
 
+If the optional library [Text::Hyphen](https://metacpan.org/pod/Text::Hyphen) is installed, words will be
+devided to fit more evenly on the screen. Currently only english
+hyphenation rules are supported. This will likely change in the future.
+
 # KEY BINDINGS
 
 - h, ?

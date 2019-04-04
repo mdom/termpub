@@ -64,6 +64,10 @@ will be saved and restored.
 
 Many text movement commands are compatible with I<less(1)>.
 
+If the optional library L<Text::Hyphen> is installed, words will be
+devided to fit more evenly on the screen. Currently only english
+hyphenation rules are supported. This will likely change in the future.
+
 =head1 KEY BINDINGS
 
 =over 4

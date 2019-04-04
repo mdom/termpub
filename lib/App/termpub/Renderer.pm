@@ -8,8 +8,8 @@ has columns => sub {
     my $default = 80;
     my ( $rows, $columns );
     getmaxyx( $rows, $columns );
-    return $columns < 80 ? $columns : 80;
-    return 80;
+    return $columns < $default ? $columns : $default;
+    return $default;
 };
 
 has rows    => 1000;
@@ -20,7 +20,14 @@ has id_line => sub {
     {}
 };
 
-my %noshow = map { $_ => 1 } qw[base basefont bgsound meta param script style];
+has hyphenator => sub {
+    eval { require Text::Hyphen };
+    return if $@;
+    Text::Hyphen->new;
+};
+
+my %noshow =
+  map { $_ => 1 } qw[base basefont bgsound meta param script style];
 
 my %empty = map { $_ => 1 } qw[br canvas col command embed frame
   img is index keygen link];
@@ -218,14 +225,34 @@ sub render_nodes {
             @words = map { split /(\n)/ } @words;
         }
 
+        my $hyphenator = $self->hyphenator;
+
         for my $word (@words) {
 
             my $length = () = $word =~ /\X/g;
 
-            my $max = $columns - $column - $left_margin - 2;
+            my $max = $columns - $column - $left_margin - 1;
 
             if ( $length > $max ) {
                 next if !$preserve_whitespace && $word =~ /^\s+$/;
+                if ($hyphenator) {
+                    my @pieces      = $hyphenator->hyphenate($word);
+                    my $need_hyphen = 0;
+                    while (@pieces) {
+                        my $length = () = $pieces[0] =~ /\X/g;
+                        last if $length >= $max;
+
+                        my $piece = shift @pieces;
+                        $buffer .= $piece;
+                        $max -= $length;
+                        $need_hyphen = 1;
+                    }
+                    if ($need_hyphen) {
+                        $buffer .= '-';
+                        $word = join( '', @pieces );
+                        $length = () = $word =~ /\X/g;
+                    }
+                }
                 $buffer .= "\n";
                 $column = 0;
             }
@@ -239,8 +266,8 @@ sub render_nodes {
             next if !$preserve_whitespace && $column == 0 && $word =~ /^\s+$/;
 
             if ( $left_margin && $column == 0 ) {
-                $word = $pad . $word;
-                $length += $left_margin;
+                $buffer .= $pad;
+                $column += $left_margin;
             }
 
             $buffer .= $word;
