@@ -1,10 +1,9 @@
 package App::termpub;
-use Mojo::Base 'App::termpub::Pager';
+use Mojo::Base 'App::termpub::Pager::HTML';
 use Mojo::Util 'decode';
 use Mojo::URL;
 use Mojo::File 'tempfile';
 use Mojo::JSON 'encode_json', 'decode_json';
-use App::termpub::Renderer;
 use Curses;
 
 our $VERSION = '1.04';
@@ -12,16 +11,13 @@ our $VERSION = '1.04';
 has 'epub';
 has chapters => sub { shift->epub->chapters };
 has chapter  => sub { shift->epub->start_chapter };
-has 'hrefs';
 has history => sub { [ shift->chapter ] };
 has history_index => 0;
-has 'renderer';
 
 sub run {
     my $self = shift;
 
     $self->title( $self->chapters->[ $self->chapter ]->title );
-    $self->render_pad;
 
     my $data = $self->epub->read_metadata;
 
@@ -72,7 +68,7 @@ sub get_position {
 sub handle_resize {
     my $self = shift;
     $self->SUPER::handle_resize;
-    $self->render_pad;
+    $self->render;
     $self->update_screen;
 }
 
@@ -129,7 +125,7 @@ sub open_link {
                 $self->set_chapter($i);
 
                 if ( my $fragment = $url->fragment ) {
-                    if ( my $line = $self->renderer->id_line->{$fragment} ) {
+                    if ( my $line = $self->id_line->{$fragment} ) {
                         $self->line($line);
                     }
                 }
@@ -180,7 +176,7 @@ sub set_chapter {
         $self->history_index(0);
     }
     $self->chapter($num);
-    $self->render_pad;
+    $self->render;
     $self->title( $self->chapters->[$num]->title );
     $self->set_mark;
     $self->line(0);
@@ -205,26 +201,6 @@ sub history_forward {
     return;
 }
 
-sub next_chapter {
-    my $self = shift;
-    while (1) {
-        if ( $self->chapters->[ $self->chapter + 1 ] ) {
-            $self->set_chapter( $self->chapter + 1 );
-            if ( $self->pad ) {
-                $self->update_screen;
-                return;
-            }
-            else {
-                next;
-            }
-        }
-        else {
-            return;
-        }
-    }
-    return;
-}
-
 sub next_page {
     my $self = shift;
     $self->next_chapter if !$self->SUPER::next_page;
@@ -235,16 +211,28 @@ sub prev_page {
     $self->prev_chapter if !$self->SUPER::prev_page;
 }
 
+sub next_chapter {
+    my $self = shift;
+    while (1) {
+        if ( $self->chapters->[ $self->chapter + 1 ] ) {
+            $self->set_chapter( $self->chapter + 1 );
+			$self->update_screen;
+			return 1;
+        }
+		else {
+			return;
+		}
+    }
+    return;
+}
+
 sub prev_chapter {
     my $self = shift;
     while (1) {
         if ( $self->chapter > 0 ) {
             $self->set_chapter( $self->chapter - 1 );
-            if ( $self->pad ) {
-                $self->update_screen;
-                return 1;
-            }
-            next;
+			$self->update_screen;
+			return 1;
         }
         else {
             return;
@@ -253,15 +241,10 @@ sub prev_chapter {
     return;
 }
 
-sub render_pad {
+sub render {
     my $self     = shift;
     my $content  = $self->chapters->[ $self->chapter ]->content;
-    my $renderer = App::termpub::Renderer->new;
-    $renderer->render( decode( 'UTF-8', $content ) );
-    $self->renderer($renderer);
-    $self->pad( $renderer->pad );
-    $self->hrefs( $renderer->hrefs );
-    return;
+    return $self->SUPER::render( decode( 'UTF-8', $content ) );
 }
 
 1;

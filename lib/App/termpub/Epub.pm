@@ -84,9 +84,10 @@ has chapters => sub {
     my $self = shift;
     my @idrefs =
       $self->root_dom->find('spine itemref')->map( attr => 'idref' )->each;
+
     my @chapters;
     for my $idref (@idrefs) {
-        my $item = $self->root_dom->at("manifest item#$idref");
+        my $item = $self->root_dom->at(qq{manifest item[id="$idref"]});
         next if !$item || $item->attr('media-type') ne 'application/xhtml+xml';
         my $href = $item->attr('href');
         next if !$href;

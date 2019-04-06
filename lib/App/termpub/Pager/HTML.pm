@@ -1,10 +1,11 @@
-package App::termpub::Renderer;
-use Mojo::Base -base;
+package App::termpub::Pager::HTML;
+use Mojo::Base 'App::termpub::Pager';
+use App::termpub::Hyphen;
 
 use Mojo::DOM;
 use Curses;
 
-has columns => sub {
+has pad_columns => sub {
     my $default = 80;
     my ( $rows, $columns );
     getmaxyx( $rows, $columns );
@@ -12,18 +13,16 @@ has columns => sub {
     return $default;
 };
 
-has rows    => 1000;
 has row     => 0;
-has pad     => sub { my $self = shift; newpad( $self->rows, $self->columns ) };
 has hrefs   => sub { [] };
 has id_line => sub {
     {}
 };
 
 has hyphenator => sub {
-    eval { require Text::Hyphen };
-    return if $@;
-    Text::Hyphen->new;
+    my $h = App::termpub::Hyphen->new;
+    return if !$h->installed;
+    return $h;
 };
 
 my %noshow =
@@ -52,13 +51,20 @@ my %left_margin = ( li => 2, pre => 2, code => 2 );
 
 sub render {
     my ( $self, $content ) = @_;
+
+    $self->row(0);
+    $self->pad->clear;
+    $self->hrefs( [] );
+    $self->id_line( {} );
+
     my $node = Mojo::DOM->new($content)->at('body');
     return if !$node;
     my $nodes = [];
     $self->process_node( $node, $nodes );
 
     $self->render_nodes($nodes);
-    $self->pad->resize( $self->row + 1, $self->columns );
+    $self->pad_rows( $self->row + 1 );
+    $self->pad->resize( $self->pad_rows, $self->pad_columns );
     return;
 }
 
@@ -148,7 +154,7 @@ sub render_nodes {
 
     my $left_margin         = 0;
     my $preserve_whitespace = 0;
-    my $columns             = $self->columns;
+    my $columns             = $self->pad_columns;
     my $pad                 = '';
     my $column              = 0;
     my $newline             = 1;
@@ -285,10 +291,10 @@ sub add_to_pad {
 
     my $row = $self->row;
 
-    ## Increase pad size when we reach $self->rows
-    if ( $row + 1 + $buffer_rows >= $self->rows ) {
-        $self->rows( $self->rows + $buffer_rows + 1000 );
-        resize( $self->pad, $self->rows, $self->columns );
+    ## Increase pad size when we reach $self->pad_rows
+    if ( $row + 1 + $buffer_rows >= $self->pad_rows ) {
+        $self->pad_rows( $self->pad_rows + $buffer_rows + 1000 );
+        resize( $self->pad, $self->pad_rows, $self->pad_columns );
     }
 
     $self->pad->addstring($$buffer);
