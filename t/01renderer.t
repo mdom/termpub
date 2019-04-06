@@ -3,7 +3,7 @@
 use Mojo::Base -strict;
 use Test::More;
 
-use App::termpub::Renderer;
+use App::termpub::Pager::HTML;
 use Mojo::Loader 'data_section';
 use Curses;
 
@@ -22,7 +22,8 @@ sub render_ok {
     my $expected = data_section(__PACKAGE__)->{$expected_file};
     chomp($expected);
 
-    my $r = App::termpub::Renderer->new;
+    my $r = App::termpub::Pager::HTML->new;
+	$r->hyphenator(undef);
     $r->render($input);
     my $output;
     my $i = 0;
