@@ -47,18 +47,35 @@ has dir => sub {
     {
         return path($_) if -d;
     }
-	return;
+    return;
 };
 
 has file => sub {
     my $self = shift;
-    my $file = $self->dir->child( 'hyph_' . $self->lang . '.dic' );
-    die "Can't find dictionary file $file\n" if !-f $file;
+
+    my $lang = $self->lang;
+
+    my $file;
+    if ( $lang !~ /[_-]/ ) {
+        $lang = lc($lang);
+        $file = $self->dir->list->grep(
+            sub { $_->basename =~ /^hyph_${lang}_.*\.dic/ } )->first;
+    }
+    else {
+        $lang =~ s/-/_/;
+        $lang =~ s/([^_]+)_(.+)/lc($1)."_".uc($2)/e;
+        $file = $self->dir->child("hyph_$lang.dic");
+    }
+
+    return if !( $file && -f $file );
     return $file;
 };
 
 sub installed {
-	return shift->dir;
+    my $self = shift;
+    return if !$self->dir;
+    return if !$self->file;
+    return 1;
 }
 
 =head2 new(%options)
@@ -114,7 +131,7 @@ sub _load_patterns {
         $fh->binmode(':encoding(iso-8859-1)');
     }
     while (<$fh>) {
-		chomp;
+        chomp;
         next if /^\s*#/;
         next if /^\s*$/;
         $self->_add_pattern( $trie, $_ );
@@ -138,7 +155,6 @@ sub hyphenate {
       and return $word;
 
     my @word = split //, $word;
-
 
     my @work = ( '.', map { lc } @word, '.' );
     my $points = [ (0) x ( @work + 1 ) ];
