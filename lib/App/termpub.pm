@@ -12,7 +12,7 @@ our $VERSION = '1.04';
 has 'epub';
 has chapters => sub { shift->epub->chapters };
 has chapter  => sub { shift->epub->start_chapter };
-has history => sub { [ shift->chapter ] };
+has history  => sub { [ shift->chapter ] };
 has history_index => 0;
 
 has hyphenator => sub {
@@ -225,12 +225,12 @@ sub next_chapter {
     while (1) {
         if ( $self->chapters->[ $self->chapter + 1 ] ) {
             $self->set_chapter( $self->chapter + 1 );
-			$self->update_screen;
-			return 1;
+            $self->update_screen;
+            return 1;
         }
-		else {
-			return;
-		}
+        else {
+            return;
+        }
     }
     return;
 }
@@ -240,8 +240,8 @@ sub prev_chapter {
     while (1) {
         if ( $self->chapter > 0 ) {
             $self->set_chapter( $self->chapter - 1 );
-			$self->update_screen;
-			return 1;
+            $self->update_screen;
+            return 1;
         }
         else {
             return;
@@ -251,8 +251,8 @@ sub prev_chapter {
 }
 
 sub render {
-    my $self     = shift;
-    my $content  = $self->chapters->[ $self->chapter ]->content;
+    my $self    = shift;
+    my $content = $self->chapters->[ $self->chapter ]->content;
     return $self->SUPER::render( decode( 'UTF-8', $content ) );
 }
 
