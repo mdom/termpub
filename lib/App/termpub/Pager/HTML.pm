@@ -1,6 +1,5 @@
 package App::termpub::Pager::HTML;
 use Mojo::Base 'App::termpub::Pager';
-use App::termpub::Hyphen;
 
 use Mojo::DOM;
 use Curses;
@@ -19,11 +18,7 @@ has id_line => sub {
     {}
 };
 
-has hyphenator => sub {
-    my $h = App::termpub::Hyphen->new;
-    return if !$h->installed;
-    return $h;
-};
+has 'hyphenator';
 
 my %noshow =
   map { $_ => 1 } qw[base basefont bgsound meta param script style];

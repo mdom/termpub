@@ -4,6 +4,7 @@ use Mojo::Util 'decode';
 use Mojo::URL;
 use Mojo::File 'tempfile';
 use Mojo::JSON 'encode_json', 'decode_json';
+use App::termpub::Hyphen;
 use Curses;
 
 our $VERSION = '1.04';
@@ -13,6 +14,14 @@ has chapters => sub { shift->epub->chapters };
 has chapter  => sub { shift->epub->start_chapter };
 has history => sub { [ shift->chapter ] };
 has history_index => 0;
+
+has hyphenator => sub {
+    my $self = shift;
+    my $lang = $self->epub->language || 'en-US';
+    my $h    = App::termpub::Hyphen->new( lang => $lang );
+    return if !$h->installed;
+    return $h;
+};
 
 sub run {
     my $self = shift;

@@ -133,6 +133,12 @@ has root_dom => sub {
     return Mojo::DOM->new($root);
 };
 
+has language => sub {
+    my $self = shift;
+    return html_unescape(
+        eval { $self->root_dom->at('metadata')->at('dc\:language')->content } );
+};
+
 has creator => sub {
     my $self = shift;
     return html_unescape(
