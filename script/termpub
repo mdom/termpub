@@ -5,7 +5,6 @@ use Curses;
 
 use lib 'lib';
 use App::termpub;
-use App::termpub::Epub;
 use Pod::Usage;
 
 initscr;
@@ -13,20 +12,7 @@ noecho;
 cbreak;
 curs_set(0);
 
-my $filename = shift;
-
-if ( !$filename ) {
-    endwin;
-    pod2usage(
-        -message    => 'Missing file',
-        -exitstatus => 1,
-        -verbose    => 0,
-    );
-}
-
-my $epub = App::termpub::Epub->new( filename => $filename );
-
-eval { App::termpub->new( epub => $epub )->run };
+eval { App::termpub->new->run( \@ARGV ) };
 
 if ($@) {
     endwin;
@@ -64,9 +50,23 @@ will be saved and restored.
 
 Many text movement commands are compatible with I<less(1)>.
 
-If the optional library L<Text::Hyphen> is installed, words will be
-devided to fit more evenly on the screen. Currently only english
-hyphenation rules are supported. This will likely change in the future.
+The text will be hyphenated if the hyphenation patterns from hunspells
+libhyphen are installed.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --[no-]hyphenation
+
+Hyphenate text. Defaults to true.
+
+=item --lang LANGUAGE_TAG
+
+Set the language used for hyphenation. Defaults to the books language or
+'en-US' if not specified.
+
+=back
 
 =head1 KEY BINDINGS
 

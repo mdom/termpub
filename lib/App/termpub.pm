@@ -1,30 +1,50 @@
 package App::termpub;
 use Mojo::Base 'App::termpub::Pager::HTML';
-use Mojo::Util 'decode';
+use Mojo::Util 'decode', 'getopt';
 use Mojo::URL;
 use Mojo::File 'tempfile';
 use Mojo::JSON 'encode_json', 'decode_json';
 use App::termpub::Hyphen;
+use App::termpub::Epub;
 use Curses;
 
 our $VERSION = '1.04';
 
-has 'epub';
+has epub => sub {
+    my $self = shift;
+    App::termpub::Epub->new( filename => $self->filename );
+};
 has chapters => sub { shift->epub->chapters };
 has chapter  => sub { shift->epub->start_chapter };
 has history  => sub { [ shift->chapter ] };
 has history_index => 0;
 
+has hyphenation => 1;
+has language    => 'en-US';
+has 'filename';
+
 has hyphenator => sub {
     my $self = shift;
-    my $lang = $self->epub->language || 'en-US';
-    my $h    = App::termpub::Hyphen->new( lang => $lang );
+    return if !$self->hyphenation;
+    my $lang = $self->epub->language || $self->language;
+    my $h = App::termpub::Hyphen->new( lang => $lang );
     return if !$h->installed;
     return $h;
 };
 
+sub load_config {
+    my ( $self, $argv ) = @_;
+    my $handler = sub { my ( $n, $v ) = @_; $self->$n($v) };
+    local $SIG{__WARN__} = sub { die @_ };
+    getopt( $argv, 'language|l=s' => $handler, 'hyphenation!' => $handler );
+    die "Missing filename for epub.\n" if !$argv->[0];
+    $self->filename( $argv->[0] );
+}
+
 sub run {
-    my $self = shift;
+    my ( $self, $argv ) = @_;
+
+    $self->load_config($argv);
 
     $self->title( $self->chapters->[ $self->chapter ]->title );
 

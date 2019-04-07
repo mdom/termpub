@@ -16,9 +16,19 @@ will be saved and restored.
 
 Many text movement commands are compatible with _less(1)_.
 
-If the optional library [Text::Hyphen](https://metacpan.org/pod/Text::Hyphen) is installed, words will be
-devided to fit more evenly on the screen. Currently only english
-hyphenation rules are supported. This will likely change in the future.
+The text will be hyphenated if the hyphenation patterns from hunspells
+libhyphen are installed.
+
+# OPTIONS
+
+- --\[no-\]hyphenation
+
+    Hyphenate text. Defaults to true.
+
+- --lang LANGUAGE\_TAG
+
+    Set the language used for hyphenation. Defaults to the books language or
+    'en-US' if not specified.
 
 # KEY BINDINGS
 
