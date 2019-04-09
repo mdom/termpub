@@ -6,6 +6,7 @@ use Mojo::File 'tempfile';
 use Mojo::JSON 'encode_json', 'decode_json';
 use App::termpub::Hyphen;
 use App::termpub::Epub;
+use App::termpub::Pager::Text;
 use Curses;
 
 our $VERSION = '1.04';
@@ -168,27 +169,22 @@ sub open_link {
 
 sub help_screen {
     my $self = shift;
-    my $pad  = newpad( scalar keys %{ $self->key_bindings }, $self->columns );
     my @keys = sort keys %{ $self->key_bindings };
 
-    my $row    = 0;
     my $length = 0;
     for my $key (@keys) {
         my $str = $keycodes{$key} || $key;
         $length = length($str) if length($str) > $length;
     }
 
+    my $content;
     for my $key (@keys) {
-        $pad->addstring( ( $keycodes{$key} || $key ) );
-        $pad->addstring( $row, $length,
-            ' = ' . $self->key_bindings->{$key} . "\n" );
-        $row++;
+        next if $key eq '' . Curses::KEY_RESIZE;
+        $content .= sprintf "%-*s = %s\n", $length, $keycodes{$key} || $key,
+          $self->key_bindings->{$key};
     }
 
-    my $pager = App::termpub::Pager->new;
-    $pager->pad($pad);
-    $pager->run;
-
+    App::termpub::Pager::Text->new( content => $content )->render->run;
     $self->update_screen;
 }
 
