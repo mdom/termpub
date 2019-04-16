@@ -23,7 +23,8 @@ has columns => sub {
 
 has 'title';
 
-has pad => sub { my $self = shift; newpad( $self->pad_rows, $self->pad_columns ) };
+has pad =>
+  sub { my $self = shift; newpad( $self->pad_rows, $self->pad_columns ) };
 
 has pad_rows    => sub { shift->rows };
 has pad_columns => sub { shift->columns };
@@ -234,7 +235,7 @@ sub update_screen {
     my $self = shift;
     clear;
     refresh;
-    prefresh( $self->pad, $self->line, 0, 0, 0, $self->rows - 1, 80 );
+    prefresh( $self->pad, $self->line, 0, 0, 0, $self->rows - 1, $self->pad_columns );
 
     move( $self->rows, 0 );
     addstring( $self->title );

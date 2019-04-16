@@ -22,12 +22,13 @@ has history_index => 0;
 
 has hyphenation => sub { shift->config->{hyphenation} };
 has language    => sub { shift->config->{language} };
+has width       => sub { shift->config->{width} };
 has 'filename';
 
 has config => sub {
     my $self        = shift;
     my $config_file = "$ENV{HOME}/.termpubrc";
-    my $config      = { hyphenation => 1, language => 'en-US' };
+    my $config      = { hyphenation => 1, language => 'en-US', width => 80 };
     if ( !-e $config_file ) {
         my $dir = $ENV{XDG_CONFIG_HOME} // '~/.config/';
         $config_file = "$dir/termpub/config";
@@ -86,6 +87,8 @@ sub run {
 
     $self->parse_argv($argv);
 
+    $self->pad_columns( $self->width );
+
     $self->title( $self->chapters->[ $self->chapter ]->title );
 
     my $data = $self->epub->read_metadata;
@@ -102,6 +105,7 @@ sub run {
     $self->key_bindings->{t}                  = 'jump_to_toc';
     $self->key_bindings->{'<'}                = 'history_back';
     $self->key_bindings->{'>'}                = 'history_forward';
+    $self->key_bindings->{'|'}                = 'set_width';
     $self->key_bindings->{Curses::KEY_RESIZE} = 'handle_resize';
 
     $self->SUPER::run;
@@ -132,6 +136,17 @@ sub get_position {
     my $position = $self->SUPER::get_position;
     $position->{chapter} = $self->chapter;
     return $position;
+}
+
+sub set_width {
+    my ( $self, $num ) = @_;
+    $num ||= $self->prefix;
+    if ($num) {
+        $self->pad_columns($num);
+        $self->render;
+        $self->update_screen;
+    }
+    return;
 }
 
 sub handle_resize {

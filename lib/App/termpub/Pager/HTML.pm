@@ -49,6 +49,7 @@ sub render {
 
     $self->row(0);
     $self->pad->clear;
+    $self->pad->resize( $self->pad_rows, $self->pad_columns );
     $self->hrefs( [] );
     $self->id_line( {} );
 

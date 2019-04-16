@@ -30,6 +30,10 @@ libhyphen are installed.
     Set the language used for hyphenation. Defaults to the books language or
     'en-US' if not specified.
 
+- --width WIDTH
+
+    Set screen width. Defaults to 80.
+
 # KEY BINDINGS
 
 - h, ?
@@ -59,6 +63,10 @@ libhyphen are installed.
     previously marked with that letter. Followed by another single quote,
     returns to the position at which the last "large" movement command was
     executed.
+
+- \[num\] |
+
+    Set pager width to _num_.
 
 - \[num\] %
 
@@ -130,9 +138,13 @@ The following commands are defined:
 
     Enables or disabled hyphenation
 
-- set language $language\_tag
+- set language _language\_tag_
 
     Set the language used for hyphenation.
+
+- set width _num_
+
+    Set screen width to _num_.
 
 # INSTALLATION
 

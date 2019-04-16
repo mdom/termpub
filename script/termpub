@@ -66,6 +66,10 @@ Hyphenate text. Defaults to true.
 Set the language used for hyphenation. Defaults to the books language or
 'en-US' if not specified.
 
+=item --width WIDTH
+
+Set screen width. Defaults to 80.
+
 =back
 
 =head1 KEY BINDINGS
@@ -99,6 +103,10 @@ Followed by any lowercase letter, returns to the position which was
 previously marked with that letter. Followed by another single quote,
 returns to the position at which the last "large" movement command was
 executed.
+
+=item [num] |
+
+Set pager width to I<num>.
 
 =item [num] %
 
@@ -174,9 +182,13 @@ The following commands are defined:
 
 Enables or disabled hyphenation
 
-=item set language $language_tag
+=item set language I<language_tag>
 
 Set the language used for hyphenation.
+
+=item set width I<num>
+
+Set screen width to I<num>.
 
 =back
 
