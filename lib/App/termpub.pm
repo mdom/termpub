@@ -2,7 +2,7 @@ package App::termpub;
 use Mojo::Base 'App::termpub::Pager::HTML';
 use Mojo::Util 'decode', 'getopt';
 use Mojo::URL;
-use Mojo::File 'tempfile';
+use Mojo::File 'tempfile',    'path';
 use Mojo::JSON 'encode_json', 'decode_json';
 use App::termpub::Hyphen;
 use App::termpub::Epub;
@@ -20,9 +20,48 @@ has chapter  => sub { shift->epub->start_chapter };
 has history  => sub { [ shift->chapter ] };
 has history_index => 0;
 
-has hyphenation => 1;
-has language    => 'en-US';
+has hyphenation => sub { shift->config->{hyphenation} };
+has language    => sub { shift->config->{language} };
 has 'filename';
+
+has config => sub {
+    my $self        = shift;
+    my $config_file = "$ENV{HOME}/.termpubrc";
+    my $config      = { hyphenation => 1, language => 'en-US' };
+    if ( !-e $config_file ) {
+        my $dir = $ENV{XDG_CONFIG_HOME} // '~/.config/';
+        $config_file = "$dir/termpub/config";
+    }
+    if ( -e $config_file ) {
+        $self->read_config( path($config_file), $config );
+    }
+    return $config;
+};
+
+sub read_config {
+    my ( $self, $file, $config ) = @_;
+    my $fh = $file->open('<:encoding(UTF-8)');
+    while (<$fh>) {
+        s/#.*//;
+        next if /^\s*$/;
+        my ( $cmd, @args ) = split;
+        if ( $cmd eq 'set' ) {
+            my ( $key, $val ) = @args;
+            if ( not exists $config->{$key} ) {
+                die "Unknown variable $key in config file.\n";
+            }
+            $val //= 1;
+            if ( $val eq 'true' || $val eq 'on' ) {
+                $val = 1;
+            }
+            elsif ( $val eq 'false' || $val eq 'off' ) {
+                $val = 0;
+            }
+            $config->{$key} = $val;
+        }
+    }
+    return $config;
+}
 
 has hyphenator => sub {
     my $self = shift;
@@ -33,7 +72,7 @@ has hyphenator => sub {
     return $h;
 };
 
-sub load_config {
+sub parse_argv {
     my ( $self, $argv ) = @_;
     my $handler = sub { my ( $n, $v ) = @_; $self->$n($v) };
     local $SIG{__WARN__} = sub { die @_ };
@@ -45,7 +84,7 @@ sub load_config {
 sub run {
     my ( $self, $argv ) = @_;
 
-    $self->load_config($argv);
+    $self->parse_argv($argv);
 
     $self->title( $self->chapters->[ $self->chapter ]->title );
 

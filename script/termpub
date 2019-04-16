@@ -155,6 +155,31 @@ Quit.
 
 =back
 
+=head1 CONFIGURATION FILE
+
+When termpub is invoked, it will attempt to read a configuration file
+named .termpubrc in your home directory. If this file does not exist
+termpub will try to read $XDG_CONFIG_HOME/termpub/termpubrc.
+
+The configuration file consists of a series of commands. Each line may
+only contain one command. The hash mark is used as a comment character.
+All text after the comment character to the end of the line is ignored.
+The file is expected to be utf8 encoded.
+
+The following commands are defined:
+
+=over 4
+
+=item set hyphenation on|true|off|false|0|1
+
+Enables or disabled hyphenation
+
+=item set language $language_tag
+
+Set the language used for hyphenation.
+
+=back
+
 =head1 INSTALLATION
 
 If you have cpanminus installed, you can simply install this program

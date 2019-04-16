@@ -113,6 +113,27 @@ libhyphen are installed.
 
     Quit.
 
+# CONFIGURATION FILE
+
+When termpub is invoked, it will attempt to read a configuration file
+named .termpubrc in your home directory. If this file does not exist
+termpub will try to read $XDG\_CONFIG\_HOME/termpub/termpubrc.
+
+The configuration file consists of a series of commands. Each line may
+only contain one command. The hash mark is used as a comment character.
+All text after the comment character to the end of the line is ignored.
+The file is expected to be utf8 encoded.
+
+The following commands are defined:
+
+- set hyphenation on|true|off|false|0|1
+
+    Enables or disabled hyphenation
+
+- set language $language\_tag
+
+    Set the language used for hyphenation.
+
 # INSTALLATION
 
 If you have cpanminus installed, you can simply install this program
