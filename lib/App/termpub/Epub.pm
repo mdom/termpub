@@ -26,6 +26,11 @@ has toc => sub {
     my $toc  = $self->root_dom->find('guide reference[type="toc"]')
       ->map( attr => 'href' )->first;
 
+    if ( !$toc ) {
+        $toc = $self->root_dom->find('manifest item[properties="nav"]')
+          ->map( attr => 'href' )->first;
+    }
+
     if ( !$toc && $self->nav_doc ) {
         $toc = $self->nav_doc->find(
             'nav[epub\:type="landmarks"] a[epub\:type="toc"]')
