@@ -99,10 +99,11 @@ has chapters => sub {
 
         my $title;
         if ( $self->nav_doc ) {
-            $title =
-              Mojo::DOM->new(
-                $self->nav_doc->find("a[href=$href]")->map('content')->first )
-              ->all_text;
+            my $text_node =
+              $self->nav_doc->find("a[href=$href]")->map('content')->first;
+            if ($text_node) {
+                $title = Mojo::DOM->new($text_node)->all_text;
+            }
         }
 
         push @chapters,
