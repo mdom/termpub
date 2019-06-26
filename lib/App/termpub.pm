@@ -179,7 +179,7 @@ sub open_image {
 sub open_link {
     my $self = shift;
     if ( $self->prefix ) {
-        my ( $type, $href ) = @{ $self->hrefs->[ $self->prefix - 1 ] };
+        my ( $type, $href ) = @{ $self->hrefs->[ $self->prefix - 1 ] || [] };
         return if !$href;
 
         if ( $type eq 'img' ) {
