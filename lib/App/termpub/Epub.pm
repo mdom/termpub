@@ -164,7 +164,8 @@ has title => sub {
 sub read_metadata {
     my $self = shift;
     my $content =
-      $self->archive->contents('META-INF/com.domgoergen.termpub.json') || '{}';
+      $self->archive->contents('META-INF/com.domgoergen.termpub.json')
+      || '{}';
     my $data = decode_json($content);
     if ( $data->{version} == 1 ) {
         $data->{position} = {

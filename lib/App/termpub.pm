@@ -68,7 +68,7 @@ has hyphenator => sub {
     my $self = shift;
     return if !$self->hyphenation;
     my $lang = $self->epub->language || $self->language;
-    my $h = App::termpub::Hyphen->new( lang => $lang );
+    my $h    = App::termpub::Hyphen->new( lang => $lang );
     return if !$h->installed;
     return $h;
 };
