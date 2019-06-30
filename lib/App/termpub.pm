@@ -9,7 +9,7 @@ use App::termpub::Epub;
 use App::termpub::Pager::Text;
 use Curses;
 
-our $VERSION = '1.04';
+our $VERSION = '1.05';
 
 has epub => sub {
     my $self = shift;

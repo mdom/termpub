@@ -4,13 +4,13 @@
       "Mario Domgoergen C<< <mario@domgoergen.com> >> "
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.1.4, CPAN::Meta::Converter version 2.150005",
+   "generated_by" : "Minilla/v3.1.4, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "gpl_3"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
-      "version" : "2"
+      "version" : 2
    },
    "name" : "App-termpub",
    "no_index" : {
@@ -57,12 +57,12 @@
          "web" : "https://github.com/mdom/termpub"
       }
    },
-   "version" : "1.04",
+   "version" : "1.05",
    "x_contributors" : [
       "Adrian Petrescu <apetresc@gmail.com>",
       "Mario Domgoergen <mario@domgoergen.com>",
       "Mario Domgoergen <mdom@taz.de>"
    ],
-   "x_serialization_backend" : "JSON::PP version 2.27300_01",
+   "x_serialization_backend" : "JSON::PP version 2.97001",
    "x_static_install" : 1
 }

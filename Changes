@@ -2,6 +2,14 @@ Revision history for termpub
 
 {{$NEXT}}
 
+1.05 2019-06-30T13:40:33Z
+  - Find toc with manifest item[properties="nav"]
+  - Handle trying to open not existing link
+  - Dynamic screen width
+  - Read config from configuration file
+  - Render title and do not show tags
+  - Add hyphenation support by using hunspell dictionaries
+
 1.04 2019-03-01T16:05:38Z
 
   - Fix division by zero when loading empty pads
