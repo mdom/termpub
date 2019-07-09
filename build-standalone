@@ -14,14 +14,16 @@ print {$standalone} "#!/usr/bin/perl\n";
 my @libraries = (
     qw(
       lib/App/termpub/Pager.pm
-      lib/App/termpub/Renderer.pm
       lib/App/termpub/Epub.pm
+      lib/App/termpub/Pager/HTML.pm
+      lib/App/termpub/Pager/Text.pm
       lib/App/termpub/Epub/Chapter.pm
+      lib/App/termpub/Hyphen.pm
       lib/App/termpub.pm
       )
 );
 
-for ( @libraries ) {
+for (@libraries) {
     open( my $fh, '<', $_ )
       or die "Can't open $_: $!\n";
     while (<$fh>) {
