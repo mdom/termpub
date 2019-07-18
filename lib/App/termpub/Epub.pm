@@ -1,11 +1,13 @@
 package App::termpub::Epub;
 use Mojo::Base -base;
 use Mojo::DOM;
+use Mojo::URL;
 use Mojo::JSON qw(decode_json encode_json);
 use Mojo::Util qw(decode encode html_unescape);
 use Archive::Zip qw(:ERROR_CODES);
 use Mojo::File 'tempfile';
 use App::termpub::Epub::Chapter;
+use App::termpub::NavDoc;
 
 Archive::Zip::setErrorHandler( sub { } );
 
@@ -16,26 +18,32 @@ has nav_doc => sub {
     my $href = $self->root_dom->find('manifest item[properties="nav"]')
       ->map( attr => 'href' )->first;
     return if !$href;
-    my $filename = $self->root_file->sibling($href)->to_rel->to_string;
-    my $root = Mojo::Util::decode 'UTF-8', $self->archive->contents($filename);
-    return Mojo::DOM->new($root);
+    return App::termpub::NavDoc->new(
+        href => Mojo::URL->new($href),
+        epub => $self,
+    );
 };
 
 has toc => sub {
     my $self = shift;
-    my $toc  = $self->root_dom->find('guide reference[type="toc"]')
+
+    warn $self->filename . "\n";
+
+    ## http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.6
+
+    my $toc = $self->root_dom->find('guide reference[type="toc"]')
       ->map( attr => 'href' )->first;
 
-    if ( !$toc ) {
-        $toc = $self->root_dom->find('manifest item[properties="nav"]')
-          ->map( attr => 'href' )->first;
+    ## http://www.idpf.org/epub/30/spec/epub30-publications.html#sec-item-elem
+
+    if ( !$toc && $self->nav_doc ) {
+        $toc = $self->nav_doc->toc;
     }
 
     if ( !$toc && $self->nav_doc ) {
-        $toc = $self->nav_doc->find(
-            'nav[epub\:type="landmarks"] a[epub\:type="toc"]')
-          ->map( attr => 'href' )->first;
+        $toc = $self->nav_doc->href;
     }
+
     return if !$toc;
 
     for ( my $i = 0 ; $i < @{ $self->chapters } ; $i++ ) {
