@@ -133,6 +133,11 @@ sub run {
             next;
         }
 
+        if ( !$self->can($method) ) {
+            $self->display_msg("Unknown function $method called.");
+            next;
+        }
+
         if ( $self->$method eq 'quit' ) {
             last;
         }
