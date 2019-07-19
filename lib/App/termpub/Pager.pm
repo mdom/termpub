@@ -237,17 +237,20 @@ sub update_screen {
     refresh;
     prefresh( $self->pad, $self->line, 0, 0, 0, $self->rows - 1, $self->pad_columns );
 
-    move( $self->rows, 0 );
-    addstring( $self->title );
+    my $status = '-' x $self->columns;
+
+    substr( $status, 0, length( $self->title ) ) = $self->title;
 
     my $pos = $self->get_percent . '%';
     if ( $self->line + $self->rows - 1 >= $self->pad_rows ) {
         $pos = "end";
     }
     $pos = "($pos)";
-    addstring( '-' x $self->columns );
-    move( $self->rows, $self->columns - length($pos) - 2 );
-    addstring($pos);
+
+    substr( $status, -length($pos) - 2, length($pos) ) = $pos;
+
+    move( $self->rows, 0 );
+    addstring($status);
 
     move( $self->rows, 0 );
     chgat( -1, A_STANDOUT, 0, 0 );
