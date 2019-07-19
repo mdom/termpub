@@ -10,7 +10,7 @@ has rows => sub {
     my ( $rows, $columns );
     getmaxyx( $rows, $columns );
     $self->columns($columns);
-    $rows - 1;
+    $rows - 2;
 };
 
 has columns => sub {
@@ -133,6 +133,13 @@ sub run {
         $self->prefix('');
     }
     return;
+}
+
+sub display_msg {
+    my ( $self, $msg ) = @_;
+    move( $self->rows + 1, 0 );
+    clrtoeol;
+    addstr($msg);
 }
 
 sub goto_line {
