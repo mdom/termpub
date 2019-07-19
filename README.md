@@ -121,6 +121,10 @@ libhyphen are installed.
 
     Quit.
 
+- Q
+
+    Quit without saving the current reading position.
+
 # CONFIGURATION FILE
 
 When termpub is invoked, it will attempt to read a configuration file

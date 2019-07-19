@@ -161,6 +161,10 @@ Go back or forward in the chapter history.
 
 Quit.
 
+=item Q
+
+Quit without saving the current reading position.
+
 =back
 
 =head1 CONFIGURATION FILE

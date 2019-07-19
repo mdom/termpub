@@ -97,6 +97,7 @@ sub run {
         $self->goto_position( $data->{position} );
     }
 
+    $self->key_bindings->{Q}                  = 'quit_without_saving';
     $self->key_bindings->{n}                  = 'next_chapter';
     $self->key_bindings->{p}                  = 'prev_chapter';
     $self->key_bindings->{h}                  = 'help_screen';
@@ -110,8 +111,17 @@ sub run {
 
     $self->SUPER::run;
 
+}
+
+sub quit_without_saving {
+    shift->SUPER::quit;
+}
+
+sub quit {
+    my $self = shift;
     $self->epub->save_metadata(
         { version => 2, position => $self->get_position } );
+    $self->SUPER::quit;
 }
 
 my %keycodes = (
