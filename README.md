@@ -89,7 +89,7 @@ libhyphen are installed.
 
     Cancel numeric prefix _num_ argument.
 
-- KEY\_DOWN, j
+- KEY\_DOWN, j, RETURN
 
     Scroll one line down.
 

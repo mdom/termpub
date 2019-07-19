@@ -129,7 +129,7 @@ argument if the link references an external ressource.
 
 Cancel numeric prefix I<num> argument.
 
-=item KEY_DOWN, j
+=item KEY_DOWN, j, RETURN
 
 Scroll one line down.
 

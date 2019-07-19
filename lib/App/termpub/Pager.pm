@@ -35,6 +35,7 @@ has key_bindings => sub {
         Curses::KEY_UP        => 'prev_line',
         'k'                   => 'prev_line',
         'j'                   => 'next_line',
+        "\n"                  => 'next_line',
         ' '                   => 'next_page',
         Curses::KEY_NPAGE     => 'next_page',
         Curses::KEY_PPAGE     => 'prev_page',
