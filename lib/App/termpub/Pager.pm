@@ -132,11 +132,18 @@ sub run {
             $self->display_msg("Key is not bound. Press 'h' for help.");
             next;
         }
-        last if $method eq 'quit';
-        $self->$method if $method;
+
+        if ( $self->$method eq 'quit' ) {
+            last;
+        }
+
         $self->prefix('');
     }
     return;
+}
+
+sub quit {
+    return 'quit';
 }
 
 sub display_msg {
