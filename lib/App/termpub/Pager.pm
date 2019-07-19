@@ -139,7 +139,7 @@ sub run {
             next;
         }
 
-        if ( $self->$method eq 'quit' ) {
+        if ( ( $self->$method || '' ) eq 'quit' ) {
             last;
         }
 
