@@ -127,8 +127,11 @@ sub run {
             next;
         }
         my $method = $self->key_bindings->{$c};
-        next           if !$method;
-        last           if $method eq 'quit';
+        if ( !$method ) {
+            $self->display_msg("Key is not bound. Press 'h' for help.");
+            next;
+        }
+        last if $method eq 'quit';
         $self->$method if $method;
         $self->prefix('');
     }
