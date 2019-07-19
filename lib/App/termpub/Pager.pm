@@ -17,7 +17,7 @@ has columns => sub {
     my $self = shift;
     my ( $rows, $columns );
     getmaxyx( $rows, $columns );
-    $self->rows( $rows - 1 );
+    $self->rows( $rows - 2 );
     $columns;
 };
 
