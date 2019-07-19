@@ -118,6 +118,7 @@ sub run {
 
     while (1) {
         my $c = getch;
+        $self->display_msg;
         if ( $c eq '' ) {
             $self->prefix('');
             next;
@@ -142,7 +143,8 @@ sub display_msg {
     my ( $self, $msg ) = @_;
     move( $self->rows + 1, 0 );
     clrtoeol;
-    addstr($msg);
+    addstr($msg) if defined $msg;
+    return;
 }
 
 sub goto_line {
