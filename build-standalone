@@ -24,12 +24,14 @@ my @libraries = (
       )
 );
 
+LIB:
 for (@libraries) {
     open( my $fh, '<', $_ )
       or die "Can't open $_: $!\n";
     while (<$fh>) {
-        next if /^use App::termpub/;
-        next if /^eval "require/;
+        next     if /^use App::termpub/;
+        next     if /^eval "require/;
+        next LIB if /^__END__/;
         s/^use parent 'App/use parent -norequire, 'App/g;
         next if /^=pod/ ... /^=cut/;
         print {$standalone} $_;
