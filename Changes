@@ -2,6 +2,15 @@ Revision history for termpub
 
 {{$NEXT}}
 
+1.06 2019-07-25T13:49:38Z
+  - Set correct rows value when computing columns
+  - Bind return to next line
+  - Bind Q to quit termpub without saving the reading position
+  - Add message area
+  - Write correct number of hyphens in status line
+  - Improve handling of nav doc table of contents
+  - Add new libraries to build-standalone (fixes #3)
+
 1.05 2019-06-30T13:40:33Z
   - Find toc with manifest item[properties="nav"]
   - Handle trying to open not existing link
