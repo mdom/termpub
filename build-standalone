@@ -19,6 +19,7 @@ my @libraries = (
       lib/App/termpub/Pager/Text.pm
       lib/App/termpub/Epub/Chapter.pm
       lib/App/termpub/Hyphen.pm
+      lib/App/termpub/NavDoc.pm
       lib/App/termpub.pm
       )
 );
