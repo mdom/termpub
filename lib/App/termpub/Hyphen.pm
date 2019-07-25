@@ -108,7 +108,7 @@ sub _add_pattern {
 
     # Convert the a pattern like 'a1bc3d4' into a string of chars 'abcd'
     # and a list of points [ 1, 0, 3, 4 ].
-    my @chars = grep { /\D/ } split //, $pattern;
+    my @chars  = grep { /\D/ } split //, $pattern;
     my @points = map { $_ || 0 } split /\D/, $pattern, -1;
 
     # Insert the pattern into the tree.  Each character finds a dict
@@ -156,7 +156,7 @@ sub hyphenate {
 
     my @word = split //, $word;
 
-    my @work = ( '.', map { lc } @word, '.' );
+    my @work   = ( '.', map { lc } @word, '.' );
     my $points = [ (0) x ( @work + 1 ) ];
     foreach my $i ( 0 .. $#work ) {
         my $t = $self->trie;

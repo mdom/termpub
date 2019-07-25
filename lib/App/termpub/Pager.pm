@@ -2,7 +2,7 @@ package App::termpub::Pager;
 use Mojo::Base -base;
 use Curses;
 
-has line => 0;
+has line      => 0;
 has positions => sub { {} };
 
 has rows => sub {
@@ -119,16 +119,22 @@ sub run {
 
     while (1) {
         my $c = getch;
+
+        ## Clear message line
         $self->display_msg;
+
         if ( $c eq '' ) {
             $self->prefix('');
             next;
         }
+
         if ( $c =~ /^[0-9]$/ ) {
             $self->prefix( $self->prefix . $c );
             next;
         }
+
         my $method = $self->key_bindings->{$c};
+
         if ( !$method ) {
             $self->display_msg("Key is not bound. Press 'h' for help.");
             next;
@@ -260,7 +266,8 @@ sub update_screen {
     my $self = shift;
     clear;
     refresh;
-    prefresh( $self->pad, $self->line, 0, 0, 0, $self->rows - 1, $self->pad_columns );
+    prefresh( $self->pad, $self->line, 0, 0, 0, $self->rows - 1,
+        $self->pad_columns );
 
     my $status = '-' x $self->columns;
 
