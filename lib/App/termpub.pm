@@ -133,6 +133,7 @@ my %keycodes = (
     Curses::KEY_BACKSPACE => '<Backspace>',
     Curses::KEY_HOME      => '<Home>',
     Curses::KEY_END       => '<End>',
+    "\n"                  => '<Return>',
 );
 
 sub goto_position {
