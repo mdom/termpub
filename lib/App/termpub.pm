@@ -249,7 +249,7 @@ sub help_screen {
           $self->key_bindings->{$key};
     }
 
-    App::termpub::Pager::Text->new( content => $content )->render->run;
+    App::termpub::Pager::Text->new( content => $content, title => 'HELP' )->render->run;
     $self->update_screen;
 }
 

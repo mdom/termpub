@@ -21,7 +21,7 @@ has columns => sub {
     $columns;
 };
 
-has 'title';
+has title => '';
 
 has pad =>
   sub { my $self = shift; newpad( $self->pad_rows, $self->pad_columns ) };
