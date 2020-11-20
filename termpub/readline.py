@@ -21,7 +21,7 @@ def readline(window, prefix=':', y=0, x=0):
     ## TODO len() is wrong for non-ascii characters;
     ## to compute display length, just insert it into a pad and
     ## check how much the cursor moved?
-    left_pad  = widht.width(prefix);
+    left_pad  = width.width(prompt);
 
     right_pad = 1 # for cursor
 
@@ -61,7 +61,7 @@ def readline(window, prefix=':', y=0, x=0):
             cursor_position -= 1
 
         elif c == 'KEY_RIGHT':
-            if cursor_position == widht.width(buffer):
+            if cursor_position == width.width(buffer):
                 continue
             cursor_position += 1
 
@@ -72,7 +72,7 @@ def readline(window, prefix=':', y=0, x=0):
             buffer = buffer[:cursor_position]
 
         elif c == 'KEY_END' or c == '^E':
-            cursor_position = widht.width(buffer);
+            cursor_position = width.width(buffer);
 
         elif c == 'KEY_BACKSPACE':
             buffer = buffer[:cursor_position - 1] + buffer[cursor_position:]
