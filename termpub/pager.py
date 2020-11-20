@@ -16,8 +16,10 @@ class Pager():
         self.y = 0
         self.prefix = ''
         self.message = ''
+
         self.pattern = ''
         self.highlight = 0
+        self.search_direction = 'forward'
 
         self.title = title
 
@@ -225,11 +227,24 @@ class Pager():
         '^G':             'cancel_prefix',
         '|':              'set_width',
         '%':              'goto_percent',
-        '/':              'search_string',
+        '/':              'search_forward',
+        '?':              'search_backward',
         '^]u':            'toggle_highlighting',
-        'n':              'goto_next_match',
-        'N':              'goto_prev_match',
+        'n':              'repeat_previous_search',
+        'N':              'reverse_previous_search',
     }
+
+    def repeat_previous_search(self):
+        if self.search_direction == 'forward':
+            self.goto_next_match()
+        else:
+            self.goto_prev_match()
+
+    def reverse_previous_search(self):
+        if self.search_direction == 'forward':
+            self.goto_prev_match()
+        else:
+            self.goto_next_match()
 
     def toggle_highlighting(self):
         if self.highlight:
@@ -238,7 +253,13 @@ class Pager():
             self.highlight = 1
         self.render_pad()
 
-    def search_string(self):
+    def search_forward(self):
+        self.search(direction="forward")
+
+    def search_backward(self):
+        self.search(direction="backward")
+
+    def search(self, direction="forward"):
         try:
             curses.curs_set(1)
             pattern = readline(self.stdscr, prompt='/')
@@ -251,7 +272,8 @@ class Pager():
             self.highlight = 1
             self.pattern = pattern
             self.render_pad()
-            self.goto_next_match()
+            self.search_direction = direction
+            self.repeat_previous_search()
 
     def goto_next_match(self):
         """Goto next lines with match.

@@ -124,6 +124,10 @@ last version of the perl code under the git branch `perl`.
 
     Search forward for lines containing the pattern.
 
+- ?
+
+    Search backward for lines containing the pattern.
+
 - n
 
     Repeat previous search.
