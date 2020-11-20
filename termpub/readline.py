@@ -1,6 +1,9 @@
 import termpub.width as width
 import curses
 
+class ResizeEvent(Exception):
+    pass
+
 def getkey(stdscr):
     while True:
         try:
@@ -56,6 +59,9 @@ def readline(window, prompt=':', y=0, x=0):
 
         elif c == '^J':
             break
+
+        elif c == 'KEY_RESIZE':
+            raise ResizeEvent()
 
         elif c == 'KEY_LEFT':
             cursor_position -= 1
