@@ -112,14 +112,15 @@ class Pager():
             if key in self.keys:
                 if self.prefix:
                     self.prefix = int(self.prefix)
-                method = getattr( self, self.keys[key] )
-                if method() is False:
+                method_name = self.keys[key]
+                method = getattr( self, method_name )
+                method()
+                if method_name == 'exit':
                     break
             else:
                 self.show_error("Key is not bound.  Press 'h' for help.")
             self.prefix = ''
             redraw=1
-
 
     def getkey(self):
         ## Wrap getkey in try/catch to handle "no input" crash on KEY_RESIZE
@@ -204,7 +205,7 @@ class Pager():
         self.y = len(self.lines) - self.max_y
 
     def exit(self):
-        return False
+        pass
 
     keys = {
         'KEY_DOWN':       'next_line',
