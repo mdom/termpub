@@ -6,6 +6,7 @@ import os
 import os.path
 import time
 import posixpath
+import re
 import sqlite3
 import subprocess
 import tempfile
@@ -98,6 +99,27 @@ class Reader(Pager):
     def save_marker(self):
         marker = self.getkey()
         self.position[marker] = self.get_position()
+
+    def goto_next_match(self):
+        if self.pattern and super().goto_next_match() is False:
+            for idx, chapter in enumerate(self.chapters):
+                if idx > self.chapter_index:
+                    rendered = self.render_chapter(chapter)
+                    if re.search(self.pattern, ''.join(rendered.lines)):
+                        self.load_chapter(idx)
+                        super().goto_next_match()
+                        break
+
+    def goto_prev_match(self):
+        if self.pattern and super().goto_prev_match() is False:
+            for idx, chapter in reversed(list(enumerate(self.chapters))):
+                if idx < self.chapter_index:
+                    rendered = self.render_chapter(chapter)
+                    if re.search(self.pattern, ''.join(rendered.lines)):
+                        self.load_chapter(idx)
+                        self.goto_end()
+                        super().goto_prev_match()
+                        break
 
     def goto_marker(self):
         marker = self.getkey()

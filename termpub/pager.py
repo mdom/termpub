@@ -2,6 +2,7 @@ import curses
 import curses.ascii
 import re
 import termpub.width as width
+from termpub.readline import readline, ResizeEvent
 
 class Pager():
 
@@ -15,6 +16,8 @@ class Pager():
         self.y = 0
         self.prefix = ''
         self.message = ''
+        self.pattern = ''
+        self.highlight = 0
 
         self.title = title
 
@@ -222,7 +225,51 @@ class Pager():
         '^G':             'cancel_prefix',
         '|':              'set_width',
         '%':              'goto_percent',
+        '/':              'search_string',
+        '^]u':            'toggle_highlighting',
+        'n':              'goto_next_match',
+        'N':              'goto_prev_match',
     }
+
+    def toggle_highlighting(self):
+        if self.highlight:
+            self.highlight = 0
+        else:
+            self.highlight = 1
+        self.render_pad()
+
+    def search_string(self):
+        try:
+            curses.curs_set(1)
+            pattern = readline(self.stdscr, prompt='/')
+        except ResizeEvent:
+            self.resize()
+        finally:
+            curses.curs_set(0)
+
+        if pattern:
+            self.highlight = 1
+            self.pattern = pattern
+            self.render_pad()
+            self.goto_next_match()
+
+    def goto_next_match(self):
+        """Goto next lines with match.
+           Returns True if a match is found, otherwise False."""
+        for line in self.matching_lines:
+            if line > self.y:
+                self.y = line
+                return True
+        return False
+
+    def goto_prev_match(self):
+        """Goto previous lines with match.
+           Returns True if a match is found, otherwise False."""
+        for line in reversed(self.matching_lines):
+            if line < self.y:
+                self.y = line
+                return True
+        return False
 
     def goto_percent(self):
         self.save_movement_marker()
@@ -242,6 +289,14 @@ class Pager():
         self.pad = curses.newpad(len(self.lines), self.max_x)
         for index,line in enumerate(self.lines):
             self.pad.addstr(index,0,line)
+
+        self.matching_lines = []
+        if self.pattern and self.highlight:
+            for idx, line in enumerate(self.lines):
+                for m in re.finditer(self.pattern, line):
+                    self.matching_lines.append(idx)
+                    self.pad.chgat(
+                        idx, m.start(), m.end() - m.start(), curses.A_STANDOUT)
 
 class TextPager(Pager):
 
