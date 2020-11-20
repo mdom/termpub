@@ -1,34 +1,37 @@
-[![Build Status](https://travis-ci.org/mdom/termpub.svg?branch=master)](https://travis-ci.org/mdom/termpub) [![Coverage Status](https://img.shields.io/coveralls/mdom/termpub/master.svg?style=flat)](https://coveralls.io/r/mdom/termpub?branch=master)
 # NAME
 
-App::termpub - Epubreader for the terminal
+termpub - Epubreader for the terminal
 
 # SYNOPSIS
 
-termpub _file_
+termpub \[OPTIONS\] _file_
 
 # DESCRIPTION
 
-termpub aims to be a full features epub reader for the terminal.
+termpub aims to be a full featured epub reader for the terminal.
 It supports internal and external links, skips the front matter and
 will display images with an external viewer. Your reading position
 will be saved and restored.
 
 Many text movement commands are compatible with _less(1)_.
 
-The text will be hyphenated if the hyphenation patterns from hunspells
-libhyphen are installed.
+The text can be hyphenated if pyphen are installed.
+
+This project was rewritten from perl to python. The location and format
+of the configuration file has changed. Your reading state is no longer
+saved in the epub document, but in a local sqlite file. You can find the
+last version of the perl code under the git branch `perl`.
 
 # OPTIONS
 
-- --\[no-\]hyphenation
+- --hyphenate
 
-    Hyphenate text. Defaults to true.
+    Use pyphen to hyphenate the text. Defaults to false.
 
-- --lang LANGUAGE\_TAG
+- --language LANGUAGE\_TAG
 
     Set the language used for hyphenation. Defaults to the books language or
-    'en-US' if not specified.
+    'en_US' if not specified.
 
 - --width WIDTH
 
@@ -40,11 +43,11 @@ libhyphen are installed.
 
     Display help screen.
 
-- n
+- \>
 
     Go to the next chapter.
 
-- p
+- \<
 
     Go to the previous chapter.
 
@@ -113,74 +116,44 @@ libhyphen are installed.
 
     Go to the ned of the current chapter.
 
-- <,>
-
-    Go back or forward in the chapter history.
-
 - q
 
     Quit.
 
-- Q
-
-    Quit without saving the current reading position.
-
 # CONFIGURATION FILE
 
-When termpub is invoked, it will attempt to read a configuration file
-named .termpubrc in your home directory. If this file does not exist
-termpub will try to read $XDG\_CONFIG\_HOME/termpub/termpubrc.
+When termpub is invoked, it will attempt to read a configuration file at
+$XDG\_CONFIG\_HOME/termpub/config.ini that looks like that:
 
-The configuration file consists of a series of commands. Each line may
-only contain one command. The hash mark is used as a comment character.
-All text after the comment character to the end of the line is ignored.
-The file is expected to be utf8 encoded.
-
-The following commands are defined:
-
-- set hyphenation on|true|off|false|0|1
-
-    Enables or disabled hyphenation
-
-- set language _language\_tag_
-
-    Set the language used for hyphenation.
-
-- set width _num_
-
-    Set screen width to _num_.
+    [termpub]
+    hyphenate=no
+    language=en_US
+    widht=80
 
 # INSTALLATION
 
-If you have cpanminus installed, you can simply install this program
-by calling
+The project can be installed with `setup.py`:
 
-    $ cpanm .
+    python setup.py install [--user]
 
-Otherwise you can build a standalone script with
+# BUGS AND LIMITATIONS
 
-    $ ./build-standalone
-
-and copy the generated script _termpub_ somewhere in your path. In this
-case you need to installed the dependencies yourself. Termpub depends
-on the perl modules Mojolicious, Curses and Archive::Zip. On Debian the
-following command will install these packages.
-
-    $ apt-get install libmojolicious-perl libcurses-perl libarchive-zip-perl
+As mentioned, this is a fresh rewrite, so there are probably a lot
+of bugs hidden. Sorry for any inconvenience!
 
 # COPYRIGHT AND LICENSE 
 
-Copyright 2019 Mario Domgoergen `<mario@domgoergen.com>` 
+Copyright 2020 Mario Domgoergen `<mario@domgoergen.com>` 
 
-This program is free software: you can redistribute it and/or modify 
-it under the terms of the GNU General Public License as published by 
-the Free Software Foundation, either version 3 of the License, or 
-(at your option) any later version. 
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, 
-but WITHOUT ANY WARRANTY; without even the implied warranty of 
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-GNU General Public License for more details. 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU General Public License 
-along with this program.  If not, see &lt;http://www.gnu.org/licenses/>. 
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see \<https://www.gnu.org/licenses/>.

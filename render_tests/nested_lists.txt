@@ -1,0 +1,26 @@
+<body>
+    <ul>
+        <li>foo</li>
+        <li>
+            <ul>
+                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tincidunt rhoncus metus, ut convallis justo varius eget.</li>
+                <li>
+                    <ul>
+                        <li>Praesent mattis neque finibus neque maximus, a varius nisi faucibus. Suspendisse quis tempus elit.</li>
+                    </ul>
+                </li>
+            </ul>
+    </ul>
+</body>
+
+* foo
+
+*
+
+  * Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tincidunt
+    rhoncus metus, ut convallis justo varius eget.
+
+  *
+
+    * Praesent mattis neque finibus neque maximus, a varius nisi faucibus.
+      Suspendisse quis tempus elit.

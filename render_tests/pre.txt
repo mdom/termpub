@@ -1,0 +1,12 @@
+<body>
+<pre>
+    foo
+
+    bar
+</pre>
+</body>
+
+
+    foo
+
+    bar

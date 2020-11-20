@@ -1,0 +1,14 @@
+<body>
+    <ul>
+        <li>foo</li>
+        <li>bar</li>
+        <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tincidunt rhoncus metus, ut convallis justo varius eget.</li>
+    </ul>
+</body>
+
+* foo
+
+* bar
+
+* Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tincidunt
+  rhoncus metus, ut convallis justo varius eget.

@@ -1,0 +1,4 @@
+<body>foo<br/>bar</body>
+
+foo
+bar

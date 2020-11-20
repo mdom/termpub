@@ -1,0 +1,6 @@
+<body><p>foo</p><p>bar<br/>quux</p></body>
+
+foo
+
+bar
+quux
