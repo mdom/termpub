@@ -1,4 +1,4 @@
-from termpub.pager import Pager
+from termpub.pager import Pager, TextPager
 from termpub.renderer import Renderer
 import curses
 import json
