@@ -150,6 +150,8 @@ $XDG\_CONFIG\_HOME/termpub/config.ini that looks like that:
     hyphenate=no
     language=en_US
     widht=80
+    status_left={title}
+    status_right={chapter_counter} {percent}
 
 # INSTALLATION
 

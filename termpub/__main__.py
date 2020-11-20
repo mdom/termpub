@@ -36,6 +36,7 @@ def main():
 
     config_file = find_config_file()
 
+    config = None
     if config_file:
         config = configparser.ConfigParser()
         config.read(config_file)
@@ -51,6 +52,15 @@ def main():
     args = parser.parse_args()
 
     args = vars(args)
+
+    if config and config.has_section('termpub'):
+        status_left = config.get('termpub', 'status_left', fallback=None)
+        if status_left:
+            args['status_left'] = status_left
+
+        status_right = config.get('termpub', 'status_right', fallback=None)
+        if status_right:
+            args['status_right'] = status_right
 
     if args.get('dbfile') is None:
         xdg_data_dir = Path(

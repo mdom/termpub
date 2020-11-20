@@ -25,11 +25,24 @@ class Reader(Pager):
         self.pads = [None] * len(self.chapters)
         self.pad = None
         self.current_line = 0
-        self.title=epub.title
+
+        if self.epub.author:
+            self.title = f"{epub.title} ({epub.author})"
+        else:
+            self.title = epub.title
+
         self.locations = []
         self.args = args
         self.dbfile = args.get('dbfile')
         self.render_cache = {}
+
+        self.status_right = '{chapter_counter}--{percent:->4}--'
+
+        if args.get('status_right'):
+            self.status_right = args.get('status_right')
+
+        if args.get('status_left'):
+            self.status_left = args.get('status_left')
 
         self.dic=None
         if args.get('hyphenate'):
@@ -267,6 +280,13 @@ class Reader(Pager):
         if self.dbfile:
             self.save_state()
         return super().exit()
+
+    def update_status_data(self):
+        data = {
+            'author': self.epub.author,
+            'chapter_counter': f'{self.chapter_index}/{len(self.chapters)}',
+        }
+        return super().update_status_data(data)
 
     def save_state(self):
         position = self.get_position()

@@ -22,6 +22,8 @@ class Pager():
         self.search_direction = 'forward'
 
         self.title = title
+        self.status_left = '-{title}'
+        self.status_right = '{percent:->4}--'
 
         self.position = {}
 
@@ -57,21 +59,28 @@ class Pager():
         self.message = msg
         curses.beep()
 
-    def format_status_line(self):
-        data = dict()
-        template = '-{title:-<{title_len}}{filler:->{remaining}}{percent:->4}---'
+    def update_status_data(self, data=None):
+        if data is None:
+            data = {}
         percent = int( ( self.y + 1 ) * 100 / len(self.lines))
         data['percent'] = str(percent) + '%'
         data['title_len'] = width.width(self.title)
         data['title'] = self.title
-        data['filler'] = ''
-        data['remaining'] =  self.max_x - width.width(template.format(**data, remaining=0))
-
-        return template.format(**data)
+        return data
 
     def draw_status_line(self):
-        status = self.format_status_line()
-        self.stdscr.addstr(self.max_y, 0, status)
+        data = self.update_status_data()
+
+        status_left = self.status_left.format(**data, remaining=0)
+        status_right = self.status_right.format(**data, remaining=0)
+
+        width_status_left = width.width(status_left)
+        width_status_right = width.width(status_right)
+
+        self.stdscr.addstr(self.max_y, 0, self.max_x * '-')
+        self.stdscr.addstr(self.max_y, 0, status_left)
+        self.stdscr.addstr(
+            self.max_y, self.max_x - width_status_right, status_right)
         self.stdscr.chgat( self.max_y, 0, -1, curses.A_STANDOUT );
 
     def update(self):
