@@ -128,9 +128,18 @@ class Pager():
             try:
                 c = self.stdscr.get_wch()
                 if type(c) is str:
-                    if curses.ascii.iscntrl(c):
+                    if c == '\x1b':
+                        self.pad.nodelay(True)
+                        n = self.pad.getch()
+                        if n == -1:
+                            return '^]'
+                        else:
+                            return '^]' + curses.keyname(n).decode()
+                        self.pad.nodelay(False)
+                    elif curses.ascii.iscntrl(c):
                         return curses.ascii.unctrl(c)
-                    return c
+                    else:
+                        return c
                 else:
                     return curses.keyname(c).decode()
             except curses.error:
