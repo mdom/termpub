@@ -33,7 +33,7 @@ class Pager():
             pass
 
     def set_width(self):
-        if self.prefix:
+        if self.prefix and self.prefix != self.width:
             self.width = self.prefix
             self.render_pad()
 
