@@ -77,10 +77,6 @@ class Pager():
 
         redraw = 1
 
-        #curses.curs_set(1)
-        #raise Exception(readline.readline(self.stdscr))
-        #curses.curs_set(0)
-
         ## TODO redraw only if something like y or the pad changed
         while True:
 
