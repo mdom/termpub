@@ -28,6 +28,7 @@ class Reader(Pager):
         self.locations = []
         self.args = args
         self.dbfile = args.get('dbfile')
+        self.render_cache = {}
 
         self.dic=None
         if args.get('hyphenate'):
@@ -194,21 +195,38 @@ class Reader(Pager):
         if super().next_page() is False:
             self.next_chapter()
 
-    def get_lines(self):
-        chapter = self.chapter
+    def render_chapter(self, chapter):
+        rendered = self.render_cache.get(chapter.file)
+        if rendered is not None:
+            return rendered
+
         renderer = Renderer(self.width, dic=self.dic)
-        lines, positions, self.locations = renderer.render(chapter.source)
+        lines, ids, locations = renderer.render(chapter.source)
+        rendered = RenderedChapter(lines, ids, locations)
 
         ## replace relative with absolute links
         basedir = posixpath.dirname(chapter.file)
         if basedir:
             basedir += '/'
-        for index,location in enumerate(self.locations):
+        for index,location in enumerate(rendered.locations):
             url = urllib.parse.urlparse(location)
             if url.scheme == '':
                 location = posixpath.normpath(basedir + location)
-            self.locations[index] = location
-        return lines
+            rendered.locations[index] = location
+
+        self.render_cache[chapter.file] = rendered
+        return rendered
+
+    def set_with(self):
+        ## invalidate render_cache if width is changed
+        self.render_cache = {}
+        super().set_width()
+
+    def get_lines(self):
+        chapter = self.chapter
+        rendered = self.render_chapter(chapter)
+        self.locations = rendered.locations
+        return rendered.lines
 
     def next_chapter(self):
         old = self.chapter_index
@@ -257,9 +275,14 @@ class Reader(Pager):
                 result = dict(result)
                 return Position(result['chapter'], result['position'])
 
-## TODO could be a named tuple
+
 class Position():
     def __init__(self, file, character):
         self.file = file
         self.character = character
 
+class RenderedChapter():
+    def __init__(self, lines, ids, locations):
+        self.lines = lines
+        self.ids = ids
+        self.locations = locations
