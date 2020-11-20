@@ -116,7 +116,7 @@ class Pager():
                 if method() is False:
                     break
             else:
-                self.show_error("Key is not bound.  Press '?' for help.")
+                self.show_error("Key is not bound.  Press 'h' for help.")
             self.prefix = ''
             redraw=1
 

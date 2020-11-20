@@ -57,7 +57,6 @@ class Reader(Pager):
         self.keys['>'] = 'next_chapter'
         self.keys['<'] = 'prev_chapter'
         self.keys['h'] = 'show_help'
-        self.keys['?'] = 'show_help'
         self.keys['t'] = 'goto_toc'
         self.keys['o'] = 'open_location'
         self.keys["m"] = 'save_marker'
