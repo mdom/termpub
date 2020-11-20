@@ -14,7 +14,7 @@ def getkey(stdscr):
         except curses.error:
             continue
 
-def readline(window, prefix=':', y=0, x=0):
+def readline(window, prompt=':', y=0, x=0):
 
     max_y, max_x = window.getmaxyx()
 
@@ -43,7 +43,7 @@ def readline(window, prefix=':', y=0, x=0):
 
         buffer_offset = int( cursor_position / max_buffer_size) * max_buffer_size
 
-        window.addstr( max_y - 1, 0, prefix + buffer[buffer_offset:buffer_offset + max_buffer_size])
+        window.addstr( max_y - 1, 0, prompt + buffer[buffer_offset:buffer_offset + max_buffer_size])
         window.clrtoeol()
 
         window.move( max_y - 1, cursor_position + left_pad - buffer_offset)
