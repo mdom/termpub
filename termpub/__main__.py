@@ -45,9 +45,8 @@ def main():
             parser.set_defaults(
                 hyphenate=config.getboolean('termpub', 'hyphenate', fallback=False),
                 language=config.get('termpub', 'language', fallback='en_US'),
-                width=config.get('termpub', 'width', fallback='80'),
+                width=config.getint('termpub', 'width', fallback=80),
             )
-
 
     args = parser.parse_args()
 
@@ -69,7 +68,6 @@ def main():
             'termpub')
         xdg_data_dir.mkdir(parents=True, exist_ok=True)
         args['dbfile'] = xdg_data_dir.joinpath('termpub.sqlite')
-
 
     epub = epub_parser.Epub(args['file'])
     del args['file']

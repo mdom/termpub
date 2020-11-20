@@ -38,6 +38,12 @@ class Reader(Pager):
 
         self.status_right = '{chapter_counter}--{percent:->4}--'
 
+        width = args.get('width')
+        if width:
+            width = int(width)
+            if self.max_x > width:
+                self.width = width
+
         if args.get('status_right'):
             self.status_right = args.get('status_right')
 
