@@ -39,7 +39,7 @@ last version of the perl code under the git branch `perl`.
 
 # KEY BINDINGS
 
-- h, ?
+- h
 
     Display help screen.
 
@@ -119,6 +119,23 @@ last version of the perl code under the git branch `perl`.
 - q
 
     Quit.
+
+- \/
+
+    Search forward for lines containing the pattern.
+
+- n
+
+    Repeat previous search.
+
+- N
+
+    Repeat previous search, but in the reverse direction.
+
+- ESC-u
+
+    Undo search highlighting. If highlighting is already off because of
+    a previous ESC-u command, turn highlighting back on.
 
 # CONFIGURATION FILE
 
