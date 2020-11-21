@@ -62,7 +62,10 @@ class Pager():
     def update_status_data(self, data=None):
         if data is None:
             data = {}
-        percent = int( ( self.y + 1 ) * 100 / len(self.lines))
+        last_line = self.y + self.max_y
+        if last_line > len(self.lines):
+            last_line = len(self.lines)
+        percent = int( last_line * 100 / len(self.lines))
         data['percent'] = str(percent) + '%'
         data['title_len'] = width.width(self.title)
         data['title'] = self.title
