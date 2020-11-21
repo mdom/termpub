@@ -29,10 +29,12 @@ def main():
 
     parser = argparse.ArgumentParser(description="View epubs")
     parser.add_argument('file', metavar='FILE', help='Epub to display')
-    parser.add_argument('--dump-source', action='store_true' )
-    parser.add_argument('--hyphenate', action='store_true' )
-    parser.add_argument('--language')
-    parser.add_argument('--width')
+    parser.add_argument(
+        '--dump-source', action='store_true', help='dump epub source' )
+    parser.add_argument(
+        '--hyphenate', action='store_true', help='hyphenate text' )
+    parser.add_argument('--language', help='set language for hyphenation')
+    parser.add_argument('--width', help='set width')
 
     config_file = find_config_file()
 
