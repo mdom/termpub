@@ -296,7 +296,7 @@ class Reader(Pager):
     def update_status_data(self):
         data = {
             'author': self.epub.author,
-            'chapter_counter': f'{self.chapter_index}/{len(self.chapters)}',
+            'chapter_counter': f'{self.chapter_index + 1}/{len(self.chapters)}',
         }
         return super().update_status_data(data)
 
