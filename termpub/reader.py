@@ -169,9 +169,9 @@ class Reader(Pager):
         if self.load_chapter_by_file(url.path) is not None:
             fragment = url.fragment
             if fragment:
-                line = self.ids.get('#' + fragment)
+                line = self.ids.get(fragment)
                 if line:
-                    self.goto_line(line)
+                    self.y = line
             return
 
         with tempfile.TemporaryDirectory() as dir:

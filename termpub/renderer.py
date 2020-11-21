@@ -99,7 +99,7 @@ class Renderer(HTMLParser):
                             chunk = pair[1]
                             break
 
-                self.lines.append( current_line.rstrip() )
+                self.add_new_line(current_line)
                 current_line_length = self.indent
                 current_line = ' ' * self.indent
 
@@ -113,13 +113,16 @@ class Renderer(HTMLParser):
             current_line += chunk
             current_line_length += chunk_length
 
-        if not re.match(r'^\s*$', current_line):
-            for id in self.pending_ids:
-                self.id_positions[id] = len(self.lines) + 1
-            self.pending_ids = []
-            self.lines.append( current_line.rstrip() )
+        self.add_new_line(current_line)
 
         self.chunks = []
+
+    def add_new_line(self, line):
+        if not re.match(r'^\s*$', line):
+            for id in self.pending_ids:
+                self.id_positions[id] = len(self.lines)
+            self.pending_ids = []
+            self.lines.append( line.rstrip() )
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
