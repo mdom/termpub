@@ -16,7 +16,6 @@ class RendererTests(unittest.TestCase):
                 self.assertRender(file);
 
     def assertRender(self, file):
-        print(file)
         found_page_break = 0
         input = ''
         output = []
