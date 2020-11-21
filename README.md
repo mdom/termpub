@@ -43,11 +43,11 @@ last version of the perl code under the git branch `perl`.
 
     Display help screen.
 
-- f
+- \]
 
     Go to the next chapter.
 
-- b
+- \[
 
     Go to the previous chapter.
 
