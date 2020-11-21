@@ -167,6 +167,11 @@ class Reader(Pager):
             return
 
         if self.load_chapter_by_file(url.path) is not None:
+            fragment = url.fragment
+            if fragment:
+                line = self.ids.get('#' + fragment)
+                if line:
+                    self.goto_line(line)
             return
 
         with tempfile.TemporaryDirectory() as dir:
@@ -266,6 +271,7 @@ class Reader(Pager):
         chapter = self.chapter
         rendered = self.render_chapter(chapter)
         self.locations = rendered.locations
+        self.ids = rendered.ids
         return rendered.lines
 
     def next_chapter(self):
