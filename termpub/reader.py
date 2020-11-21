@@ -74,8 +74,8 @@ class Reader(Pager):
 
         self.keys = self.keys.copy()
 
-        self.keys['>'] = 'next_chapter'
-        self.keys['<'] = 'prev_chapter'
+        self.keys['f'] = 'next_chapter'
+        self.keys['b'] = 'prev_chapter'
         self.keys['h'] = 'show_help'
         self.keys['t'] = 'goto_toc'
         self.keys['o'] = 'open_location'
