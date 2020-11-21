@@ -57,7 +57,8 @@ class Epub:
         guide = self.root.find(
             './/opf:guide/opf:reference[@type="text"]', self.NS)
         if guide is not None:
-            if href := guide.get('href'):
+            href = guide.get('href')
+            if href:
                 return self.normpath(href)
         if self.nav_doc is not None:
             return self.nav_doc.bodymatter()
@@ -72,25 +73,29 @@ class Epub:
         guide = self.root.find(
             './/opf:guide/opf:reference[@type="toc"]', self.NS)
         if guide is not None:
-            if href := guide.get('href'):
+            href = guide.get('href')
+            if href:
                 return self.normpath(href)
 
         if self.nav_doc is not None:
-            if (toc := self.nav_doc.toc()) is not None:
+            toc = self.nav_doc.toc()
+            if toc is not None:
                 return toc
 
         item = self.root.find(
             './/opf:manifest/opf:item[@properties="nav"]', self.NS)
         if item is not None:
             if item.get('media-type') == 'application/xhtml+xml':
-                if href := item.get('href'):
+                href = item.get('href')
+                if href:
                     return self.normpath(href)
 
     def find_nav_doc(self):
         item = self.root.find(
             './/opf:manifest/opf:item[@properties="nav"]', self.NS)
         if item is not None:
-            if href := item.get('href'):
+            href = item.get('href')
+            if href:
                 return NavDoc(self.zip, self.normpath(href))
 
     def chapters(self):
@@ -102,7 +107,8 @@ class Epub:
         for i in self.root.findall('opf:spine/opf:itemref', self.NS):
             item = manifest[i.get('idref')]
             if item.get('media-type') == 'application/xhtml+xml':
-                if href := item.get('href'):
+                href = item.get('href')
+                if href:
                     file = self.normpath(href)
                     ## TODO check meta/charset for encoding
                     source = self.zip.open(file).read().decode("utf8")
@@ -132,12 +138,13 @@ class NavDoc:
     def toc(self):
         link = self.dom.find('.//xhtml:a[@epub:type="toc"]', self.NS)
         if link is not None:
-            if href := link.get('href'):
+            href = link.get('href')
+            if href:
                 return self.normpath(href)
 
     def bodymatter(self):
         link = self.dom.find('.//xhtml:a[@epub:type="bodymatter"]', self.NS)
         if link is not None:
-            if href := link.get('href'):
+            href = link.get('href')
+            if href:
                 return self.normpath(href)
-

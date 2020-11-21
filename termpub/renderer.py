@@ -142,12 +142,14 @@ class Renderer(HTMLParser):
             ## TODO Why ,1???
             self.chunks.append((attrs['id'], 1))
 
-        if m := re.match(r'h(\d)', tag):
+        m = re.match(r'h(\d)', tag)
+        if m:
             self.chunks.append(('=' * int(m.group(1))) + ' ');
 
         elif tag == 'img':
             alt = attrs['alt'] or ''
-            if src := attrs['src']:
+            src = attrs['src']
+            if src:
                 self.locations.append(src)
                 num = len(self.locations)
             self.chunks.append('![{}][{}]'.format(num,alt))

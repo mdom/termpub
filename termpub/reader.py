@@ -179,7 +179,8 @@ class Reader(Pager):
             self.call_xdg_open(file)
 
     def load_chapter_by_file(self,file):
-        if (index := self.find_chapter(file)) is not None:
+        index = self.find_chapter(file)
+        if index is not None:
             self.load_chapter(index)
             return True
 
@@ -204,7 +205,8 @@ class Reader(Pager):
             self.show_error('Error calling xdg-open: ' + proc.args[1])
 
     def goto_toc(self):
-        if index := self.find_chapter(self.epub.find_toc()):
+        index = self.find_chapter(self.epub.find_toc())
+        if index:
             self.load_chapter(index)
         else:
             self.show_error('No table of content found')
@@ -227,7 +229,8 @@ class Reader(Pager):
 
     def load_start_chapter(self):
         start_chapter = 0
-        if index := self.find_chapter(self.epub.bodymatter):
+        index = self.find_chapter(self.epub.bodymatter)
+        if index:
             start_chapter = index
         self.load_chapter(start_chapter)
 
