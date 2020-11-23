@@ -8,9 +8,25 @@ import time
 import posixpath
 import re
 import sqlite3
+import sys
 import subprocess
 import tempfile
 import termpub.width as width
+
+try:
+    # Win32
+    from msvcrt import getch as waitforkey
+except ImportError:
+    # UNIX
+    def waitforkey():
+        import tty, termios
+        fd = sys.stdin.fileno()
+        old = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            return sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old)
 
 class Reader(Pager):
 
@@ -197,12 +213,18 @@ class Reader(Pager):
 
     def call_xdg_open(self, arg):
         try:
+            curses.endwin()
             subprocess.check_call(['xdg-open', arg])
         except subprocess.CalledProcessError as proc:
             rc = str(proc.returncode)
-            self.show_error('xdg-open returned non-zero exit status ' + rc)
+            print( 'xdg-open returned non-zero exit status ' + rc,
+                file=sys.stderr)
         except FileNotFoundError as proc:
-            self.show_error('Error calling xdg-open: ' + proc.args[1])
+            print('Error calling xdg-open: ' + proc.args[1], file=sys.stderr)
+        sys.stderr.write('Press any key to continue...')
+        sys.stderr.flush()
+        waitforkey()
+        sys.stderr.write('\n')
 
     def goto_toc(self):
         url = self.epub.find_toc()
