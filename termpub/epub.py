@@ -6,6 +6,8 @@ import posixpath
 import xml.etree.ElementTree as ET
 import zipfile
 
+from termpub.urls import urlparse
+
 class Epub:
     NS = {
         "cont": "urn:oasis:names:tc:opendocument:xmlns:container",
@@ -13,21 +15,18 @@ class Epub:
         "opf": "http://www.idpf.org/2007/opf",
     }
 
-
     def __init__(self, file):
-        self.filename = file
+        self.file = file
         self.zip = zipfile.ZipFile(file)
 
         container = ET.parse(self.zip.open("META-INF/container.xml"))
-        rootfile = container.find(
+        self.rootfile = container.find(
             "cont:rootfiles/cont:rootfile", self.NS).get("full-path")
 
-        if rootfile is None:
+        if self.rootfile is None:
             raise Exception('Missing root file in epub!')
 
-        self.root = ET.parse(self.zip.open(rootfile))
-        self.basedir = os.path.dirname(rootfile) + "/" \
-            if os.path.dirname(rootfile) != "" else ""
+        self.root = ET.parse(self.zip.open(self.rootfile))
 
         self.title = self.find_text('.//dc:title', 'Unknown')
         self.language = self.find_text('.//dc:langauge')
@@ -50,16 +49,14 @@ class Epub:
         h.update(checksums)
         return h.hexdigest()
 
-    def normpath(self, path):
-        return posixpath.normpath( self.basedir + path)
-
     def find_bodymatter(self):
         guide = self.root.find(
             './/opf:guide/opf:reference[@type="text"]', self.NS)
         if guide is not None:
             href = guide.get('href')
             if href:
-                return self.normpath(href)
+                return urlparse(href, self.rootfile)
+
         if self.nav_doc is not None:
             return self.nav_doc.bodymatter()
 
@@ -75,7 +72,7 @@ class Epub:
         if guide is not None:
             href = guide.get('href')
             if href:
-                return self.normpath(href)
+                return urlparse(href, self.rootfile)
 
         if self.nav_doc is not None:
             toc = self.nav_doc.toc()
@@ -88,7 +85,7 @@ class Epub:
             if item.get('media-type') == 'application/xhtml+xml':
                 href = item.get('href')
                 if href:
-                    return self.normpath(href)
+                    return urlparse(href, self.rootfile)
 
     def find_nav_doc(self):
         item = self.root.find(
@@ -96,7 +93,7 @@ class Epub:
         if item is not None:
             href = item.get('href')
             if href:
-                return NavDoc(self.zip, self.normpath(href))
+                return NavDoc(self.zip, urlparse(href, self.rootfile).path)
 
     def chapters(self):
         manifest = {}
@@ -109,7 +106,7 @@ class Epub:
             if item.get('media-type') == 'application/xhtml+xml':
                 href = item.get('href')
                 if href:
-                    file = self.normpath(href)
+                    file = urlparse(href, self.rootfile).path
                     ## TODO check meta/charset for encoding
                     source = self.zip.open(file).read().decode("utf8")
                     chapters.append(Chapter(source, file))
@@ -127,24 +124,19 @@ class NavDoc:
         "xhtml": "http://www.w3.org/1999/xhtml",
     }
     def __init__(self, zip, file):
+        self.file = file
         self.dom = ET.parse(zip.open(file))
-        self.basedir = os.path.dirname(file)
-        if self.basedir:
-            self.basedir += '/'
-
-    def normpath(path):
-        return posixpath.normpath( self.basedir + href)
 
     def toc(self):
         link = self.dom.find('.//xhtml:a[@epub:type="toc"]', self.NS)
         if link is not None:
             href = link.get('href')
             if href:
-                return self.normpath(href)
+                return urlparse(href, self.file)
 
     def bodymatter(self):
         link = self.dom.find('.//xhtml:a[@epub:type="bodymatter"]', self.NS)
         if link is not None:
             href = link.get('href')
             if href:
-                return self.normpath(href)
+                return urlparse(href, self.file)

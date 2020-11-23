@@ -1,6 +1,7 @@
 from html.parser import HTMLParser
 import re
 import termpub.width as width
+from termpub.urls import urlparse
 
 class Renderer(HTMLParser):
 
@@ -33,9 +34,10 @@ class Renderer(HTMLParser):
         'thead', 'title', 'tr', 'track', 'ul', 'video'
     ]
 
-    def __init__(self, width=80, dic=None):
+    def __init__(self, width=80, dic=None, base_url=None):
         self.width = width
         self.dic = dic
+        self.base_url = base_url
         super().__init__()
 
     def render(self, html):
@@ -53,7 +55,9 @@ class Renderer(HTMLParser):
         while self.lines and self.lines[-1] == '':
             del self.lines[-1]
 
-        return self.lines, self.id_positions, self.locations
+        locations = [urlparse(x, self.base_url) for x in self.locations]
+
+        return self.lines, self.id_positions, locations
 
     ## TODO code and pre
     ## TODO lists

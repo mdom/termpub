@@ -104,7 +104,7 @@ class Pager():
                 self.message = ''
             else:
                 self.stdscr.move(self.max_y + 1, 0)
-                self.stdscr.clrtoeol()
+            self.stdscr.clrtoeol()
 
             if redraw:
                 self.stdscr.refresh()

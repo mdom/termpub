@@ -11,7 +11,6 @@ import sqlite3
 import subprocess
 import tempfile
 import termpub.width as width
-import urllib.parse
 
 class Reader(Pager):
 
@@ -78,7 +77,7 @@ class Reader(Pager):
         self.keys['['] = 'prev_chapter'
         self.keys['h'] = 'show_help'
         self.keys['t'] = 'goto_toc'
-        self.keys['o'] = 'open_location'
+        self.keys['o'] = 'follow_link'
         self.keys["m"] = 'save_marker'
         self.keys["'"] = 'goto_marker'
 
@@ -147,24 +146,24 @@ class Reader(Pager):
             self.save_movement_marker()
             self.restore_position(position)
 
-    def open_location(self):
+    def follow_link(self):
         if not self.prefix:
             self.show_error('No prefix entered')
             return
 
         try:
             index = self.prefix - 1
-            location = self.locations[index]
+            url = self.locations[index]
         except IndexError:
             self.show_error('Illegal index ' + str(self.prefix))
             return
 
-        location = urllib.parse.unquote(location)
-        url = urllib.parse.urlparse(location)
+        self.goto_location(url)
 
+    def goto_location(self, url):
         if url.scheme != '':
-            self.call_xdg_open(location)
-            return
+            self.call_xdg_open(url.geturl())
+            return True
 
         if self.load_chapter_by_file(url.path) is not None:
             fragment = url.fragment
@@ -172,11 +171,12 @@ class Reader(Pager):
                 line = self.ids.get(fragment)
                 if line:
                     self.y = line
-            return
+            return True
 
         with tempfile.TemporaryDirectory() as dir:
-            file = self.epub.zip.extract(location, path=dir)
+            file = self.epub.zip.extract(url.path, path=dir)
             self.call_xdg_open(file)
+            return True
 
     def load_chapter_by_file(self,file):
         index = self.find_chapter(file)
@@ -205,11 +205,10 @@ class Reader(Pager):
             self.show_error('Error calling xdg-open: ' + proc.args[1])
 
     def goto_toc(self):
-        index = self.find_chapter(self.epub.find_toc())
-        if index:
-            self.load_chapter(index)
-        else:
-            self.show_error('No table of content found')
+        url = self.epub.find_toc()
+        if url and self.goto_location(url):
+            return
+        self.show_error('No table of content found')
 
     def show_help(self):
         lines = []
@@ -248,19 +247,9 @@ class Reader(Pager):
         if rendered is not None:
             return rendered
 
-        renderer = Renderer(self.width, dic=self.dic)
+        renderer = Renderer(self.width, dic=self.dic, base_url=chapter.file)
         lines, ids, locations = renderer.render(chapter.source)
         rendered = RenderedChapter(lines, ids, locations)
-
-        ## replace relative with absolute links
-        basedir = posixpath.dirname(chapter.file)
-        if basedir:
-            basedir += '/'
-        for index,location in enumerate(rendered.locations):
-            url = urllib.parse.urlparse(location)
-            if url.scheme == '':
-                location = posixpath.normpath(basedir + location)
-            rendered.locations[index] = location
 
         self.render_cache[chapter.file] = rendered
         return rendered
@@ -318,7 +307,7 @@ class Reader(Pager):
             """)
             con.execute('PRAGMA user_version = 2;')
             con.execute('INSERT OR REPLACE INTO states VALUES (?,?,?,?,?)',
-                (hash, os.path.abspath(self.epub.filename),
+                (hash, os.path.abspath(self.epub.file),
                     position.file, position.character, time.time()))
 
     def load_state(self):
