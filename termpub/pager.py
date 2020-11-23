@@ -86,6 +86,9 @@ class Pager():
             self.max_y, self.max_x - width_status_right, status_right)
         self.stdscr.chgat( self.max_y, 0, -1, curses.A_STANDOUT );
 
+    def redraw(self):
+        self.stdscr.clear()
+
     def update(self):
 
         self.render_pad()
@@ -236,6 +239,7 @@ class Pager():
         'KEY_HOME':       'jump_to_first_page',
         'KEY_BACKSPACE':  'prev_page',
         'KEY_RESIZE':     'resize',
+        '^L':             'redraw',
         '^G':             'cancel_prefix',
         '|':              'set_width',
         '%':              'goto_percent',

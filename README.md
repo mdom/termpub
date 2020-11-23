@@ -88,6 +88,10 @@ last version of the perl code under the git branch `perl`.
     Open link _num_. _termpub_ calls _xdg-open_ with the url as first
     argument if the link references an external ressource.
 
+- C-l
+
+    Redraw scren.
+
 - C-g
 
     Cancel numeric prefix _num_ argument.
