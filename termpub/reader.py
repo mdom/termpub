@@ -12,6 +12,7 @@ import sys
 import subprocess
 import tempfile
 import termpub.width as width
+from xml.dom.minidom import parseString
 
 try:
     # Win32
@@ -96,6 +97,7 @@ class Reader(Pager):
         self.keys['o'] = 'follow_link'
         self.keys["m"] = 'save_marker'
         self.keys["'"] = 'goto_marker'
+        self.keys['\\'] = 'show_source'
 
     def get_position(self):
         position = 0
@@ -313,6 +315,12 @@ class Reader(Pager):
             'chapter_counter': f'{self.chapter_index + 1}/{len(self.chapters)}',
         }
         return super().update_status_data(data)
+
+    def show_source(self):
+        source = self.chapters[self.chapter_index].source
+        lines = parseString(source).toprettyxml(indent="  ").splitlines()
+        TextPager( self.stdscr, lines, title='Source').update()
+        self.stdscr.erase()
 
     def save_state(self):
         position = self.get_position()

@@ -157,6 +157,10 @@ last version of the perl code under the git branch `perl`.
     Undo search highlighting. If highlighting is already off because of
     a previous ESC-u command, turn highlighting back on.
 
+- \\
+
+    Show chapter source.
+
 # CONFIGURATION FILE
 
 When termpub is invoked, it will attempt to read a configuration file at
