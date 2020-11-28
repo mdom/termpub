@@ -14,8 +14,11 @@ class Pager():
 
         self.stdscr = stdscr
         self.y = 0
+        self.x = 0
         self.prefix = ''
         self.message = ''
+
+        self.horizontal_increment = int(self.max_x / 2)
 
         self.pattern = ''
         self.highlight = 0
@@ -35,6 +38,20 @@ class Pager():
             curses.curs_set(0)
         except curses.error:
             pass
+
+    def scroll_left(self):
+        if self.prefix:
+            self.horizontal_increment = self.prefix
+        self.x -= self.horizontal_increment
+        if self.x < 0:
+            self.x = 0
+
+    def scroll_right(self):
+        if self.prefix:
+            self.horizontal_increment = self.prefix
+        self.x += self.horizontal_increment
+        if self.max_x + self.x > self.max_line_length:
+            self.x = self.max_line_length - self.max_x
 
     def set_width(self):
         if self.prefix and self.prefix != self.width:
@@ -111,10 +128,15 @@ class Pager():
 
             if redraw:
                 self.stdscr.refresh()
-                self.pad.refresh(self.y,0,0,0,self.max_y-1,self.max_x-1)
+                self.pad.refresh(self.y,self.x,0,0,self.max_y-1,self.max_x-1)
                 remaining_lines = len(self.lines) - self.y
                 if remaining_lines < self.max_y:
-                    win = curses.newwin( self.max_y - remaining_lines, self.max_x, len(self.lines) - self.y, 0)
+                    win = curses.newwin(
+                        self.max_y - remaining_lines,
+                        self.max_x,
+                        len(self.lines) - self.y,
+                        0
+                    )
                     win.clear()
                     win.refresh()
                 redraw=1
@@ -149,9 +171,9 @@ class Pager():
                         self.pad.nodelay(True)
                         n = self.pad.getch()
                         if n == -1:
-                            return '^]'
+                            return 'ESC'
                         else:
-                            return '^]' + curses.keyname(n).decode()
+                            return 'ESC-' + curses.keyname(n).decode()
                         self.pad.nodelay(False)
                     elif curses.ascii.iscntrl(c):
                         return curses.ascii.unctrl(c)
@@ -228,6 +250,10 @@ class Pager():
         'j':              'next_line',
         '\n':             'next_line',
         'KEY_UP':         'prev_line',
+        'KEY_LEFT':       'scroll_left',
+        'ESC-(':          'scroll_left',
+        'KEY_RIGHT':      'scroll_right',
+        'ESC-)':          'scroll_right',
         'k':              'prev_line',
         'q':              'exit',
         'g':              'goto_line',
@@ -245,7 +271,7 @@ class Pager():
         '%':              'goto_percent',
         '/':              'search_forward',
         '?':              'search_backward',
-        '^]u':            'toggle_highlighting',
+        'ESC-u':          'toggle_highlighting',
         'n':              'repeat_previous_search',
         'N':              'reverse_previous_search',
     }
@@ -324,7 +350,13 @@ class Pager():
         self.lines = self.get_lines()
         if not self.lines:
             self.lines = ['']
-        self.pad = curses.newpad(len(self.lines), self.max_x)
+
+        self.max_line_length = 0
+        for line in self.lines:
+            if len(line) > self.max_line_length:
+                self.max_line_length = len(line)
+
+        self.pad = curses.newpad(len(self.lines), self.max_line_length)
         for index,line in enumerate(self.lines):
             self.pad.addstr(index,0,line)
 

@@ -104,6 +104,18 @@ last version of the perl code under the git branch `perl`.
 
     Scroll one line up.
 
+- ESC-) | KEY\_RIGHT
+
+    Scroll horizontally right N characters, default half the screen
+    width. If a number N is specified, it becomes the default for
+    future KEY_RIGHT and KEY\_LEFT commands.
+
+- ESC-( | KEY\_LEFT
+
+    Scroll horizontally left N characters, default half the screen
+    width. If a number N is specified, it becomes the default for future
+    KEY_RIGHT and KEY_LEFT commands.
+
 - KEY\_NPAGE, SPACE
 
     Scroll forward one window.
