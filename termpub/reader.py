@@ -31,7 +31,14 @@ except ImportError:
 
 class Reader(Pager):
 
-    def __init__(self, epub, stdscr, args):
+    def __init__(self, epub, stdscr, *,
+        language='en_US',
+        width=80,
+        hyphenate=False,
+        dbfile=None,
+        status_left=None,
+        status_right=None,
+    ):
         super().__init__(stdscr)
 
         self.epub = epub
@@ -47,31 +54,25 @@ class Reader(Pager):
         else:
             self.title = epub.title
 
+        self.dbfile = dbfile
+
+        if self.max_x > width:
+            self.width = width
+
         self.locations = []
-        self.args = args
-        self.dbfile = args.get('dbfile')
         self.render_cache = {}
 
-        self.status_right = '{chapter_counter}--{percent:->4}--'
+        if status_left:
+            self.status_left = status_left
 
-        width = args.get('width')
-        if width:
-            width = int(width)
-            if self.max_x > width:
-                self.width = width
-
-        if args.get('status_right'):
-            self.status_right = args.get('status_right')
-
-        if args.get('status_left'):
-            self.status_left = args.get('status_left')
+        if status_right:
+            self.status_right = status_right
+        else:
+            self.status_right = '{chapter_counter}--{percent:->4}--'
 
         self.dic=None
-        if args.get('hyphenate'):
-            if epub.language:
-                lang = epub.language
-            else:
-                lang = args.get('language','en_US')
+        if hyphenate:
+            lang = epub.language or language
             try:
                 import pyphen
                 self.dic = pyphen.Pyphen(lang=lang)
@@ -349,7 +350,6 @@ class Reader(Pager):
             if result:
                 result = dict(result)
                 return Position(result['chapter'], result['position'])
-
 
 class Position():
     def __init__(self, file, character):

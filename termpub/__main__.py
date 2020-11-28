@@ -16,9 +16,10 @@ import termpub.width as width
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
 
-def enter_curses(stdscr,epub, args):
+def enter_curses(stdscr, file, config):
+    epub = epub_parser.Epub(file)
     curses.raw()
-    Reader(epub, stdscr, args).update()
+    Reader(epub, stdscr, **config).update()
 
 def find_config_file():
     config_home = os.environ.get(
@@ -32,34 +33,26 @@ def main():
     parser.add_argument(
         '--hyphenate', action='store_true', help='hyphenate text' )
     parser.add_argument('--language', help='set language for hyphenation')
-    parser.add_argument('--width', help='set width')
+    parser.add_argument('--width', type=int, help='set width')
 
+    defaults = {
+        'width': 80,
+        'language': 'en_US',
+    }
+
+    config = configparser.ConfigParser()
     config_file = find_config_file()
-
-    config = None
     if config_file:
-        config = configparser.ConfigParser()
         config.read(config_file)
+        defaults.update(dict(config.items("termpub")))
 
-        if config.has_section('termpub'):
-            parser.set_defaults(
-                hyphenate=config.getboolean('termpub', 'hyphenate', fallback=False),
-                language=config.get('termpub', 'language', fallback='en_US'),
-                width=config.getint('termpub', 'width', fallback=80),
-            )
+    parser.set_defaults(**defaults)
 
     args = parser.parse_args()
-
     args = vars(args)
 
-    if config and config.has_section('termpub'):
-        status_left = config.get('termpub', 'status_left', fallback=None)
-        if status_left:
-            args['status_left'] = status_left
-
-        status_right = config.get('termpub', 'status_right', fallback=None)
-        if status_right:
-            args['status_right'] = status_right
+    file = args['file']
+    del args['file']
 
     if args.get('dbfile') is None:
         xdg_data_dir = Path(
@@ -67,12 +60,9 @@ def main():
                 'XDG_DATA_HOME', os.path.expanduser('~/.local/share/')),
             'termpub')
         xdg_data_dir.mkdir(parents=True, exist_ok=True)
-        args['dbfile'] = xdg_data_dir.joinpath('termpub.sqlite')
+        args['dbfile'] = str(xdg_data_dir.joinpath('termpub.sqlite'))
 
-    epub = epub_parser.Epub(args['file'])
-    del args['file']
-
-    curses.wrapper(enter_curses, epub, args)
+    curses.wrapper(enter_curses, file, args)
 
 if __name__ == "__main__":
     try:
