@@ -347,6 +347,7 @@ class Pager():
         self.prefix = ''
 
     def render_pad(self):
+        self.stdscr.erase()
         self.lines = self.get_lines()
         if not self.lines:
             self.lines = ['']
