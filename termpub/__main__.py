@@ -18,7 +18,7 @@ code = locale.getpreferredencoding()
 
 def enter_curses(stdscr,epub, args):
     curses.raw()
-    Reader(epub,stdscr, args).update()
+    Reader(epub, stdscr, args).update()
 
 def find_config_file():
     config_home = os.environ.get(
@@ -29,8 +29,6 @@ def main():
 
     parser = argparse.ArgumentParser(description="View epubs")
     parser.add_argument('file', metavar='FILE', help='Epub to display')
-    parser.add_argument(
-        '--dump-source', action='store_true', help='dump epub source' )
     parser.add_argument(
         '--hyphenate', action='store_true', help='hyphenate text' )
     parser.add_argument('--language', help='set language for hyphenation')
@@ -73,11 +71,6 @@ def main():
 
     epub = epub_parser.Epub(args['file'])
     del args['file']
-
-    if args.get('dump_source'):
-        for chapter in epub.chapters():
-            print(chapter.source)
-        sys.exit(0);
 
     curses.wrapper(enter_curses, epub, args)
 
