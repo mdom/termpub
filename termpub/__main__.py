@@ -1,4 +1,3 @@
-# TODO search
 from pathlib import Path
 import argparse
 import curses
@@ -55,7 +54,7 @@ def read_config_file(config_file):
                     f'Unknown command "{command}" in "{config_file}"')
     return dict, keys
 
-def main():
+def start_cli():
 
     parser = argparse.ArgumentParser(description="View epubs")
     parser.add_argument('file', metavar='FILE', help='Epub to display')
@@ -70,11 +69,12 @@ def main():
         'width': 80,
         'language': 'en_US',
     }
-    keys = None
+    keys = {}
+    config = {}
 
     config_file = find_config_file()
     try:
-        if config_file:
+        if config_file and os.path.isfile(config_file):
             config, keys = read_config_file(config_file)
     except ConfigError as msg:
         print(msg, file=sys.stderr)
@@ -109,12 +109,13 @@ def main():
 
     curses.wrapper(enter_curses, epub, args, keys)
 
-if __name__ == "__main__":
+def main():
     try:
-        main()
-    except FileNotFoundError as msg:
-        print(msg, file=sys.stderr)
+        start_cli()
     except BrokenPipeError:
         devnull = os.open(os.devnull, os.O_WRONLY)
         os.dup2(devnull, sys.stdout.fileno())
         sys.exit(1)
+
+if __name__ == "__main__":
+    main()
