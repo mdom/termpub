@@ -37,6 +37,10 @@ last version of the perl code under the git branch `perl`.
 
     Set screen width. Defaults to 80.
 
+- --dump
+
+    Print rendered book to stdout
+
 # KEY BINDINGS
 
 - h

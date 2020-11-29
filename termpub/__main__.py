@@ -19,8 +19,7 @@ code = locale.getpreferredencoding()
 class ConfigError(Exception):
     pass
 
-def enter_curses(stdscr, file, config, keys):
-    epub = epub_parser.Epub(file)
+def enter_curses(stdscr, epub, config, keys):
     curses.raw()
     reader = Reader(epub, stdscr, **config)
     reader.keys = { **reader.keys, **keys }
@@ -64,6 +63,8 @@ def main():
         '--hyphenate', action='store_true', help='hyphenate text' )
     parser.add_argument('--language', help='set language for hyphenation')
     parser.add_argument('--width', type=int, help='set width')
+    parser.add_argument(
+        '--dump', action='store_true', help='dump rendered epub to stdout')
 
     defaults = {
         'width': 80,
@@ -87,6 +88,16 @@ def main():
 
     file = args['file']
     del args['file']
+    epub = epub_parser.Epub(file)
+
+    if args.get('dump'):
+        from termpub.renderer import Renderer
+        for chapter in epub.chapters():
+            lines, _, _ = Renderer().render(chapter.source)
+            for line in lines:
+                print(line)
+        sys.exit(0)
+    del args['dump']
 
     if args.get('dbfile') is None:
         xdg_data_dir = Path(
@@ -96,7 +107,7 @@ def main():
         xdg_data_dir.mkdir(parents=True, exist_ok=True)
         args['dbfile'] = str(xdg_data_dir.joinpath('termpub.sqlite'))
 
-    curses.wrapper(enter_curses, file, args, keys)
+    curses.wrapper(enter_curses, epub, args, keys)
 
 if __name__ == "__main__":
     try:
