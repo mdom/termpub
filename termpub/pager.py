@@ -1,7 +1,7 @@
 import curses
 import curses.ascii
 import re
-import termpub.width as width
+from termpub.width import width
 from termpub.readline import readline, ResizeEvent
 
 class Pager():
@@ -84,7 +84,7 @@ class Pager():
             last_line = len(self.lines)
         percent = int( last_line * 100 / len(self.lines))
         data['percent'] = str(percent) + '%'
-        data['title_len'] = width.width(self.title)
+        data['title_len'] = width(self.title)
         data['title'] = self.title
         return data
 
@@ -94,8 +94,8 @@ class Pager():
         status_left = self.status_left.format(**data, remaining=0)
         status_right = self.status_right.format(**data, remaining=0)
 
-        width_status_left = width.width(status_left)
-        width_status_right = width.width(status_right)
+        width_status_left = width(status_left)
+        width_status_right = width(status_right)
 
         self.stdscr.addstr(self.max_y, 0, self.max_x * '-')
         self.stdscr.addstr(self.max_y, 0, status_left)
@@ -354,8 +354,9 @@ class Pager():
 
         self.max_line_length = 0
         for line in self.lines:
-            if len(line) > self.max_line_length:
-                self.max_line_length = len(line)
+            w = width(line)
+            if w > self.max_line_length:
+                self.max_line_length = w
 
         self.pad = curses.newpad(len(self.lines), self.max_line_length)
         for index,line in enumerate(self.lines):
