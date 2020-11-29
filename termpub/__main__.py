@@ -19,10 +19,12 @@ code = locale.getpreferredencoding()
 class ConfigError(Exception):
     pass
 
-def enter_curses(stdscr, file, config):
+def enter_curses(stdscr, file, config, keys):
     epub = epub_parser.Epub(file)
     curses.raw()
-    Reader(epub, stdscr, **config).update()
+    reader = Reader(epub, stdscr, **config)
+    reader.keys = { **reader.keys, **keys }
+    reader.update()
 
 def find_config_file():
     config_home = os.environ.get(
@@ -31,6 +33,7 @@ def find_config_file():
 
 def read_config_file(config_file):
     dict = {}
+    keys = {}
     with open(config_file) as f:
         for line in f:
             command, *args = shlex.split(line, comments=True)
@@ -43,10 +46,15 @@ def read_config_file(config_file):
                     dict[args[0]] = args[1]
                 else:
                     raise ConfigError(f'Wrong number of arguments: {line}')
+            elif command == 'map':
+                if len(args) == 2:
+                    keys[args[0]] = args[1]
+                else:
+                    raise ConfigError(f'Wrong number of arguments: {line}')
             else:
                 raise ConfigError(
                     f'Unknown command "{command}" in "{config_file}"')
-    return dict
+    return dict, keys
 
 def main():
 
@@ -61,10 +69,12 @@ def main():
         'width': 80,
         'language': 'en_US',
     }
+    keys = None
+
     config_file = find_config_file()
     try:
         if config_file:
-            config = read_config_file(config_file)
+            config, keys = read_config_file(config_file)
     except ConfigError as msg:
         print(msg, file=sys.stderr)
         sys.exit(1)
@@ -86,7 +96,7 @@ def main():
         xdg_data_dir.mkdir(parents=True, exist_ok=True)
         args['dbfile'] = str(xdg_data_dir.joinpath('termpub.sqlite'))
 
-    curses.wrapper(enter_curses, file, args)
+    curses.wrapper(enter_curses, file, args, keys)
 
 if __name__ == "__main__":
     try:

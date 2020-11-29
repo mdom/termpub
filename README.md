@@ -164,7 +164,7 @@ last version of the perl code under the git branch `perl`.
 # CONFIGURATION FILE
 
 When termpub is invoked, it will attempt to read a configuration file at
-$XDG\_CONFIG\_HOME/termpub/termpubrc. The following example shows the
+$XDG\_CONFIG\_HOME/termpub/termpubrc. The following example shows some
 defaults:
 
     set hyphenation off
@@ -172,6 +172,9 @@ defaults:
     set widht 80
     set status_left {title}
     set status_right "{chapter_counter} {percent}"
+    map [ prev_chapter
+    map ] next_chapter
+    map ^L redraw
 
 # INSTALLATION
 
