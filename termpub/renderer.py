@@ -151,16 +151,16 @@ class Renderer(HTMLParser):
             self.chunks.append(('=' * int(m.group(1))) + ' ');
 
         elif tag == 'img':
-            alt = attrs['alt'] or ''
-            src = attrs['src']
+            alt = attrs.get('alt') or ''
+            src = attrs.get('src')
             if src:
                 self.locations.append(src)
                 num = len(self.locations)
             self.chunks.append('![{}][{}]'.format(num,alt))
 
         elif tag == 'a':
-            if 'href' in attrs:
-                href = attrs['href']
+            href = attrs.get('href')
+            if href:
                 self.locations.append(href)
                 num = len(self.locations)
                 self.chunks.append('[{}]'.format(num))
