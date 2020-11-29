@@ -358,7 +358,7 @@ class Pager():
             if w > self.max_line_length:
                 self.max_line_length = w
 
-        self.pad = curses.newpad(len(self.lines), self.max_line_length)
+        self.pad = curses.newpad(len(self.lines), self.max_line_length + 1)
         for index,line in enumerate(self.lines):
             self.pad.addstr(index,0,line)
 
