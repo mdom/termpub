@@ -156,14 +156,14 @@ class Renderer(HTMLParser):
             if src:
                 self.locations.append(src)
                 num = len(self.locations)
-            self.chunks.append('![{}][{}]'.format(num,alt))
+            self.chunks.append(f'![{num}][{alt}]')
 
         elif tag == 'a':
             href = attrs.get('href')
             if href:
                 self.locations.append(href)
                 num = len(self.locations)
-                self.chunks.append('[{}]'.format(num))
+                self.chunks.append(f'[{num}]')
 
         elif tag == 'br':
            self.fill_text()
