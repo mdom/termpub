@@ -1,10 +1,10 @@
 # TODO search
 from pathlib import Path
 import argparse
-import configparser
 import curses
 import locale
 import os
+import shlex
 import sys
 
 from termpub.reader import Reader
@@ -16,6 +16,9 @@ import termpub.width as width
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
 
+class ConfigError(Exception):
+    pass
+
 def enter_curses(stdscr, file, config):
     epub = epub_parser.Epub(file)
     curses.raw()
@@ -24,7 +27,26 @@ def enter_curses(stdscr, file, config):
 def find_config_file():
     config_home = os.environ.get(
         'XDG_CONFIG_HOME', os.path.expanduser('~/.config/'))
-    return os.path.join(config_home,'termpub','config.ini')
+    return os.path.join(config_home,'termpub','termpubrc')
+
+def read_config_file(config_file):
+    dict = {}
+    with open(config_file) as f:
+        for line in f:
+            command, *args = shlex.split(line, comments=True)
+            if command == 'set':
+                if len(args) == 2:
+                    if args[1] in ('1', 'true', 'on'):
+                        args[1] = True
+                    elif args[1] in ('0', 'false', 'off'):
+                        args[1] = False
+                    dict[args[0]] = args[1]
+                else:
+                    raise ConfigError(f'Wrong number of arguments: {line}')
+            else:
+                raise ConfigError(
+                    f'Unknown command "{command}" in "{config_file}"')
+    return dict
 
 def main():
 
@@ -39,13 +61,15 @@ def main():
         'width': 80,
         'language': 'en_US',
     }
-
-    config = configparser.ConfigParser()
     config_file = find_config_file()
-    if config_file:
-        config.read(config_file)
-        defaults.update(dict(config.items("termpub")))
+    try:
+        if config_file:
+            config = read_config_file(config_file)
+    except ConfigError as msg:
+        print(msg, file=sys.stderr)
+        sys.exit(1)
 
+    defaults = {**defaults, **config}
     parser.set_defaults(**defaults)
 
     args = parser.parse_args()
@@ -67,6 +91,8 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+    except FileNotFoundError as msg:
+        print(msg, file=sys.stderr)
     except BrokenPipeError:
         devnull = os.open(os.devnull, os.O_WRONLY)
         os.dup2(devnull, sys.stdout.fileno())
