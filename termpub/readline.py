@@ -1,5 +1,6 @@
 import termpub.width as width
 import curses
+import curses.ascii
 
 class ResizeEvent(Exception):
     pass
