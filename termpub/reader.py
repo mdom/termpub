@@ -68,7 +68,7 @@ class Reader(Pager):
         if status_right:
             self.status_right = status_right
         else:
-            self.status_right = '{chapter_counter}--{percent:->4}--'
+            self.status_right = '{current_page}---{chapter_counter}--{percent:->4}--'
 
         self.dic=None
         if hyphenate:
@@ -311,10 +311,21 @@ class Reader(Pager):
         return super().exit()
 
     def update_status_data(self):
+
         data = {
             'author': self.epub.author,
             'chapter_counter': f'{self.chapter_index + 1}/{len(self.chapters)}',
+            'current_page': '',
         }
+
+        file = self.chapters[self.chapter_index].file
+        for url, text in self.epub.nav_doc.page_list.items():
+            if url.path == file:
+                line = self.ids[url.fragment]
+                if line > self.y:
+                    break
+                data['current_page'] = 'p.' + text
+
         return super().update_status_data(data)
 
     def show_source(self):

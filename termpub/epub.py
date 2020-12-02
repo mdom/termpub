@@ -1,5 +1,6 @@
 from hashlib import blake2b
 import array
+import functools
 import html
 import os
 import posixpath
@@ -140,3 +141,15 @@ class NavDoc:
             href = link.get('href')
             if href:
                 return urlparse(href, self.file)
+
+    @property
+    @functools.lru_cache()
+    def page_list(self):
+        pages = {}
+        nav = self.dom.find('.//xhtml:nav[@epub:type="page-list"]', self.NS)
+        if nav:
+            for a in  nav.findall('.//xhtml:a[@href]', self.NS):
+                url = urlparse(a.get('href'), self.file)
+                pages[url] = a.text
+        return pages
+

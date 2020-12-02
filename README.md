@@ -8,10 +8,15 @@ termpub \[OPTIONS\] _file_
 
 # DESCRIPTION
 
-termpub aims to be a full featured epub reader for the terminal.
-It supports internal and external links, skips the front matter and
-will display images with an external viewer. Your reading position
-will be saved and restored.
+termpub aims to be a full featured epub reader for the terminal. It
+supports amongst other things the following features:
+
+- display current page according to epub3 page list
+- skiping front matter
+- jumping to table of contents
+- displaying images with an external viewer
+- following interal and external urls
+- saving and restoring your last reading position
 
 Many text movement commands are compatible with _less(1)_.
 
