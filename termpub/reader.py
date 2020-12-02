@@ -318,13 +318,14 @@ class Reader(Pager):
             'current_page': '',
         }
 
-        file = self.chapters[self.chapter_index].file
-        for url, text in self.epub.nav_doc.page_list.items():
-            if url.path == file:
-                line = self.ids[url.fragment]
-                if line > self.y:
-                    break
-                data['current_page'] = 'p.' + text
+        if self.epub.nav_doc:
+            file = self.chapters[self.chapter_index].file
+            for url, text in self.epub.nav_doc.page_list.items():
+                if url.path == file:
+                    line = self.ids[url.fragment]
+                    if line > self.y:
+                        break
+                    data['current_page'] = 'p.' + text
 
         return super().update_status_data(data)
 
