@@ -22,10 +22,9 @@ Many text movement commands are compatible with _less(1)_.
 
 The text can be hyphenated if pyphen are installed.
 
-This project was rewritten from perl to python. The location and format
-of the configuration file has changed. Your reading state is no longer
-saved in the epub document, but in a local sqlite file. You can find the
-last version of the perl code under the git branch `perl`.
+This project was rewritten from perl to python. Your reading state is no
+longer saved in the epub document, but in a local sqlite file. You can
+find the last version of the perl code under the git branch `perl`.
 
 # OPTIONS
 
