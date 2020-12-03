@@ -1,4 +1,4 @@
-from termpub.pager import Pager, TextPager
+from termpub.pager import Pager, TextPager, HTMLPager
 from termpub.renderer import Renderer
 import curses
 import json
@@ -235,8 +235,16 @@ class Reader(Pager):
         sys.stderr.write('\n')
 
     def goto_toc(self):
-        url = self.epub.find_toc()
-        if url and self.goto_location(url):
+        if self.epub.toc:
+            source = self.epub.zip.open(self.epub.toc.path).read().decode()
+            location = HTMLPager(
+                self.stdscr,
+                source,
+                title='Table of contents',
+                base_url = self.epub.toc.path
+            ).update()
+            if location:
+                self.goto_location(location)
             return
         self.show_error('No table of content found')
 
@@ -315,7 +323,6 @@ class Reader(Pager):
         return super().exit()
 
     def update_status_data(self):
-
         data = {
             'author': self.epub.author,
             'chapter_counter': f'{self.chapter_index + 1}/{len(self.chapters)}',

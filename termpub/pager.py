@@ -3,6 +3,7 @@ import curses.ascii
 import re
 from termpub.width import width
 from termpub.readline import readline, ResizeEvent
+from termpub.renderer import Renderer
 
 class Pager():
 
@@ -386,5 +387,24 @@ class TextPager(Pager):
     def get_lines(self):
         return self._lines
 
+class HTMLPager(Pager):
+    def __init__(self, stdscr, source, title='', base_url=None):
+        self._lines, _, self.locations = \
+            Renderer(base_url=base_url).render(source)
+        super().__init__(stdscr, title)
+        self.keys['o'] = 'open_link'
+        self.exit_functions.append('open_link')
+        self.message = 'q - quit, [num]o - open location'
 
+    def get_lines(self):
+        return self._lines
 
+    def open_link(self):
+        if not self.prefix:
+            self.show_error('No prefix entered')
+            return
+        try:
+            return self.locations[self.prefix - 1]
+        except IndexError:
+            self.show_error('Illegal index ' + str(self.prefix))
+            return

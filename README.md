@@ -61,7 +61,7 @@ find the last version of the perl code under the git branch `perl`.
 
 - t
 
-    Jump to the table of contents.
+    Open a pager with the table of content.
 
 - m
 
