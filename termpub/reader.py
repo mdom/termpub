@@ -257,11 +257,10 @@ class Reader(Pager):
                 return index
 
     def load_start_chapter(self):
-        start_chapter = 0
-        index = self.find_chapter(self.epub.bodymatter)
-        if index:
-            start_chapter = index
-        self.load_chapter(start_chapter)
+        if self.epub.bodymatter:
+            self.goto_location(self.epub.bodymatter)
+        else:
+            self.load_chapter(0)
 
     def prev_page(self):
         if super().prev_page() is False:
