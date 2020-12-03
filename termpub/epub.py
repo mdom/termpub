@@ -32,8 +32,6 @@ class Epub:
         self.title = self.find_text('.//dc:title', 'Unknown')
         self.language = self.find_text('.//dc:langauge')
         self.author = self.find_text('.//dc:creator', 'Unknown')
-        self.nav_doc = self.find_nav_doc()
-        self.bodymatter = self.find_bodymatter()
 
     def find_text(self, xpath, default=None):
         try:
@@ -50,9 +48,11 @@ class Epub:
         h.update(checksums)
         return h.hexdigest()
 
-    def find_bodymatter(self):
+    @property
+    @functools.lru_cache()
+    def bodymatter(self):
         if self.nav_doc is not None:
-            return self.nav_doc.bodymatter()
+            return self.nav_doc.bodymatter
 
         for tag in ("start", "text"):
             guide = self.root.find(
@@ -62,13 +62,17 @@ class Epub:
                 if href:
                     return urlparse(href, self.rootfile)
 
+    @property
+    @functools.lru_cache()
     def mimetype(self,file):
         item = self.root.find(
             f'.//opf:manifest/opf:item[@href="{file}"]', self.NS)
         if item is not None:
             return item.get('media-type')
 
-    def find_toc(self):
+    @property
+    @functools.lru_cache()
+    def toc(self):
         guide = self.root.find(
             './/opf:guide/opf:reference[@type="toc"]', self.NS)
         if guide is not None:
@@ -77,7 +81,7 @@ class Epub:
                 return urlparse(href, self.rootfile)
 
         if self.nav_doc is not None:
-            toc = self.nav_doc.toc()
+            toc = self.nav_doc.toc
             if toc is not None:
                 return toc
 
@@ -89,7 +93,9 @@ class Epub:
                 if href:
                     return urlparse(href, self.rootfile)
 
-    def find_nav_doc(self):
+    @property
+    @functools.lru_cache()
+    def nav_doc(self):
         item = self.root.find(
             './/opf:manifest/opf:item[@properties="nav"]', self.NS)
         if item is not None:
@@ -97,6 +103,8 @@ class Epub:
             if href:
                 return NavDoc(self.zip, urlparse(href, self.rootfile).path)
 
+    @property
+    @functools.lru_cache()
     def chapters(self):
         manifest = {}
         for i in self.root.findall('opf:manifest/opf:item', self.NS):
@@ -112,7 +120,6 @@ class Epub:
                     ## TODO check meta/charset for encoding
                     source = self.zip.open(file).read().decode("utf8")
                     chapters.append(Chapter(source, file))
-
         return chapters
 
 class Chapter():
@@ -129,6 +136,8 @@ class NavDoc:
         self.file = file
         self.dom = ET.parse(zip.open(file))
 
+    @property
+    @functools.lru_cache()
     def toc(self):
         link = self.dom.find('.//xhtml:a[@epub:type="toc"]', self.NS)
         if link is not None:
@@ -136,6 +145,8 @@ class NavDoc:
             if href:
                 return urlparse(href, self.file)
 
+    @property
+    @functools.lru_cache()
     def bodymatter(self):
         link = self.dom.find('.//xhtml:a[@epub:type="bodymatter"]', self.NS)
         if link is not None:
@@ -153,4 +164,3 @@ class NavDoc:
                 url = urlparse(a.get('href'), self.file)
                 pages[url] = a.text
         return pages
-

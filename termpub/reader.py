@@ -43,7 +43,7 @@ class Reader(Pager):
 
         self.epub = epub
         self.chapter = None
-        self.chapters = self.epub.chapters()
+        self.chapters = self.epub.chapters
         self.chapter_index = 0
         self.pads = [None] * len(self.chapters)
         self.pad = None

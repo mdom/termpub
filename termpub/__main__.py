@@ -96,7 +96,7 @@ def start_cli():
 
     if args.get('dump'):
         from termpub.renderer import Renderer
-        for chapter in epub.chapters():
+        for chapter in epub.chapters:
             lines, _, _ = Renderer().render(chapter.source)
             for line in lines:
                 print(line)
