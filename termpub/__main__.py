@@ -5,6 +5,7 @@ import locale
 import os
 import shlex
 import sys
+import zipfile
 
 from termpub.reader import Reader
 import termpub.epub as epub_parser
@@ -17,6 +18,10 @@ code = locale.getpreferredencoding()
 
 class ConfigError(Exception):
     pass
+
+def die(msg):
+    print('termpub:', msg, file=sys.stderr)
+    sys.exit(1)
 
 def enter_curses(stdscr, epub, config, keys):
     curses.raw()
@@ -43,15 +48,14 @@ def read_config_file(config_file):
                         args[1] = False
                     dict[args[0]] = args[1]
                 else:
-                    raise ConfigError(f'Wrong number of arguments: {line}')
+                    die(f'Wrong number of arguments: {line}'.rstrip())
             elif command == 'map':
                 if len(args) == 2:
                     keys[args[0]] = args[1]
                 else:
-                    raise ConfigError(f'Wrong number of arguments: {line}')
+                    die(f'Wrong number of arguments: {line}')
             else:
-                raise ConfigError(
-                    f'Unknown command "{command}" in "{config_file}"')
+                die(f'Unknown command "{command}" in "{config_file}"')
     return dict, keys
 
 def start_cli():
@@ -73,12 +77,8 @@ def start_cli():
     config = {}
 
     config_file = find_config_file()
-    try:
-        if config_file and os.path.isfile(config_file):
-            config, keys = read_config_file(config_file)
-    except ConfigError as msg:
-        print(msg, file=sys.stderr)
-        sys.exit(1)
+    if config_file and os.path.isfile(config_file):
+        config, keys = read_config_file(config_file)
 
     defaults = {**defaults, **config}
     parser.set_defaults(**defaults)
@@ -88,7 +88,11 @@ def start_cli():
 
     file = args['file']
     del args['file']
-    epub = epub_parser.Epub(file)
+
+    try:
+        epub = epub_parser.Epub(file)
+    except (zipfile.BadZipFile, IsADirectoryError, FileNotFoundError) as e:
+        die(f'"{file}" is not an epub file.')
 
     if args.get('dump'):
         from termpub.renderer import Renderer
