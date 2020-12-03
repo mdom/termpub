@@ -59,9 +59,6 @@ class Renderer(HTMLParser):
 
         return self.lines, self.id_positions, locations
 
-    ## TODO code and pre
-    ## TODO lists
-
     def fill_text(self):
         if not self.chunks:
             return
