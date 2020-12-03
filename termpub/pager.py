@@ -18,6 +18,8 @@ class Pager():
         self.prefix = ''
         self.message = ''
 
+        self.lines = []
+
         self.horizontal_increment = int(self.max_x / 2)
 
         self.pattern = ''

@@ -184,7 +184,12 @@ class Reader(Pager):
             self.call_xdg_open(url.geturl())
             return True
 
-        if self.load_chapter_by_file(url.path) is not None:
+        index = self.find_chapter(url.path)
+        if index is not None:
+            ## do not remember position on startup
+            if self.lines:
+                self.save_movement_marker()
+            self.load_chapter(index)
             fragment = url.fragment
             if fragment:
                 line = self.ids.get(fragment)
