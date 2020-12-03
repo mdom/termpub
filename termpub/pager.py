@@ -20,6 +20,8 @@ class Pager():
 
         self.lines = []
 
+        self.exit_functions = ['exit']
+
         self.horizontal_increment = int(self.max_x / 2)
 
         self.pattern = ''
@@ -151,9 +153,10 @@ class Pager():
                     self.prefix = int(self.prefix)
                 method_name = self.keys[key]
                 method = getattr( self, method_name )
-                method()
-                if method_name == 'exit':
-                    break
+                rc = method()
+                if method_name in self.exit_functions:
+                    self.stdscr.erase()
+                    return rc
             else:
                 self.show_error("Key is not bound.  Press 'h' for help.")
             self.prefix = ''

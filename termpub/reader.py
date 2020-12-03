@@ -338,7 +338,6 @@ class Reader(Pager):
         source = self.chapters[self.chapter_index].source
         lines = parseString(source).toprettyxml(indent="  ").splitlines()
         TextPager( self.stdscr, lines, title='Source').update()
-        self.stdscr.erase()
 
     def save_state(self):
         position = self.get_position()
