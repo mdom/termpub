@@ -51,12 +51,13 @@ class Epub:
         return h.hexdigest()
 
     def find_bodymatter(self):
-        guide = self.root.find(
-            './/opf:guide/opf:reference[@type="text"]', self.NS)
-        if guide is not None:
-            href = guide.get('href')
-            if href:
-                return urlparse(href, self.rootfile)
+        for tag in ("start", "text"):
+            guide = self.root.find(
+                f'.//opf:guide/opf:reference[@type="{tag}"]', self.NS)
+            if guide is not None:
+                href = guide.get('href')
+                if href:
+                    return urlparse(href, self.rootfile)
 
         if self.nav_doc is not None:
             return self.nav_doc.bodymatter()
