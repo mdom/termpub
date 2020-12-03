@@ -173,7 +173,11 @@ class Pager():
                             return 'ESC-' + curses.keyname(n).decode()
                         self.pad.nodelay(False)
                     elif curses.ascii.iscntrl(c):
-                        return curses.ascii.unctrl(c)
+                        keyname = curses.ascii.unctrl(c)
+                        if keyname == '^J':
+                            return 'RETURN'
+                        else:
+                            return keyname
                     else:
                         return c
                 else:
@@ -244,6 +248,7 @@ class Pager():
 
     keys = {
         'KEY_DOWN':       'next_line',
+        'RETURN':         'next_line',
         'j':              'next_line',
         '\n':             'next_line',
         'KEY_UP':         'prev_line',
