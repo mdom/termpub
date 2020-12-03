@@ -66,9 +66,6 @@ class Pager():
             self.width = self.max_x
         self.render_pad()
 
-    def current_positions(self):
-        self.linesself.y
-
     def show_msg(self,msg):
         self.message = msg
 
