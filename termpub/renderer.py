@@ -129,6 +129,9 @@ class Renderer(HTMLParser):
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
 
+        ## remove namespace
+        tag = tag.split(':', 1)[-1]
+
         if tag in self.noshow:
             self.ignore += 1
 
@@ -178,6 +181,9 @@ class Renderer(HTMLParser):
             self.fill_text()
 
     def handle_endtag(self, tag):
+        ## remove namespace
+        tag = tag.split(':', 1)[-1]
+
         if tag == 'pre':
             for chunk in self.chunks:
                 for line in chunk.splitlines():
