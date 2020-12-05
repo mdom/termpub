@@ -4,6 +4,7 @@ import functools
 import html
 import os
 import posixpath
+import urllib.parse
 import xml.etree.ElementTree as ET
 import zipfile
 
@@ -14,6 +15,8 @@ class Epub:
         "cont": "urn:oasis:names:tc:opendocument:xmlns:container",
         "dc": "http://purl.org/dc/elements/1.1/",
         "opf": "http://www.idpf.org/2007/opf",
+        "html": "http://www.w3.org/1999/xhtml",
+        "xhtml": "http://www.w3.org/1999/xhtml",
     }
 
     def __init__(self, file):
@@ -73,25 +76,28 @@ class Epub:
     @property
     @functools.lru_cache()
     def toc(self):
-        guide = self.root.find(
-            './/opf:guide/opf:reference[@type="toc"]', self.NS)
-        if guide is not None:
-            href = guide.get('href')
-            if href:
-                return urlparse(href, self.rootfile)
-
-        if self.nav_doc is not None:
+        source = None
+        base_url = None
+        if self.nav_doc:
             toc = self.nav_doc.toc
             if toc is not None:
-                return toc
-
-        item = self.root.find(
-            './/opf:manifest/opf:item[@properties="nav"]', self.NS)
-        if item is not None:
-            if item.get('media-type') == 'application/xhtml+xml':
-                href = item.get('href')
+                base_url = self.nav_doc.file
+                source = toc
+        else:
+            guide = self.root.find(
+                './/opf:guide/opf:reference[@type="toc"]', self.NS)
+            if guide is not None:
+                href = guide.get('href')
                 if href:
-                    return urlparse(href, self.rootfile)
+                    url = urlparse(href, self.rootfile)
+                    base_url = url.path
+                    source = ET.parse(self.zip.open(url.path)).getroot()
+        if source:
+            for a in source.findall('.//html:a[@href]', self.NS):
+                url = urllib.parse.unquote(a.get('href'))
+                url = urllib.parse.urljoin(base_url, url)
+                a.set('href', url)
+            return ET.tostring(source, encoding="unicode")
 
     @property
     @functools.lru_cache()
@@ -139,11 +145,7 @@ class NavDoc:
     @property
     @functools.lru_cache()
     def toc(self):
-        link = self.dom.find('.//xhtml:a[@epub:type="toc"]', self.NS)
-        if link is not None:
-            href = link.get('href')
-            if href:
-                return urlparse(href, self.file)
+        return self.dom.find('.//xhtml:nav[@epub:type="toc"]', self.NS)
 
     @property
     @functools.lru_cache()

@@ -236,12 +236,10 @@ class Reader(Pager):
 
     def goto_toc(self):
         if self.epub.toc:
-            source = self.epub.zip.open(self.epub.toc.path).read().decode()
             location = HTMLPager(
                 self.stdscr,
-                source,
+                self.epub.toc,
                 title='Table of contents',
-                base_url = self.epub.toc.path
             ).update()
             if location:
                 self.goto_location(location)
