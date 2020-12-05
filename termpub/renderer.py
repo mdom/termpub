@@ -6,7 +6,8 @@ from termpub.urls import urlparse
 class Renderer(HTMLParser):
 
     noshow = [
-        'base', 'basefont', 'bgsound', 'meta', 'param', 'script', 'style'
+        'base', 'basefont', 'bgsound', 'meta', 'param', 'script', 'style',
+        'head'
     ]
 
     empty  = [
@@ -26,7 +27,7 @@ class Renderer(HTMLParser):
         'address', 'applet', 'article', 'aside', 'audio', 'blockquote', 'body',
         'caption', 'center', 'colgroup', 'datalist', 'del', 'dir', 'div', 'dd',
         'details', 'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer',
-        'form', 'frameset', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head',
+        'form', 'frameset', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'header', 'hgroup', 'hr', 'html', 'iframe', 'ins', 'legend', 'li',
         'listing', 'map', 'marquee', 'menu', 'nav', 'noembed', 'noframes',
         'noscript', 'object', 'ol', 'optgroup', 'option','p', 'pre', 'select',
@@ -46,7 +47,7 @@ class Renderer(HTMLParser):
         self.pending_ids = []
         self.locations = []
         self.id_positions = {}
-        self.in_body = 0
+        self.ignore = 0
         self.hanging_indent = 0
         self.indent = 0
 
@@ -127,12 +128,12 @@ class Renderer(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
-        if tag == 'body':
-            self.in_body = 1
-            return
-        if not self.in_body:
-            return
 
+        if tag in self.noshow:
+            self.ignore += 1
+
+        if self.ignore:
+            return
 
         if tag in self.block and self.chunks:
             self.fill_text()
@@ -182,6 +183,8 @@ class Renderer(HTMLParser):
                 for line in chunk.splitlines():
                     self.lines.append(line)
             self.chunks = []
+        elif tag in self.noshow:
+            self.ignore -= 1
         elif tag in self.block:
             self.fill_text()
         if tag in self.block and self.lines and self.lines[-1] != '':
@@ -195,6 +198,6 @@ class Renderer(HTMLParser):
             self.indent -= 2
 
     def handle_data(self, data):
-        if not self.in_body:
+        if self.ignore:
             return
         self.chunks.append(data);
