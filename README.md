@@ -59,6 +59,14 @@ find the last version of the perl code under the git branch `perl`.
 
     Go to the previous chapter.
 
+- \{
+
+    Go to the first chapter.
+
+- \}
+
+    Go to the last chapter.
+
 - t
 
     Open a pager with the table of content.

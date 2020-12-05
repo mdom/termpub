@@ -93,6 +93,8 @@ class Reader(Pager):
 
         self.keys[']'] = 'next_chapter'
         self.keys['['] = 'prev_chapter'
+        self.keys['{'] = 'first_chapter'
+        self.keys['}'] = 'last_chapter'
         self.keys['h'] = 'show_help'
         self.keys['t'] = 'goto_toc'
         self.keys['o'] = 'follow_link'
@@ -201,6 +203,12 @@ class Reader(Pager):
             file = self.epub.zip.extract(url.path, path=dir)
             self.call_xdg_open(file)
             return True
+
+    def first_chapter(self):
+        self.load_chapter(0)
+
+    def last_chapter(self):
+        self.load_chapter(len(self.chapters) - 1)
 
     def load_chapter_by_file(self,file):
         index = self.find_chapter(file)
