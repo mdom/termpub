@@ -17,6 +17,7 @@ class Epub:
         "opf": "http://www.idpf.org/2007/opf",
         "html": "http://www.w3.org/1999/xhtml",
         "xhtml": "http://www.w3.org/1999/xhtml",
+        "daisy": "http://www.daisy.org/z3986/2005/ncx/",
     }
 
     def __init__(self, file):
@@ -67,6 +68,25 @@ class Epub:
 
     @property
     @functools.lru_cache()
+    def ncx_file(self):
+        spine = self.root.find('.//opf:spine', self.NS)
+        item = None
+        if spine:
+            ncx_id = spine.get('toc')
+            if ncx_id:
+                item = self.root.find(
+                    f'.//opf:manifest/opf:item[@id="{ncx_id}"]', self.NS)
+        if item is None:
+            media = 'application/x-dtbncx+xml'
+            item = self.root.find(
+                f'.//opf:manifest/opf:item[@media-type="{media}"]', self.NS)
+        if item is not None:
+            file = item.get('href')
+            if file:
+                return urlparse(file, self.rootfile).path
+
+    @property
+    @functools.lru_cache()
     def mimetype(self,file):
         item = self.root.find(
             f'.//opf:manifest/opf:item[@href="{file}"]', self.NS)
@@ -83,7 +103,7 @@ class Epub:
             if toc is not None:
                 base_url = self.nav_doc.file
                 source = toc
-        else:
+        if source is None:
             guide = self.root.find(
                 './/opf:guide/opf:reference[@type="toc"]', self.NS)
             if guide is not None:
@@ -92,12 +112,39 @@ class Epub:
                     url = urlparse(href, self.rootfile)
                     base_url = url.path
                     source = ET.parse(self.zip.open(url.path)).getroot()
+        if source is None:
+            html = ''
+            tree = ET.parse(self.zip.open(self.ncx_file))
+            navmap = tree.find('.//daisy:navMap', self.NS)
+            html = self.navmap_to_html(navmap)
+            if html:
+                source = ET.fromstring(
+                    f'''
+                        <!DOCTYPE html>
+                        <html xmlns="http://www.w3.org/1999/xhtml">
+                            <body>{html}</body>
+                        </html>
+                    '''
+                )
+                base_url = self.ncx_file
+
         if source:
             for a in source.findall('.//html:a[@href]', self.NS):
                 url = urllib.parse.unquote(a.get('href'))
                 url = urllib.parse.urljoin(base_url, url)
                 a.set('href', url)
             return ET.tostring(source, encoding="unicode")
+
+    def navmap_to_html(self, tree, html=''):
+        points = tree.findall('./daisy:navPoint', self.NS)
+        for point in points:
+            html += '<ol>'
+            content = point.find('./daisy:content', self.NS).get('src')
+            label = point.find('./daisy:navLabel/daisy:text', self.NS).text
+            html += f'<li><a href="{content}">{label}</a>'
+            html += self.navmap_to_html(point)
+            html += '</li></ol>'
+        return html
 
     @property
     @functools.lru_cache()
