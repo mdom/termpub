@@ -307,12 +307,12 @@ class Pager():
         self.search(direction="forward")
 
     def search_backward(self):
-        self.search(direction="backward")
+        self.search(direction="backward", prompt='?')
 
-    def search(self, direction="forward"):
+    def search(self, direction="forward", prompt='/'):
         try:
             curses.curs_set(1)
-            pattern = readline(self.stdscr, prompt='/')
+            pattern = readline(self.stdscr, prompt=prompt)
         except ResizeEvent:
             self.resize()
         finally:
