@@ -47,6 +47,9 @@ find the last version of the perl code under the git branch `perl`.
 
 # KEY BINDINGS
 
+Some commands may be preceded by a decimal number, called N in the
+descriptions below.
+
 - h
 
     Display help screen.
@@ -73,35 +76,36 @@ find the last version of the perl code under the git branch `perl`.
 
 - m
 
-    Followed by any lowercase letter, marks the current position with that
-    letter.
+    Followed by any lowercase letter, marks the current position with
+    that letter.
 
 - '
 
-    Followed by any lowercase letter, returns to the position which was
-    previously marked with that letter. Followed by another single quote,
-    returns to the position at which the last "large" movement command was
-    executed.
+    Followed by any lowercase letter, returns to the position which
+    was previously marked with that letter. Followed by another single
+    quote, returns to the position at which the last "large" movement
+    command was executed.
 
-- \[num\] |
+- |
 
-    Set pager width to _num_.
+    Set width to N.
 
-- \[num\] %
+- %
 
     Go to a line N percent into the chapter.
 
-- \[num\] g
+- g
 
-    Go to line _num_ in the chapter, defaults to 1.
+    Go to line N of the chapter, default to line 1 (beginning of
+    chapter).
 
-- \[num\] G
+- G
 
-    Go to line _num_ in the chapter, default to the end of the chapter.
+    Go to line N of the chapter, default to the end of the chapter.
 
-- \[num\] o
+- o
 
-    Open link _num_. _termpub_ calls _xdg-open_ with the url as first
+    Open link N. _termpub_ calls _xdg-open_ with the url as first
     argument if the link references an external ressource.
 
 - C-l
@@ -112,45 +116,45 @@ find the last version of the perl code under the git branch `perl`.
 
     Cancel numeric prefix _num_ argument.
 
-- KEY\_DOWN, j, RETURN
+- DOWN, j, RETURN
 
     Scroll one line down.
 
-- KEY\_UP, k
+- UP, k
 
     Scroll one line up.
 
-- ESC-) | KEY\_RIGHT
+- ESC-), RIGHT
 
     Scroll horizontally right N characters, default half the screen
     width. If a number N is specified, it becomes the default for
-    future KEY_RIGHT and KEY\_LEFT commands.
+    future RIGHT and LEFT commands.
 
-- ESC-( | KEY\_LEFT
+- ESC-(, LEFT
 
     Scroll horizontally left N characters, default half the screen
     width. If a number N is specified, it becomes the default for future
-    KEY_RIGHT and KEY_LEFT commands.
+    RIGHT and LEFT commands.
 
-- KEY\_NPAGE, SPACE
+- PAGE_DOWN, SPACE
 
     Scroll forward one window.
 
-- KEY\_PPAGE, KEY\_BACKSPACE
+- PAGE_UP, BACKSPACE
 
     Scroll backward one window.
 
-- KEY\_HOME
+- HOME
 
     Go to the beginning of the current chapter.
 
-- KEY\_END
+- END
 
     Go to the ned of the current chapter.
 
 - q
 
-    Quit.
+    Exits _termpub_.
 
 - \/
 
@@ -194,7 +198,8 @@ defaults:
 
 # INSTALLATION
 
-The project can be installed with `setup.py`:
+The project can be installed with `setup.py` and depends on no external
+libraries. Only python 3.6 or later is needed.
 
     python setup.py install [--user]
 
