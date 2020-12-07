@@ -7,6 +7,7 @@ import shlex
 import sys
 import zipfile
 
+from termpub.commands import parse_command, CommandException 
 from termpub.reader import Reader
 import termpub.epub as epub_parser
 import termpub.readline as readline
@@ -39,23 +40,15 @@ def read_config_file(config_file):
     keys = {}
     with open(config_file) as f:
         for line in f:
-            command, *args = shlex.split(line, comments=True)
+            try:
+                command, *args = parse_command(line)
+            except CommandException as e:
+                die(e.msg)
+
             if command == 'set':
-                if len(args) == 2:
-                    if args[1] in ('1', 'true', 'on'):
-                        args[1] = True
-                    elif args[1] in ('0', 'false', 'off'):
-                        args[1] = False
-                    dict[args[0]] = args[1]
-                else:
-                    die(f'Wrong number of arguments: {line}'.rstrip())
+                dict[args[0]] = args[1]
             elif command == 'map':
-                if len(args) == 2:
-                    keys[args[0]] = args[1]
-                else:
-                    die(f'Wrong number of arguments: {line}')
-            else:
-                die(f'Unknown command "{command}" in "{config_file}"')
+                keys[args[0]] = args[1]
     return dict, keys
 
 def start_cli():
