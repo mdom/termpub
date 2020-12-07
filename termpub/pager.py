@@ -58,10 +58,12 @@ class Pager():
         if self.max_x + self.x > self.max_line_length:
             self.x = self.max_line_length - self.max_x
 
-    def set_width(self):
-        if self.prefix and self.prefix != self.width:
+    def set_width(self, width=None):
+        if width:
+            self.width = width
+        elif self.prefix:
             self.width = self.prefix
-            self.render_pad()
+        self.render_pad()
 
     def resize(self):
         self.max_y, self.max_x = self.stdscr.getmaxyx()

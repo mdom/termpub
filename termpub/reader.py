@@ -297,10 +297,10 @@ class Reader(Pager):
         self.render_cache[chapter.file] = rendered
         return rendered
 
-    def set_with(self):
+    def set_width(self, width=None):
         ## invalidate render_cache if width is changed
         self.render_cache = {}
-        super().set_width()
+        super().set_width(width=width)
 
     def get_lines(self):
         chapter = self.chapter
