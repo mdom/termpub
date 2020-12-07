@@ -4,6 +4,7 @@ import re
 from termpub.width import width
 from termpub.readline import readline, ResizeEvent
 from termpub.renderer import Renderer
+from termpub.commands import parse_command, CommandException
 
 class Pager():
 
@@ -284,7 +285,36 @@ class Pager():
         'ESC-u':          'toggle_highlighting',
         'n':              'repeat_previous_search',
         'N':              'reverse_previous_search',
+        ':':              'eval_command',
     }
+
+    def eval_command(self):
+        try:
+            curses.curs_set(1)
+            line = readline(self.stdscr, prompt=':')
+        except ResizeEvent:
+            self.resize()
+        finally:
+            curses.curs_set(0)
+
+
+        if line is None:
+            return
+
+        line = line.lstrip()
+
+        if line == '':
+            return
+
+        try:
+            command, key, value = parse_command(line)
+            if command == 'set':
+                if key == 'width':
+                    self.set_width(width=int(value))
+            if command == 'map':
+                self.keys[key] = value
+        except CommandException as e:
+            self.message = e.msg
 
     def repeat_previous_search(self):
         if self.search_direction == 'forward':
