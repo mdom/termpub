@@ -162,9 +162,25 @@ class Pager():
                     self.stdscr.erase()
                     return rc
             else:
-                self.show_error("Key is not bound.  Press 'h' for help.")
+                self.show_error(f"Key {key} is not bound.  Press 'h' for help.")
             self.prefix = ''
             redraw=1
+
+    key_translations = {
+        '\n': 'RETURN',
+        '	': 'TAB',
+        ' ': 'SPACE',
+        curses.KEY_NPAGE: 'PAGE_DOWN',
+        curses.KEY_PPAGE: 'PAGE_UP',
+        curses.KEY_UP: 'UP',
+        curses.KEY_DOWN: 'DOWN',
+        curses.KEY_LEFT: 'LEFT',
+        curses.KEY_RIGHT: 'RIGHT',
+        curses.KEY_HOME: 'HOME',
+        curses.KEY_END: 'END',
+        curses.KEY_BACKSPACE: 'BACKSPACE',
+
+    }
 
     def getkey(self):
         ## Wrap getkey in try/catch to handle "no input" crash on KEY_RESIZE
@@ -172,6 +188,8 @@ class Pager():
         while True:
             try:
                 c = self.stdscr.get_wch()
+                if c in self.key_translations:
+                    return self.key_translations[c]
                 if type(c) is str:
                     if c == '\x1b':
                         self.pad.nodelay(True)
@@ -183,8 +201,8 @@ class Pager():
                         self.pad.nodelay(False)
                     elif curses.ascii.iscntrl(c):
                         keyname = curses.ascii.unctrl(c)
-                        if keyname == '^J':
-                            return 'RETURN'
+                        if keyname.startswith('^'):
+                            return 'CTRL-' + keyname[1:]
                         else:
                             return keyname
                     else:
@@ -256,28 +274,27 @@ class Pager():
         pass
 
     keys = {
-        'KEY_DOWN':       'next_line',
+        'DOWN':           'next_line',
         'RETURN':         'next_line',
         'j':              'next_line',
-        '\n':             'next_line',
-        'KEY_UP':         'prev_line',
-        'KEY_LEFT':       'scroll_left',
+        'UP':             'prev_line',
+        'LEFT':           'scroll_left',
         'ESC-(':          'scroll_left',
-        'KEY_RIGHT':      'scroll_right',
+        'RIGHT':          'scroll_right',
         'ESC-)':          'scroll_right',
         'k':              'prev_line',
         'q':              'exit',
         'g':              'goto_line',
         'G':              'goto_end',
-        'KEY_NPAGE':      'next_page',
-        ' ':              'next_page',
-        'KEY_PPAGE':      'prev_page',
-        'KEY_END':        'jump_to_last_page',
-        'KEY_HOME':       'jump_to_first_page',
-        'KEY_BACKSPACE':  'prev_page',
+        'PAGE_DOWN':      'next_page',
+        'SPACE':          'next_page',
+        'PAGE_UP':        'prev_page',
+        'END':            'jump_to_last_page',
+        'HOME':           'jump_to_first_page',
+        'BACKSPACE':      'prev_page',
         'KEY_RESIZE':     'resize',
-        '^L':             'redraw',
-        '^G':             'cancel_prefix',
+        'CTRL-L':         'redraw',
+        'CTRL-G':         'cancel_prefix',
         '|':              'set_width',
         '%':              'goto_percent',
         '/':              'search_forward',
