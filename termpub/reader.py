@@ -229,7 +229,8 @@ class Reader(Pager):
             if key == 'KEY_RESIZE':
                 continue
             function_name = self.keys[key]
-            lines.append('{:20} {}'.format(key,function_name))
+            doc = getattr( self, function_name ).__doc__ or ''
+            lines.append(f'{key:10} {function_name:25} {doc}')
         TextPager(self.stdscr, lines, title='Help').update()
 
     def find_chapter(self,file):
