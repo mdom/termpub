@@ -226,6 +226,8 @@ class Reader(Pager):
     def show_help(self):
         lines = []
         for key in self.keys:
+            if key == 'KEY_RESIZE':
+                continue
             function_name = self.keys[key]
             lines.append('{:20} {}'.format(key,function_name))
         TextPager(self.stdscr, lines, title='Help').update()
