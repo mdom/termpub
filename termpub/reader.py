@@ -225,7 +225,7 @@ class Reader(Pager):
 
     def show_help(self):
         lines = []
-        for key in self.keys:
+        for key in sorted(self.keys):
             if key == 'KEY_RESIZE':
                 continue
             function_name = self.keys[key]
