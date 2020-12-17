@@ -120,6 +120,7 @@ class Reader(Pager):
         self.show_error("Can't restore mark: character not found.")
 
     def save_marker(self):
+        """Marks the current position by the following letter"""
         marker = self.getkey()
         self.position[marker] = self.get_position()
 
@@ -145,6 +146,7 @@ class Reader(Pager):
                         break
 
     def goto_marker(self):
+        """Restore position marked by the following letter"""
         marker = self.getkey()
         position = self.position.get(marker)
         if position:
@@ -152,6 +154,7 @@ class Reader(Pager):
             self.restore_position(position)
 
     def follow_link(self):
+        """Follow link N"""
         if not self.prefix:
             self.show_error('No prefix entered')
             return
@@ -189,9 +192,11 @@ class Reader(Pager):
             return True
 
     def first_chapter(self):
+        """Goto first chapter"""
         self.load_chapter(0)
 
     def last_chapter(self):
+        """Goto last chapter"""
         self.load_chapter(len(self.chapters) - 1)
 
     def load_chapter_by_file(self,file):
@@ -212,6 +217,7 @@ class Reader(Pager):
         self.render_pad()
 
     def goto_toc(self):
+        """Show the table of contents"""
         if self.epub.toc:
             location = HTMLPager(
                 self.stdscr,
@@ -224,6 +230,7 @@ class Reader(Pager):
         self.show_error('No table of content found')
 
     def show_help(self):
+        """Show this help"""
         lines = []
         for key in sorted(self.keys):
             if key == 'KEY_RESIZE':
@@ -245,11 +252,13 @@ class Reader(Pager):
             self.load_chapter(0)
 
     def prev_page(self):
+        """Scroll up one screen or go to the previous chapter"""
         if super().prev_page() is False:
             self.prev_chapter()
             self.goto_end()
 
     def next_page(self):
+        """Scroll down one screen or go to the next chapter"""
         if super().next_page() is False:
             self.next_chapter()
 
@@ -266,6 +275,7 @@ class Reader(Pager):
         return rendered
 
     def set_width(self, width=None):
+        """Set width to N"""
         ## invalidate render_cache if width is changed
         self.render_cache = {}
         super().set_width(width=width)
@@ -278,6 +288,7 @@ class Reader(Pager):
         return rendered.lines
 
     def next_chapter(self):
+        """Go to the next chapter """
         old = self.chapter_index
         self.save_movement_marker()
         self.load_chapter( self.chapter_index + 1 )
@@ -285,6 +296,7 @@ class Reader(Pager):
             self.show_msg('No more chapters.')
 
     def prev_chapter(self):
+        """Go to the previous chapter """
         old = self.chapter_index
         self.save_movement_marker()
         self.load_chapter( self.chapter_index - 1 )
@@ -292,6 +304,7 @@ class Reader(Pager):
             self.show_msg('Already at first chapter.')
 
     def exit(self):
+        """Exit termpub"""
         if self.dbfile:
             self.save_state()
         return super().exit()
@@ -315,6 +328,7 @@ class Reader(Pager):
         return super().update_status_data(data)
 
     def show_source(self):
+        """Show source of rendered document"""
         source = self.chapters[self.chapter_index].source
         lines = parseString(source).toprettyxml(indent="  ").splitlines()
         TextPager( self.stdscr, lines, title='Source').update()

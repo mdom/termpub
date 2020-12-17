@@ -47,6 +47,7 @@ class Pager():
             pass
 
     def scroll_left(self):
+        """Scroll horizontally left N characters, default half the screen"""
         if self.prefix:
             self.horizontal_increment = self.prefix
         self.x -= self.horizontal_increment
@@ -54,6 +55,7 @@ class Pager():
             self.x = 0
 
     def scroll_right(self):
+        """Scroll horizontally right N characters, default half the screen"""
         if self.prefix:
             self.horizontal_increment = self.prefix
         self.x += self.horizontal_increment
@@ -110,6 +112,7 @@ class Pager():
         self.stdscr.chgat( self.max_y, 0, -1, curses.A_STANDOUT );
 
     def redraw(self):
+        """Redraw screen"""
         self.stdscr.clear()
 
     def update(self):
@@ -231,7 +234,9 @@ class Pager():
             self.y -= n
 
     def next_page(self):
-        """ Display nage page. Returns True if there's a next page."""
+        """ Display next page.
+        Returns True if there's a next page."""
+
         if self.y + self.max_y  < len(self.lines):
             self.save_movement_marker()
             self.y += self.max_y
@@ -239,7 +244,8 @@ class Pager():
         return False
 
     def prev_page(self):
-        """ Display previous page. Returns True if there's a previous page."""
+        """ Display previous page.
+        Returns True if there's a previous page."""
         if self.y == 0:
             return False
         self.save_movement_marker()
@@ -249,9 +255,11 @@ class Pager():
         return True
 
     def goto_end(self):
+        """Go to line N in the file, default to the end of the chapter"""
         self.goto_line(len(self.lines) - self.max_y)
 
     def goto_line(self, default=0):
+        """Go to line N in the file, default 1"""
         self.save_movement_marker()
         if self.prefix:
             self.y = self.prefix - 1
@@ -264,10 +272,12 @@ class Pager():
             self.y = 0
 
     def jump_to_first_page(self):
+        """Go to the start of the chapter"""
         self.save_movement_marker()
         self.y = 0
 
     def jump_to_last_page(self):
+        """Go to the end of the chapter"""
         self.save_movement_marker()
         self.y = len(self.lines) - self.max_y
 
@@ -319,6 +329,7 @@ class Pager():
             curses.curs_set(0)
 
     def eval_command(self):
+        """Enter a termpubrc command"""
         try:
             curses.curs_set(1)
             line = readline(self.stdscr, prompt=':')
@@ -347,18 +358,21 @@ class Pager():
             self.message = e.msg
 
     def repeat_previous_search(self):
+        """Repeat previous search"""
         if self.search_direction == 'forward':
             self.goto_next_match()
         else:
             self.goto_prev_match()
 
     def reverse_previous_search(self):
+        """Repeat previous search, but in the reverse direction"""
         if self.search_direction == 'forward':
             self.goto_prev_match()
         else:
             self.goto_next_match()
 
     def toggle_highlighting(self):
+        """Toggle search highlighting"""
         if self.highlight:
             self.highlight = 0
         else:
@@ -366,9 +380,11 @@ class Pager():
         self.render_pad()
 
     def search_forward(self):
+        """Search forward for pattern"""
         self.search(direction="forward")
 
     def search_backward(self):
+        """Search backward for pattern"""
         self.search(direction="backward", prompt='?')
 
     def search(self, direction="forward", prompt='/'):
@@ -406,6 +422,7 @@ class Pager():
         return False
 
     def goto_percent(self):
+        """Go to a position N percent into the chapter"""
         self.save_movement_marker()
         if self.prefix:
             line_number = int(self.prefix * len(self.lines)/100)
@@ -414,6 +431,7 @@ class Pager():
             self.y = 0
 
     def cancel_prefix(self):
+        """Cancel current prefix"""
         self.prefix = ''
 
     def render_pad(self):
