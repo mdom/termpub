@@ -198,7 +198,7 @@ defaults:
     set status_right "{chapter_counter} {percent}"
     map [ prev_chapter
     map ] next_chapter
-    map ^L redraw
+    map CTRL-L redraw
 
 # INSTALLATION
 
