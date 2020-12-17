@@ -5,6 +5,7 @@ from termpub.width import width
 from termpub.readline import readline, ResizeEvent
 from termpub.renderer import Renderer
 from termpub.commands import parse_command, CommandException
+from termpub.exec import exec_wait
 
 class Pager():
 
@@ -303,7 +304,19 @@ class Pager():
         'n':              'repeat_previous_search',
         'N':              'reverse_previous_search',
         ':':              'eval_command',
+        '!':              'shell_escape',
     }
+
+    def shell_escape(self):
+        """Invoke a command in a subshell"""
+        try:
+            curses.curs_set(1)
+            line = readline(self.stdscr, prompt='Shell command: ')
+            exec_wait(line, shell=True)
+        except ResizeEvent:
+            self.resize()
+        finally:
+            curses.curs_set(0)
 
     def eval_command(self):
         try:

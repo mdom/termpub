@@ -177,6 +177,10 @@ descriptions below.
     Undo search highlighting. If highlighting is already off because of
     a previous ESC-u command, turn highlighting back on.
 
+- !
+
+    Asks for an external Unix command and executes it in a subshell.
+
 - \\
 
     Show chapter source.
