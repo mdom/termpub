@@ -227,10 +227,6 @@ class Reader(Pager):
         lines = []
         for key in self.keys:
             function_name = self.keys[key]
-            if key == '\n':
-                key = 'RETURN'
-            elif key == ' ':
-                key = 'SPACE'
             lines.append('{:20} {}'.format(key,function_name))
         TextPager(self.stdscr, lines, title='Help').update()
 
