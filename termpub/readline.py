@@ -1,6 +1,7 @@
 import termpub.width as width
 import curses
 import curses.ascii
+import unicodedata
 
 class ResizeEvent(Exception):
     pass
@@ -34,23 +35,46 @@ def readline(window, prompt=':', y=0, x=0):
 
     max_display  = max_x - left_pad - right_pad;
 
-    cursor_position = 0
+    buffer_pos = 0
     buffer = ''
-    buffer_offset = 0
 
     max_buffer_size = max_x - left_pad - right_pad
 
     while True:
 
-        if cursor_position < 0:
-            cursor_position = 0
+        if buffer_pos < 0:
+            buffer_pos = 0
 
-        buffer_offset = int( cursor_position / max_buffer_size) * max_buffer_size
+        buffer_start = 0
+        cursor_pos = 0
+        correction = 0
 
-        window.addstr( max_y - 1, 0, prompt + buffer[buffer_offset:buffer_offset + max_buffer_size])
+        for idx, c in enumerate(buffer[:buffer_pos]):
+            if not unicodedata.combining(c):
+                cursor_pos += 1
+                if cursor_pos % max_display == 0:
+                    buffer_start = next_buffer_pos(buffer,idx)
+                    correction = cursor_pos
+
+        buffer_end = buffer_start
+        visible = 0
+        for idx, c in enumerate(buffer[buffer_start:]):
+            buffer_end += 1
+            if not unicodedata.combining(c):
+                visible += 1
+                if visible >= max_buffer_size:
+                    break
+
+        for idx,c in enumerate(buffer[buffer_end:]):
+            if unicodedata.combining(c):
+                buffer_end += 1
+            else:
+                break
+
+        window.addstr( max_y - 1, 0, prompt + buffer[buffer_start:buffer_end])
         window.clrtoeol()
 
-        window.move( max_y - 1, cursor_position + left_pad - buffer_offset)
+        window.move( max_y - 1, cursor_pos + left_pad - correction )
 
         c, printable = getkey(window)
 
@@ -65,35 +89,57 @@ def readline(window, prompt=':', y=0, x=0):
             raise ResizeEvent()
 
         elif c == 'KEY_LEFT':
-            cursor_position -= 1
+            buffer_pos = prev_buffer_pos(buffer, buffer_pos)
 
         elif c == 'KEY_RIGHT':
-            if cursor_position == width.width(buffer):
-                continue
-            cursor_position += 1
+            buffer_pos = next_buffer_pos(buffer, buffer_pos)
 
         elif c == 'KEY_HOME' or c == '^A':
-            cursor_position = 0
+            buffer_pos = 0
 
         elif c == '^K':
-            buffer = buffer[:cursor_position]
+            buffer = buffer[:buffer_pos]
 
         elif c == 'KEY_END' or c == '^E':
-            cursor_position = width.width(buffer);
+            buffer_pos = len(buffer)
 
         elif c == 'KEY_BACKSPACE':
-            buffer = buffer[:cursor_position - 1] + buffer[cursor_position:]
-            cursor_position -= 1
+            p = buffer_pos
+            buffer_pos = prev_buffer_pos(buffer, buffer_pos)
+            buffer = buffer[:buffer_pos] + buffer[p:]
 
         elif c == "^D":
-            buffer = buffer[:cursor_position] + buffer[cursor_position+1:]
+            p = buffer_pos
+            buffer_pos = next_buffer_pos(buffer, buffer_pos)
+            buffer = buffer[:p] + buffer[buffer_pos:]
 
         elif printable is True:
-            buffer = buffer[:cursor_position] + c + buffer[cursor_position:]
-            cursor_position += 1
+            buffer = buffer[:buffer_pos] + c + buffer[buffer_pos:]
+            buffer_pos += 1
 
     window.move( max_y - 1, 0 );
     window.clrtoeol()
     window.refresh()
     return buffer
+
+def next_buffer_pos(buffer, buffer_pos):
+    """Return next non combining character index from buffer_pos in buffer"""
+    l = len(buffer)
+    while buffer_pos < l:
+        buffer_pos += 1
+        if buffer_pos < l and unicodedata.combining(buffer[buffer_pos]):
+            continue
+        break
+    return buffer_pos
+
+def prev_buffer_pos(buffer, buffer_pos):
+    """Return last non combining character index from buffer_pos in buffer"""
+    while True:
+        if buffer_pos == 0:
+            return buffer_pos
+        buffer_pos -= 1
+        if unicodedata.combining(buffer[buffer_pos]):
+            continue
+        else:
+            return buffer_pos
 
