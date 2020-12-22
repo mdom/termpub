@@ -159,6 +159,12 @@ class Buffer():
                 self.graphemes.insert(self.index, c)
                 self.index += 1
 
+    def move_to_start(self):
+        self.index = 0
+
+    def move_to_end(self):
+        self.index = len(self.graphemes)
+
     def move_left(self, n=1):
         if self.index - n >= 0:
             self.index -= n
@@ -179,9 +185,16 @@ class Buffer():
             del self.graphemes[self.index - 1]
             self.index -= 1
 
+    def delete_to_end(self):
+        del self.graphemes[self.index:]
+
     def to_string(self):
         return ''.join(self.graphemes)
 
-    def window(self, width):
+    def slice(self, width):
         offset = int( self.index / width) * width
-        return ''.join(self.graphemes[offset:offset+width])
+        return ''.join(self.graphemes[offset:offset+width]), self.index - offset
+
+    def clear(self):
+        self.index = 0
+        self.graphemes = []
