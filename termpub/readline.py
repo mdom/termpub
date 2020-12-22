@@ -143,3 +143,45 @@ def prev_buffer_pos(buffer, buffer_pos):
         else:
             return buffer_pos
 
+
+class Buffer():
+
+    def __init__(self):
+        self.graphemes = []
+        self.index = 0
+
+    def add(self, string):
+        """Add c to string at current index."""
+        for c in string:
+            if unicodedata.combining(c):
+                self.graphemes[self.index - 1] += c
+            else:
+                self.graphemes.insert(self.index, c)
+                self.index += 1
+
+    def move_left(self, n=1):
+        if self.index - n >= 0:
+            self.index -= n
+
+    def move_right(self, n=1):
+        if self.index + n <= len(self.graphemes):
+            self.index += n
+
+    def current_grapheme(self):
+        return self.graphemes[self.index - 1]
+
+    def delete_forward(self):
+        if self.index < len(self.graphemes):
+            del self.graphemes[self.index]
+
+    def delete_backward(self):
+        if self.index != 0:
+            del self.graphemes[self.index - 1]
+            self.index -= 1
+
+    def to_string(self):
+        return ''.join(self.graphemes)
+
+    def window(self, width):
+        offset = int( self.index / width) * width
+        return ''.join(self.graphemes[offset:offset+width])
