@@ -1,6 +1,8 @@
 import termpub.width as width
 import curses
 import curses.ascii
+import itertools
+import shlex
 import unicodedata
 
 class ResizeEvent(Exception):
@@ -19,9 +21,35 @@ def getkey(stdscr):
         except curses.error:
             continue
 
-def readline(window, prompt=':', y=0, x=0):
+def completion_iterator(line, completion_function):
+    lex = shlex.shlex(line)
+    tokens = []
+    while True:
+        try:
+            token = lex.get_token()
+            if not token:
+                if line.endswith(' '):
+                    tokens.append('')
+                break
+            tokens.append(token)
+        except ValueError:
+            tokens.append(lex.token)
+            break
+
+    if not tokens:
+        tokens = ['']
+
+    possible_completions = completion_function(tokens)
+    if possible_completions is None:
+        possible_completions = []
+    possible_completions.append(tokens[-1])
+    return itertools.cycle(possible_completions), tokens[-1]
+
+def readline( window, prompt=':', y=0, x=0, completion_function=None):
 
     max_y, max_x = window.getmaxyx()
+
+    iter=None
 
     ## TODO len() is wrong for non-ascii characters;
     ## to compute display length, just insert it into a pad and
@@ -79,8 +107,22 @@ def readline(window, prompt=':', y=0, x=0):
         elif c == "^D":
             buffer.delete_forward()
 
+        elif c == "^I":
+            if not iter and completion_function:
+                line = ''.join(buffer.graphemes[:buffer.index])
+                iter, token = completion_iterator(line, completion_function)
+                start = buffer.index - width.width(token)
+                end = buffer.index
+
+            if iter:
+                buffer.replace(start, end, next(iter))
+                end = buffer.index
+
         elif printable is True:
             buffer.add(c)
+
+        if c != "^I" and iter:
+            iter = None
 
     window.move( max_y - 1, 0 );
     window.clrtoeol()
@@ -90,18 +132,24 @@ def readline(window, prompt=':', y=0, x=0):
 
 class Buffer():
 
-    def __init__(self):
+    def __init__(self, init=""):
         self.graphemes = []
         self.index = 0
+        if init:
+            self.add(init)
 
-    def add(self, string):
-        """Add c to string at current index."""
-        for c in string:
+    def add(self, chunk):
+        """Add chunk to string at current index."""
+        for c in chunk:
             if unicodedata.combining(c):
                 self.graphemes[self.index - 1] += c
             else:
                 self.graphemes.insert(self.index, c)
                 self.index += 1
+
+    def replace(self, start, end, chunk):
+        self.graphemes[start:end] = chunk
+        self.index = start + width.width(chunk)
 
     def move_to_start(self):
         self.index = 0

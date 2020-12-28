@@ -328,11 +328,22 @@ class Pager():
         finally:
             curses.curs_set(0)
 
+    def complete_command(self, tokens):
+        num = len(tokens)
+        commands = ['map', 'set']
+        if num == 0:
+            return commands
+        elif num == 1:
+            return [x for x in commands if x.startswith(tokens[0]) ]
+
     def eval_command(self):
         """Enter a termpubrc command"""
         try:
             curses.curs_set(1)
-            line = readline(self.stdscr, prompt=':')
+            line = readline(
+                self.stdscr,
+                prompt=':',
+                completion_function=self.complete_command)
         except ResizeEvent:
             self.resize()
         finally:
