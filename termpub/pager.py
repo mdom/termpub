@@ -6,6 +6,7 @@ from termpub.readline import readline, ResizeEvent
 from termpub.renderer import Renderer
 from termpub.commands import parse_command, CommandException
 from termpub.exec import exec_wait
+from termpub.graphemebuffer import Buffer
 
 class Pager():
 
@@ -129,7 +130,9 @@ class Pager():
             self.draw_status_line()
 
             if self.message:
-                self.stdscr.addstr(self.max_y + 1, 0, self.message)
+                buffer = Buffer(self.message)
+                buffer.graphemes = buffer.graphemes[0:self.max_x-1] 
+                self.stdscr.addstr(self.max_y + 1, 0, buffer.to_string())
                 self.message = ''
             else:
                 self.stdscr.move(self.max_y + 1, 0)
