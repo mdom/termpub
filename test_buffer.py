@@ -3,7 +3,7 @@ from glob import glob
 import re
 import unittest
 
-from termpub.readline import Buffer
+from termpub.graphemebuffer import Buffer
 
 class RendererTests(unittest.TestCase):
 
