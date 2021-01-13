@@ -5,7 +5,7 @@ import unittest
 
 from termpub.graphemebuffer import Buffer
 
-class RendererTests(unittest.TestCase):
+class BufferTests(unittest.TestCase):
 
     def test_split(self):
         a = Buffer()
