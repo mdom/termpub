@@ -341,6 +341,11 @@ class Pager():
             return commands
         elif num == 1:
             return [x for x in commands if x.startswith(tokens[0]) ]
+        elif num == 2:
+            if tokens[0] == 'set':
+                vars = ['width']
+                return [x for x in vars if x.startswith(tokens[1]) ]
+
 
     def eval_command(self):
         """Enter a termpubrc command"""
