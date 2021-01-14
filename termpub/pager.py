@@ -2,7 +2,7 @@ import curses
 import curses.ascii
 import re
 from termpub.width import width
-from termpub.readline import readline, ResizeEvent
+from termpub.readline import readline, ResizeEvent, HistoryBuffer
 from termpub.renderer import Renderer
 from termpub.commands import parse_command, CommandException
 from termpub.exec import exec_wait
@@ -37,6 +37,9 @@ class Pager():
         self.status_right = '{percent:->4}--'
 
         self.position = {}
+
+        self.command_history = HistoryBuffer()
+        self.search_history = HistoryBuffer()
 
         self.width = 80
         if self.max_x < self.width:
@@ -346,7 +349,9 @@ class Pager():
             line = readline(
                 self.stdscr,
                 prompt=':',
-                completion_function=self.complete_command)
+                completion_function=self.complete_command,
+                history=self.command_history,
+             )
         except ResizeEvent:
             self.resize()
         finally:
@@ -362,6 +367,7 @@ class Pager():
             return
 
         try:
+            self.command_history.add(line)
             command, key, value = parse_command(line)
             if command == 'set':
                 if key == 'width':

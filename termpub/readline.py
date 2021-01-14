@@ -46,7 +46,14 @@ def completion_iterator(line, completion_function):
     possible_completions.append(tokens[-1])
     return itertools.cycle(possible_completions), tokens[-1]
 
-def readline( window, prompt=':', y=0, x=0, completion_function=None):
+def readline(
+        window,
+        prompt=':',
+        y=0,
+        x=0,
+        completion_function=None,
+        history=None,
+    ):
 
     max_y, max_x = window.getmaxyx()
 
@@ -65,6 +72,8 @@ def readline( window, prompt=':', y=0, x=0, completion_function=None):
     buffer = termpub.graphemebuffer.Buffer()
 
     max_buffer_size = max_x - left_pad - right_pad
+
+    saved_buffer = None
 
     while True:
 
@@ -86,6 +95,24 @@ def readline( window, prompt=':', y=0, x=0, completion_function=None):
 
         elif c == 'KEY_RESIZE':
             raise ResizeEvent()
+
+        elif c == 'KEY_UP':
+            if history:
+                line = history.prev()
+                if line is not None:
+                    if saved_buffer is None:
+                        saved_buffer = buffer
+                    buffer = termpub.graphemebuffer.Buffer(line)
+
+        elif c == 'KEY_DOWN':
+            if history:
+                line = history.next()
+                if line is not None:
+                    if saved_buffer is None:
+                        saved_buffer = buffer
+                    buffer = termpub.graphemebuffer.Buffer(line)
+                elif saved_buffer is not None:
+                    buffer = saved_buffer
 
         elif c == 'KEY_LEFT':
             buffer.move_left()
@@ -130,3 +157,31 @@ def readline( window, prompt=':', y=0, x=0, completion_function=None):
     window.refresh()
     if buffer:
         return buffer.to_string()
+
+class HistoryBuffer():
+    def __init__(self, buffer=None):
+        if buffer == None:
+            buffer = []
+        self.buffer = buffer
+        self.index = len(self.buffer)
+
+    def add(self, line):
+        self.buffer.append(line)
+        self.index = len(self.buffer)
+
+    def next(self):
+        if not self.buffer:
+            return
+        self.index += 1
+        if self.index > len(self.buffer) - 1:
+            self.index = len(self.buffer)
+            return
+        return self.buffer[self.index]
+
+    def prev(self):
+        if not self.buffer:
+            return
+        self.index -= 1
+        if self.index < 0:
+            self.index = 0
+        return self.buffer[self.index]
