@@ -207,6 +207,9 @@ libraries. Only python 3.6 or later is needed.
 
     python setup.py install [--user]
 
+On Arch Linux, there is a [termpub package](https://aur.archlinux.org/packages/termpub/)
+in the AUR.
+
 # BUGS AND LIMITATIONS
 
 As mentioned, this is a fresh rewrite, so there are probably a lot
